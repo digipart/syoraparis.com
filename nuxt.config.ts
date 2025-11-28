@@ -71,13 +71,7 @@ export default defineNuxtConfig({
     '@nuxtjs/strapi',
     '@nuxtjs/apollo',
     '@nuxt/icon',
-    ['@zadigetvoltaire/nuxt-gtm', {
-      id: process.env.GTM_ID,
-      enabled: !!process.env.GTM_ID,
-      debug: process.env.NODE_ENV !== 'production',
-      loadScript: true,
-      trackOnNextTick: true,
-    }],
+    // GTM integration handled via plugins/gtm.client.ts
   ],
   pinia: {
     storesDirs: ['./stores/**'],
