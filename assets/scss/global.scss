@@ -1,0 +1,176 @@
+html {
+  font-family: $font-secondary;
+}
+
+body {
+  @apply font-secondary font-light tracking-wider;
+}
+.light-mode {
+  body {
+    @apply text-black;
+  }
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  @apply font-primary uppercase;
+}
+
+p {
+  @apply mb-3;
+  &:last-child {
+    @apply mb-0;
+  }
+  a {
+    @apply underline;
+  }
+}
+
+.cms {
+  @apply text-sm;
+  h3 {
+    @apply font-normal uppercase;
+  }
+}
+
+.blurText {
+  backdrop-filter: blur(12px);
+  background-color: hsla(0, 0%, 89%, 0.52);
+  color: transparent;
+  -webkit-mask-clip: text;
+  mask-clip: text;
+  -webkit-mask-image: linear-gradient(#000, #000);
+  mask-image: linear-gradient(#000, #000);
+  // color: black;
+  // -webkit-text-stroke: 0.02em white;
+}
+
+/* assets/css/global.css */
+.v-loading-spinner {
+  @apply absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 
+  border border-solid border-gray-300 
+  border-t-primary rounded-full  z-[9999] aspect-square;
+  animation: spin 1s linear infinite;
+
+  height: calc(100% - 1rem);
+  max-width: 44px;
+  max-height: 44px;
+}
+
+@keyframes spin {
+  0% {
+    transform: translate(-50%, -50%) rotate(0deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(360deg);
+  }
+}
+
+// swiper
+.swiper {
+  & {
+    --swiper-navigation-size: 12px;
+  }
+  &.swiper-vertical > .swiper-pagination-progressbar,
+  .swiper-pagination-progressbar.swiper-pagination-vertical,
+  .swiper-horizontal
+    > .swiper-pagination-progressbar.swiper-pagination-progressbar-opposite,
+  .swiper-pagination-progressbar.swiper-pagination-horizontal.swiper-pagination-progressbar-opposite {
+    left: 20px;
+    top: 20px;
+    height: calc(100% - 40px);
+    width: 1px;
+    background-color: white;
+  }
+
+  &.pagination-lines {
+    .swiper-pagination:not(.swiper-pagination-progressbar) {
+      @apply absolute bottom-0 left-0 w-full gap-2 p-4 flex justify-center;
+      .swiper-pagination-bullet {
+        @apply max-w-10 bg-white h-0.5 p-0 rounded-none flex-1 opacity-100;
+        --tw-bg-opacity: 0.5;
+        margin: 0 !important;
+
+        &.swiper-pagination-bullet-active {
+          --tw-bg-opacity: 1;
+        }
+      }
+    }
+  }
+  // --swiper-theme-color: white
+
+  .swiper-button-prev,
+  .swiper-button-next {
+    width: 32px;
+    height: 32px;
+    top: 50%;
+  }
+
+  .swiper-button-prev,
+  .swiper-rtl .swiper-button-next {
+    left: 7px;
+  }
+
+  .swiper-button-next,
+  .swiper-rtl .swiper-button-prev {
+    right: 7px;
+  }
+}
+
+//perfect scrollbar
+.ps {
+  .ps__rail-y {
+    width: 1px;
+    transform: scale(0.96);
+    &:hover > .ps__thumb-y {
+      width: 1px;
+      @apply bg-primary;
+    }
+  }
+  .ps__thumb-y {
+    width: 1px;
+    @apply bg-primary right-1;
+  }
+  &.ps--active-x > .ps__rail-x,
+  &.ps--active-y > .ps__rail-y {
+    @apply bg-white;
+    // --tw-bg-opacity: 0.5;
+  }
+}
+
+//transition
+
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 0.3s ease;
+}
+
+.slide-enter-from,
+.slide-leave-to {
+  max-height: 0;
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+.slide-enter-to,
+.slide-leave-from {
+  max-height: 1000px; /* You can set a maximum height that suits your component */
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.swiper-pagination {
+  @apply flex px-5 py-0;
+  & &-bullet {
+    @apply w-16 rounded-none bg-transparent py-2 relative;
+
+    &::after {
+      content: '';
+      @apply h-0.5 w-full bg-white absolute top-1/2 left-0 -translate-y-1/2;
+    }
+  }
+}

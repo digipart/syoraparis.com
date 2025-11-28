@@ -1,0 +1,14 @@
+:root {
+  --color-white: #ffffff;
+  --color-black: #000000;
+  --color-disabled: #bbbbbb;
+
+  --color-primary: var(--color-black);
+
+  //swiper
+  --swiper-theme-color: var(--color-primary);
+}
+
+$color-white: var(--color-white);
+$color-black: var(--color-black);
+$color-disabled: var(--color-disabled);

@@ -1,0 +1,55 @@
+<script setup lang="ts">
+definePageMeta({
+  layout: 'empty',
+  keepalive: false
+});
+
+const { t } = useI18n();
+useHead(() => ({
+  title: () => t('pages.checkout.title'),
+  description: () => t('pages.checkout.description'),
+}));
+
+const auth = useAuth();
+const { isLoggedIn } = toRefs(auth);
+
+const cartStore = useCartStore();
+const { totalProductQuantity, loaded } = toRefs(cartStore);
+
+const addressStore = useAddressStore();
+const { addressDelivery } = toRefs(addressStore);
+const { fetchAddresses } = addressStore;
+
+const shippingStore = useShippingStore();
+const { fetchShipping } = shippingStore;
+
+const step = ref(1);
+const loading = ref(true);
+
+const route = useRoute();
+if (route.query.step) {
+  step.value = Number(route.query.step);
+}
+
+onMounted(async () => {
+  if (isLoggedIn.value) {
+    await fetchAddresses();
+    await fetchShipping({
+      IdAddress: addressDelivery.value?.IdAddress,
+      ResponseLevel: 'summary',
+    });
+  }
+  loading.value = false;
+});
+</script>
+
+<template>
+  <div v-if="loaded">
+    <LayoutContinueShopping v-if="!totalProductQuantity" class="mt-16" />
+    <template v-else>
+      <PageTunnel />
+    </template>
+  </div>
+</template>
+
+<style lang="scss" scoped></style>

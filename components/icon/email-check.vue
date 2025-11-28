@@ -1,0 +1,44 @@
+<template>
+  <span
+    class="icon"
+    :style="{
+      width: `${size}em`,
+      height: `${size}em`,
+    }"
+  >
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="24"
+      height="24"
+      viewBox="0 0 24 24"
+      :style="{
+        width: `100%`,
+      }"
+    >
+      <path
+        fill="currentColor"
+        d="m15.489 21.27l-3.558-3.558l.708-.708l2.85 2.85l5.688-5.688l.708.707zM12 11l7.692-5H4.308zm0 1.116L4 6.885v10.5q0 .269.173.442t.443.173H9.4l1 1H4.616q-.691 0-1.153-.462T3 17.384V6.616q0-.691.463-1.153T4.615 5h14.77q.69 0 1.152.463T21 6.616v4.926l-1 1V6.885zm0 0"
+      />
+    </svg>
+  </span>
+</template>
+<script setup lang="ts">
+const { size, color } = defineProps({
+  size: {
+    type: Number,
+    default: 1.5,
+  },
+  color: {
+    type: String,
+    default: 'black',
+  },
+});
+</script>
+<style lang="scss" scoped>
+.icon {
+  @apply inline-flex p-1;
+}
+svg {
+  font-size: 16px;
+}
+</style>

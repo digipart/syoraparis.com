@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="./fonts/helveticaneue/stylesheet.css" />
+    <link
+      data-n-head="ssr"
+      rel="icon"
+      type="image/x-icon"
+      href="/images/favicon.ico"
+    />
+    <title>We’re updating JMP shop for you</title>
+    <style>
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        padding: 0;
+        margin: 0;
+        background-image: url('./images/bg.jpg');
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: top;
+        font-family: 'Helvetica Neue';
+      }
+      .main {
+        min-height: 100vh;
+        background-color: rgba(0, 0, 0, 0.4);
+        color: white;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .logo {
+        position: absolute;
+        top: 20px;
+        left: 60px;
+      }
+      .content {
+        max-width: 580px;
+        padding: 20px;
+      }
+      h1 {
+        margin: 0;
+        font-size: 70px;
+        line-height: 1;
+        margin-bottom: 40px;
+        font-weight: 400;
+        max-width: 300px;
+      }
+      h1 small {
+        font-size: inherit;
+        font-weight: 300;
+        line-height: 1.43;
+        transition: all 0.5s ease-in-out;
+      }
+      .tag {
+        display: block;
+        border: 1px solid white;
+        text-align: center;
+        padding: 12px 16px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        font-weight: 200;
+      }
+      ul {
+        list-style: none;
+        padding: 0;
+        display: flex;
+        justify-content: center;
+        width: 100%;
+        column-gap: 32px;
+      }
+
+      ul img {
+        width: 28px;
+        height: 28px;
+        object-fit: contain;
+      }
+      .footer {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        text-align: center;
+        padding: 20px 16px;
+        letter-spacing: 1.5px;
+        font-size: 32px;
+      }
+      /* @media (max-width: 991.98px) {
+        h1 {
+          font-size: 48px;
+          margin-bottom: 32px;
+        }
+        h1 small {
+          font-size: 30px;
+        }
+        .content {
+          max-width: 540px;
+        }
+        ul {
+          column-gap: 32px;
+        }
+
+        ul img {
+          width: 28px;
+          height: 28px;
+        }
+      }
+
+      @media (max-width: 767.98px) {
+        body {
+          background-position: 40%;
+        }
+        h1 {
+          font-size: 36px;
+          margin-bottom: 24px;
+        }
+        h1 small {
+          font-size: 24px;
+        }
+        .content {
+          max-width: 400px;
+        }
+        ul {
+          column-gap: 32px;
+        }
+
+        ul img {
+          width: 24px;
+          height: 24px;
+        }
+      } */
+    </style>
+  </head>
+
+  <body>
+    <div class="main">
+      <img class="logo" src="./images/logo.svg" alt="JMP" />
+      <div class="content">
+        <h1>
+          united code <br />
+          of
+          <small id="title-word"> fashion </small>
+        </h1>
+        <div>
+          <span class="tag">inclusive 36-56</span>
+        </div>
+      </div>
+      <div class="footer">unicode</div>
+    </div>
+
+    <script>
+      const words = [
+        'fashion',
+        'liberty',
+        'size',
+        'trends',
+        'design',
+      ];
+      let currentIndex = 0;
+
+      function changeWord() {
+        const titleWord = document.getElementById('title-word');
+
+        // Fade out
+        titleWord.style.opacity = 0;
+
+        setTimeout(() => {
+          // Change word
+          currentIndex = (currentIndex + 1) % words.length;
+          titleWord.textContent = words[currentIndex];
+
+          // Fade in
+          titleWord.style.opacity = 1;
+        }, 500); // Wait for fade out to complete
+      }
+
+      // Change word every 3 seconds
+      setInterval(changeWord, 2000);
+    </script>
+  </body>
+</html>
