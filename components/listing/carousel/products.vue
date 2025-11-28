@@ -25,7 +25,7 @@
           }"
         >
           <swiper-slide v-for="(product, index) in products" :key="index">
-            <CardProduct :product="product" :slider="false" />
+            <CardProduct v-if="product" :product="product" :slider="false" />
           </swiper-slide>
         </swiper>
       </ClientOnly>
