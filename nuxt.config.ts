@@ -116,7 +116,7 @@ export default defineNuxtConfig({
     pages: routesI18N,
   },
   strapi: {
-    url: process.env.STRAPI_URL || 'https://cms.unicodeparis.com',
+    url: process.env.STRAPI_URL || 'https://cms.syoraparis.com',
     prefix: '/api',
     admin: '/admin',
     version: 'v4',
@@ -127,7 +127,7 @@ export default defineNuxtConfig({
     clients: {
       default: {
         httpEndpoint: `${
-          process.env.STRAPI_URL || 'https://cms.unicodeparis.com'
+          process.env.STRAPI_URL || 'https://cms.syoraparis.com'
         }/graphql`,
       },
     },
