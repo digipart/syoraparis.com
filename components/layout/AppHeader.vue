@@ -12,7 +12,7 @@
           menuBackground === 'transparent' && appBarColor === 'transparent',
       }"
     >
-      <div class="appheader-left flex gap-x-1">
+      <div v-if="showMenu" class="appheader-left flex gap-x-1">
         <!-- <BaseLogo
           :whiteLogo="
             menuBackground === 'transparent' && appBarColor === 'transparent'
@@ -35,7 +35,10 @@
           </BaseButton>
         </span>
       </div>
-      <div class="appheader-center flex">
+      <div
+        class="appheader-center flex"
+        :class="[showMenu ? 'justify-center' : 'justify-start']"
+      >
         <BaseLogo
           :whiteLogo="
             menuBackground === 'transparent' && appBarColor === 'transparent'
@@ -173,7 +176,6 @@ const topBannerClose = () => {
   }
   &-center {
     flex: 0 0 20%;
-    @apply flex justify-center;
   }
   &-right {
     flex: 0 0 40%;

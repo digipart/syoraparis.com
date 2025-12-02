@@ -24,9 +24,11 @@
             prevEl: `.${name} .swiper-button-prev`,
           }"
         >
-          <swiper-slide v-for="(product, index) in products" :key="index">
-            <CardProduct v-if="product" :product="product" :slider="false" />
-          </swiper-slide>
+          <template v-for="(product, index) in products" :key="index">
+            <swiper-slide v-if="product">
+              <CardProduct :product="product" :slider="false" />
+            </swiper-slide>
+          </template>
         </swiper>
       </ClientOnly>
     </div>

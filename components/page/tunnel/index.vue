@@ -124,15 +124,15 @@ onMounted(async () => {
 </script>
 
 <template>
-  <LayoutContainer small class="mt-[-1px] lg:mt-10 mb-96 !px-0">
-    <NuxtLink
+  <LayoutContainer small>
+    <!-- <NuxtLink
       to="/"
       class="hidden lg:inline-flex items-center cursor-pointer text-sm mb-2"
     >
       <IconChevronLeft :size="1.3" class="mr-2" />
       {{ t('label.continue_shopping') }}
-    </NuxtLink>
-    <div class="grid grid-cols-12 gap-5">
+    </NuxtLink> -->
+    <div class="grid grid-cols-12 gap-5 items-start pb-16">
       <div class="col-span-12 lg:col-span-8">
         <div class="lg:mb-5 block lg:hidden">
           <BaseCollapsible>
@@ -284,8 +284,7 @@ onMounted(async () => {
         </BasePanel>
       </div>
 
-      <div class="col-span-12 lg:col-span-4">
-
+      <div class="col-span-12 lg:col-span-4 lg:sticky top-[4.5rem]">
         <BasePanel
           :title="t('tunnel.delivery.order_summary.title')"
           class="mb-5"

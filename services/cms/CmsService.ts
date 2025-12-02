@@ -3,7 +3,11 @@ import { ApolloClient, InMemoryCache, HttpLink } from '@apollo/client/core';
 
 export default class CmsService {
   client = new ApolloClient({
-    link: new HttpLink({ uri: process.env.STRAPI_URL || 'https://cms.syoraparis.com' }),
+    link: new HttpLink({
+      uri: process.env.STRAPI_URL
+        ? process.env.STRAPI_URL + '/graphql'
+        : 'https://cms.syoraparis.com/graphql',
+    }),
     cache: new InMemoryCache(),
   });
 }

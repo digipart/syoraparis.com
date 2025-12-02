@@ -27,21 +27,12 @@ updateMenuBackground(shouldHeaderBeTransparent.value);
 </script>
 
 <template>
-  <div class="emptyLayout" :style="{ paddingTop: headerHeight + 'px' }">
+  <div class="emptyLayout">
     <BaseLoading />
-    <LayoutAppHeader
-      class="emptytLayout-header"
-      :show-account="false"
-      :show-menu="false"
-      :show-cart="false"
-      :searchBox="false"
-      back
-      :topBanner="false"
-    />
+    <LayoutAppHeaderCheckout />
     <main>
       <slot></slot>
     </main>
-    <LayoutAppFooter />
   </div>
 </template>
 
@@ -49,7 +40,7 @@ updateMenuBackground(shouldHeaderBeTransparent.value);
 $emptytLayout: '.emptyLayout';
 
 #{$emptytLayout} {
-  @apply pt-14;
+  @apply pt-[4.5rem];
   // &-header {
   //   @apply fixed z-[100] top-0 left-0 w-full;
 

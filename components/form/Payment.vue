@@ -149,6 +149,7 @@ const paymentService = new PaymentService();
 try {
   const data = await paymentService.paymentMethods({
     IdAddress: idAddressDelivery.value,
+    LanguageIsoCode: 'fr',
   });
 
   console.log('payment methods:', data.PaymentMethods);
