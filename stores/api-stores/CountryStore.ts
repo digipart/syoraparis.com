@@ -13,7 +13,7 @@ export const useCountryStore = defineStore('countryStore', () => {
 
   const idCountryCookie = () => {
     const countryID = useCookie(COUNTRY_ID);
-    return Number(countryID.value || 1);
+    return Number(countryID.value || 0);
   };
   const idCurrencyCookie = () => {
     const currencyID = useCookie(CURRENCY_ID);
@@ -22,9 +22,16 @@ export const useCountryStore = defineStore('countryStore', () => {
 
   const initData = (countries: CountryType[]) => {
     // Your logic to set selected country
-    const defaultCountry = countries.find(
-      (country) => country.IdCountry === idCountryCookie()
-    );
+    let defaultCountry = null;
+    if (idCountryCookie() === 0) {
+      defaultCountry = countries.find(
+        (country) => country?.CountryIsoCode === 'FR'
+      );
+    } else {
+      defaultCountry = countries.find(
+        (country) => country.IdCountry === idCountryCookie()
+      );
+    }
 
     const defaultCurrency = defaultCountry?.CountryCurrencies?.find(
       (currency) => {
@@ -42,7 +49,6 @@ export const useCountryStore = defineStore('countryStore', () => {
     }
   };
 
- 
   const setLocationData = ({
     country,
     currency,
@@ -61,7 +67,7 @@ export const useCountryStore = defineStore('countryStore', () => {
     const currencyID = useCookie(CURRENCY_ID, {
       maxAge: 60 * 60 * 8,
     });
-    
+
     currencyID.value = String(currencySelected.value.IdCurrency);
   };
 
@@ -78,8 +84,7 @@ export const useCountryStore = defineStore('countryStore', () => {
       const data = await countryService.fetch(options);
       countries.value = data;
       initData(data);
-    } catch (error) {
-    }
+    } catch (error) {}
   };
 
   return {
