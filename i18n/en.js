@@ -68,6 +68,7 @@ const en = {
     see_my_returns: 'See my returns',
     read_more: 'Read More',
     read_less: 'Read Less',
+    select: 'Select',
   },
   link: {
     contact_us: 'Contact-us',
@@ -215,6 +216,11 @@ const en = {
     return_voucher: 'Return voucher',
     brands: 'Brands',
     brand: 'Brand',
+    shippingOption: {
+      Home: 'Home',
+      Store: 'Store',
+      RelayPoint: 'RelayPoint',
+    },
   },
   component: {
     faq: {
@@ -238,7 +244,7 @@ const en = {
       title: 'Your cart',
     },
     delivery: {
-      title: 'Delivery options',
+      title: 'Delivery',
       home_office: 'home/office',
       drop_point: 'drop point',
       already_registred: {
@@ -249,6 +255,8 @@ const en = {
       order_summary: {
         title: 'Order Summary',
       },
+      shipping: 'Shipping',
+      pickup: 'Pick up',
     },
     payment: {
       title: 'Payment Method',

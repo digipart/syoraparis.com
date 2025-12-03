@@ -60,7 +60,7 @@ const onChange = (event: Event) => {
 $inputRadio: '.inputRadio';
 
 #{$inputRadio} {
-  @apply w-full relative font-light cursor-pointer;
+  @apply relative font-light cursor-pointer;
 
   input {
     @apply absolute opacity-0;

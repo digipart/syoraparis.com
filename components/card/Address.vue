@@ -42,6 +42,9 @@ const clickHandler = () => {
     <span class="cardAddress-modify" @click.stop="edit = !edit">
       {{ $t('button.modify') }}
     </span>
+    <span class="cardAddress-select">
+      {{ $t('button.select') }}
+    </span>
     <div class="flex flex-col">
       <span class="text-sm font-normal mb-2">{{ address?.Alias }} </span>
       <span>
@@ -73,6 +76,10 @@ $cardAddress: '.cardAddress';
 
   &-modify {
     @apply cursor-pointer absolute top-4 right-5 normal-case underline;
+  }
+
+  &-select {
+    @apply cursor-pointer absolute bottom-4 right-5 normal-case underline;
   }
 }
 </style>

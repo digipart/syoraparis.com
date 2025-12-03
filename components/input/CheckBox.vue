@@ -16,7 +16,6 @@
 
     <label :for="id" class="inputCheckbox-label">
       <span class="inputCheckbox-span">
-        <IconCheck v-if="!props.switch" color="white" :size="1" />
       </span>
       <div class="flex-1">
         <slot />

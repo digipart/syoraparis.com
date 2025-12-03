@@ -1,6 +1,6 @@
 <template>
   <div class="appheaderCheckout">
-    <header class="appheader-menu">
+    <header class="appheaderCheckout-menu">
       <LayoutContainer small>
         <div class="flex gap-5 justify-between items-center">
           <BaseLogo :whiteLogo="false" />

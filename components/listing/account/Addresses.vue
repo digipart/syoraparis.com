@@ -8,6 +8,7 @@
           :address="address"
           :activeType="activeType"
           @onSelect="$emit('onAddressSelected', address)"
+          class="cursor-pointer"
         />
       </template>
       <!-- <BaseAlert v-else class="" :closeButton="false">

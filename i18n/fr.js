@@ -68,6 +68,7 @@ const fr = {
     see_my_returns: 'Voir mes retours',
     read_more: 'Lire plus',
     read_less: 'Lire moins',
+    select: 'Sélectionner',
   },
   link: {
     contact_us: 'Contactez-nous',
@@ -216,6 +217,11 @@ const fr = {
     return_voucher: 'Bon de retour',
     brands: 'Marques',
     brand: 'la marque',
+    shippingOption: {
+      Home: 'Domicile',
+      Store: 'Point de dépôt',
+      RelayPoint: 'Point relais',
+    },
   },
   component: {
     faq: {
@@ -239,7 +245,7 @@ const fr = {
       title: 'Votre panier',
     },
     delivery: {
-      title: 'Options de livraison',
+      title: 'Livraison',
       home_office: 'domicile/bureau',
       drop_point: 'point de dépôt',
       already_registred: {
@@ -250,34 +256,36 @@ const fr = {
       order_summary: {
         title: 'Récapitulatif de la commande',
       },
+      shipping: 'Livraison',
+      pickup: 'Point relais',
     },
     payment: {
       title: 'Méthode de paiement',
       card: {
         name: 'Payer par carte bancaire',
-        sname: 'sécurisé par Stripe'
+        sname: 'sécurisé par Stripe',
       },
       card_payzen: {
         name: 'Payer par carte bancaire',
-        sname: 'sécurisé par Payzen'
+        sname: 'sécurisé par Payzen',
       },
       paypal: {
         name: 'Payer avec PayPal',
-        sname: 'en 1 à 4 fois'
+        sname: 'en 1 à 4 fois',
       },
       klarna: {
         name: 'Payer avec Klarna',
-        sname: 'Paiement échelonné garanti'
+        sname: 'Paiement échelonné garanti',
       },
       alma: {
         name: 'Payer avec Alma',
-        sname: 'Paiement en 2,3 ou 4 fois sans frais.'
+        sname: 'Paiement en 2,3 ou 4 fois sans frais.',
       },
-      cgv: 'En continuant, j\'accepte les conditions générales de vente de {shopname}',
+      cgv: "En continuant, j'accepte les conditions générales de vente de {shopname}",
       error: {
         fetch_methods: 'Échec de la récupération des méthodes de paiement',
-        processing: 'Erreur lors du traitement du paiement'
-      }
+        processing: 'Erreur lors du traitement du paiement',
+      },
     },
   },
   account: {

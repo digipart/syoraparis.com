@@ -2,6 +2,13 @@
 import type { RelayPointType } from '~/types/RelayPointsType';
 import type { CarrierGenre, CarrierType } from '~/types/ShippingType';
 
+const { displayOptions } = defineProps({
+  displayOptions: {
+    type: Array,
+    default: () => ['Home', 'Store', 'RelayPoint'],
+  },
+});
+
 const shippingStore = useShippingStore();
 const { carrier, toshow, relayPointSelected } = toRefs(shippingStore);
 
@@ -35,7 +42,6 @@ const selectShipping = (event: {
   loading.value = true;
   carrierSelected.value = null;
 
-
   const option: any = {
     idCarrier: event.carrier.IdCarrier,
   };
@@ -61,6 +67,7 @@ const selectShipping = (event: {
 };
 
 onMounted(() => {
+  toshow.value = displayOptions[0];
   findCarrierLocation();
 });
 </script>
@@ -68,7 +75,7 @@ onMounted(() => {
 <template>
   <div class="formShipping" v-loading="loading">
     <div v-for="(carrierGroup, groupName) in carrier" class="flex flex-col">
-      <template v-if="toshow === 'all' || toshow === groupName">
+      <template v-if="displayOptions.includes(groupName)">
         <CardShipping
           v-for="c in carrierGroup"
           :key="c.IdCarrier"

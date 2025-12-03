@@ -215,14 +215,14 @@ defineExpose({
         </div>
 
         <div class="flex gap-3">
-          <InputText
+          <!-- <InputText
             id="prefix"
             v-model="state.prefix"
             type="text"
             :errors="v$.prefix?.$errors"
             :label="$t('label.prefix')"
             class="max-w-14"
-          />
+          /> -->
           <InputText
             id="phone"
             v-model="state.phone"

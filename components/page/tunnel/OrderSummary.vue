@@ -29,7 +29,8 @@ const { t } = useI18n();
       class="orderSummary-item mb-2"
     >
       <span class="orderSummary-label">
-        {{ t('label.shipping') }} <small>({{ carrier?.Name }})</small> :
+        {{ t('label.shipping') }} <br />
+        <small>({{ carrier?.Name }})</small> :
       </span>
       <span class="orderSummary-value">
         {{ carrier?.Price?.TaxIncl.toFixed(2) }} {{ currencySign }}
@@ -41,7 +42,7 @@ const { t } = useI18n();
         {{ t('label.discount') }} <small></small> :
       </span>
       <span class="orderSummary-value">
-       - {{ totalDiscount?.toFixed(2) }} {{ currencySign }}
+        - {{ totalDiscount?.toFixed(2) }} {{ currencySign }}
       </span>
     </div>
 
@@ -63,9 +64,12 @@ $orderSummary: '.orderSummary';
   @apply text-sm;
 
   &-item {
-    @apply flex justify-between items-end gap-5;
+    @apply flex justify-between items-start gap-5;
   }
 
+  &-label {
+    @apply flex-1;
+  }
   &-value {
     @apply font-normal;
   }

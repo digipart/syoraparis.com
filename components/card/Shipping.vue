@@ -16,6 +16,7 @@
         </div>
         <div class="cardShipping-item-logo">
           <NuxtImg
+            v-if="getCarrierImage()"
             :src="getCarrierImage()"
             :alt="carrier?.Name"
             height="28"
@@ -69,14 +70,16 @@ const { carrier, carrierType, active } = defineProps({
 const emit = defineEmits(['onSelect']);
 
 const getCarrierImage = () => {
-  if (carrier?.Name === 'Colissimo') {
+  if (carrier?.Name?.includes('Colissimo')) {
     return '/assets/images/colissimo-logo.png';
-  } else if (carrier?.Name === 'DHL') {
+  } else if (carrier?.Name?.includes('DHL')) {
     return '/assets/images/dhl-logo.png';
-  } else if (carrier?.Name === 'GLS') {
+  } else if (carrier?.Name?.includes('GLS')) {
     return '/assets/images/gls-logo.svg';
-  } else if (carrier?.Name === 'Chronopost') {
+  } else if (carrier?.Name?.includes('Chronopost')) {
     return '/assets/images/chronopost-logo.png';
+  } else if (carrier?.Name?.includes('UPS')) {
+    return '/assets/images/ups-logo.svg';
   }
 };
 

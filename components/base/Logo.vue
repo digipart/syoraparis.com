@@ -1,7 +1,7 @@
 <template>
   <NuxtLink :to="localePath('/')" :title="shopName" class="block">
-    <NuxtImg v-if="whiteLogo" class="w-[100px] lg:w-[140px]" :src="logoLight" />
-    <NuxtImg v-else class="w-[100px] lg:w-[140px]" :src="logoDark" />
+    <NuxtImg v-if="whiteLogo" class="w-[80px] lg:w-[100px]" :src="logoLight" />
+    <NuxtImg v-else class="w-[80px] lg:w-[100px]" :src="logoDark" />
   </NuxtLink>
 </template>
 <script setup lang="ts">

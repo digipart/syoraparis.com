@@ -1,41 +1,9 @@
 <script setup lang="ts">
 import type { AddressType } from '~/types/AddressType';
+import type { CarrierType } from '~/types/ShippingType';
 
-const formDeliveryStore = useFormDeliveryStore();
-const { state, v$ } = toRefs(formDeliveryStore);
-
-const auth = useAuth();
-const { isLoggedIn, isGuest } = toRefs(auth);
-const { registerGuest } = auth;
 const { t } = useI18n();
 const localePath = useLocalePath();
-
-const router = useRouter();
-
-const step = ref(1);
-const formStartDeliveryVisible = ref(true);
-
-const listAddressVisible = ref(false);
-
-const headerStore = useHeaderStore();
-const { backClick } = toRefs(headerStore);
-
-const setBackBtnBackClick = () => {
-  if (formStartDeliveryVisible.value === true) {
-    backClick.value = () => {
-      router.back();
-    };
-  } else {
-    backClick.value = () => {
-      formStartDeliveryVisible.value = true;
-    };
-  }
-};
-const setFormStartDeliveryVisible = () => {
-  formStartDeliveryVisible.value = true;
-  setBackBtnBackClick();
-};
-setBackBtnBackClick();
 
 const appStore = useAppStore();
 const { currencyIsoCode } = toRefs(appStore);
@@ -46,81 +14,23 @@ const { fetchShipping } = shippingStore;
 
 const cartStore = useCartStore();
 const { totalToPay, carrier, totalProductQuantity } = toRefs(cartStore);
+
 const addressStore = useAddressStore();
-const { addressDelivery, addresses } = toRefs(addressStore);
-const { fetchAddresses } = addressStore;
+const { addressDelivery } = toRefs(addressStore);
+
+const deliveryOption = ref<'ship' | 'pickup'>('pickup');
+
+const storeRelayPoints = ref<CarrierType>(allCarriers as CarrierType);
 
 const valide = computed(() => {
   return totalProductQuantity.value && addressDelivery.value && carrier.value;
 });
 
-const loginFormVisible = ref(false);
+const pickupAddress = ref('');
 
-const showFormLogin = (event: any) => {
-  loginFormVisible.value = event.visible;
+const handleSelectPickupAddress = (e: any) => {
+  console.log('address', e);
 };
-
-const onStartDelivery = (event: any) => {
-  state.value.email = event.email;
-  formStartDeliveryVisible.value = false;
-  setBackBtnBackClick();
-};
-
-const googleHandler = async () => {
-  await fetchAddresses();
-  await fetchShipping({
-    IdAddress: addressDelivery.value?.IdAddress,
-    ResponseLevel: 'summary',
-  });
-};
-
-const addressesUpdated = async (addressId?: number) => {
-  if (!addressId && addressDelivery.value) {
-    addressId = addressDelivery.value.IdAddress;
-  }
-  await fetchShipping({
-    IdAddress: addressId,
-    ResponseLevel: 'summary',
-  });
-};
-
-const submitFormDelivery = async () => {
-  v$.value.$touch();
-  if (!v$.value.$invalid) {
-    registerGuest().then(async (data) => {
-      await fetchAddresses();
-      await fetchShipping({
-        IdAddress: addressDelivery.value?.IdAddress,
-        ResponseLevel: 'summary',
-      });
-      step.value = 2;
-      setFormStartDeliveryVisible();
-    });
-  } else {
-  }
-};
-
-const GuestFormvalide = computed(() => {
-  if (isLoggedIn.value) {
-    if (!totalProductQuantity.value) {
-      return false;
-    }
-    if (step.value === 1) {
-      return addressDelivery.value !== null;
-    } else {
-      return carrier.value?.IdCarrier !== undefined;
-    }
-  } else {
-    return true;
-  }
-});
-onMounted(async () => {
-  if (isLoggedIn.value) {
-    if (isGuest.value) {
-      step.value = 2;
-    }
-  }
-});
 </script>
 
 <template>
@@ -134,153 +44,112 @@ onMounted(async () => {
     </NuxtLink> -->
     <div class="grid grid-cols-12 gap-5 items-start pb-16">
       <div class="col-span-12 lg:col-span-8">
-        <div class="lg:mb-5 block lg:hidden">
-          <BaseCollapsible>
-            <BaseCollapsibleItem :index="0" :closeOthers="true">
-              <template #header>
-                <div class="flex justify-between w-full items-center">
-                  <BaseHeadLine size="md" class="uppercase font-normal">
-                    {{ t('cart.title') }} ({{ totalProductQuantity }})
-                  </BaseHeadLine>
-                </div>
-              </template>
-              <template #content>
-                <div class="p-5">
-                  <NuxtLink
-                    :to="
-                      localePath({
-                        name: 'cart',
-                      })
-                    "
-                    class="block"
-                  >
-                    <BaseButton
-                      type="primary"
-                      size="small"
-                      plain
-                      class="w-full"
-                    >
-                      {{ $t('button.edit_cart') }}
-                    </BaseButton>
-                  </NuxtLink>
-                  <hr class="my-4" />
-                  <ListingCartItems :editable="false" />
-                </div>
-              </template>
-            </BaseCollapsibleItem>
-          </BaseCollapsible>
-        </div>
-
         <!-- Delivery Options -->
         <BasePanel
           :title="t('tunnel.delivery.title')"
           class="mb-[-1px] lg:mb-5"
         >
-          <div class="mb-3" v-if="isLoggedIn">
-            <BaseHeadLine size="sm" class="uppercase font-normal">
+          <div class="deliveryOptions mb-5">
+            <div
+              class="deliveryOptions-item"
+              :class="{ selected: deliveryOption === 'ship' }"
+              @click="deliveryOption = 'ship'"
+            >
+              <InputRadio
+                id="do-ship"
+                value="ship"
+                v-model="deliveryOption"
+                class="!absolute top-4 left-4"
+              />
+              <span>
+                {{ $t('tunnel.delivery.shipping') }}
+              </span>
+              <IconDeliveryTruckSpeed :size="2.5" />
+            </div>
+            <div
+              class="deliveryOptions-item"
+              :class="{ selected: deliveryOption === 'pickup' }"
+              @click="deliveryOption = 'pickup'"
+            >
+              <InputRadio
+                id="do-pickup"
+                value="pickup"
+                v-model="deliveryOption"
+                class="!absolute top-4 left-4"
+              />
+              <span>
+                {{ $t('tunnel.delivery.pickup') }}
+              </span>
+              <IconShop :size="2.5" />
+            </div>
+          </div>
+
+          <div v-if="deliveryOption === 'ship'">
+            <BaseHeadLine size="sm" class="uppercase font-normal mb-3">
               {{ $t('label.address_delivery') }} :
             </BaseHeadLine>
-
-            <!-- Delivery address selected -->
-            <div
-              v-if="addressDelivery"
-              class="border border-black px-5 py-3 mt-3"
-            >
-              <PageCheckoutDeliveryAddressShippingSelected
-                hideShipping
-                @onAddressSubmited="addressesUpdated()"
-              />
-            </div>
-            <span
-              class="underline text-xs cursor-pointer"
-              @click="listAddressVisible = !listAddressVisible"
-            >
-              {{ t('button.select_another_address') }}
-            </span>
+            <PageCheckoutCustomer />
+            <!-- Shipping option -->
+            <template v-if="Object.keys(allCarriers).length">
+              <hr class="mt-5 mb-5" />
+              <div class="flex justify-end gap-5 mb-2">
+                <div>
+                  <ul class="flex gap-4 text-sm">
+                    <template v-for="(carrierGroup, groupName) in allCarriers">
+                      <li
+                        v-if="groupName === 'Home'"
+                        class="cursor-pointer"
+                        :class="{
+                          'underline font-normal': toshow === groupName,
+                        }"
+                        @click="toshow = groupName"
+                      >
+                        {{ $t('label.shippingOption.' + groupName) }}
+                      </li>
+                    </template>
+                  </ul>
+                </div>
+              </div>
+              <FormShipping :displayOptions="['Home']" />
+            </template>
           </div>
 
-          <div v-show="!isLoggedIn" ref="formDeliveryRef" class="">
-            <BaseHeadLine size="sm" class="uppercase font-normal mb-5">
-              {{ $t('titles.complete_the_form') }} :
+          <div v-if="deliveryOption === 'pickup'">
+            <BaseHeadLine size="sm" class="uppercase font-normal mb-3">
+              {{ $t('label.address') }} :
             </BaseHeadLine>
-
-            <div v-if="formStartDeliveryVisible">
-              <div>
-                <PageTunnelFormStartDelivery
-                  @onSubmit="onStartDelivery"
-                  @onGoogleSubmit="googleHandler()"
-                />
-              </div>
-            </div>
-            <div v-else>
-              <PageCheckoutGuest ref="PageCheckoutGuest" />
-              <BaseButton
-                v-if="!loginFormVisible"
-                type="primary"
-                class="w-full"
-                size="medium"
-                @click="submitFormDelivery()"
-                :disabled="!GuestFormvalide"
-              >
-                {{ $t('button.register') }}
-              </BaseButton>
-              <BaseButton
-                v-if="!loginFormVisible"
-                type="primary"
-                class="w-full mt-3"
-                plain
-                size="medium"
-                @click="setFormStartDeliveryVisible()"
-              >
-                {{ $t('button.cancel') }}
-              </BaseButton>
-            </div>
-          </div>
-
-          <transition name="slide">
-            <PageCheckoutStepDelivery
-              v-if="
-                listAddressVisible || (addresses.length === 0 && isLoggedIn)
-              "
-              class="mt-5"
-              @onAddressCreated="addressesUpdated($event)"
+            <InputGoogoleAutoComplete
+              v-model="pickupAddress"
+              id="autocompletePickup"
+              :label="$t('label.address')"
+              @onSelect="handleSelectPickupAddress"
             />
-          </transition>
-
-          <!-- Shipping option -->
-          <template v-if="Object.keys(allCarriers).length">
-            <hr class="mt-5 mb-5" />
-            <div class="flex justify-between gap-5">
-              <BaseHeadLine size="sm" class="uppercase font-normal mb-3">
-                {{ $t('label.address_delivery') }} :
-              </BaseHeadLine>
-              <div>
-                <ul class="flex gap-3 text-sm">
-                  <li
-                    class="cursor-pointer"
-                    :class="{ 'underline font-normal': toshow === 'all' }"
-                    @click="toshow = 'all'"
-                  >
-                    {{ t('label.all') }}
-                  </li>
-                  <li
-                    v-for="(carrierGroup, groupName) in allCarriers"
-                    class="cursor-pointer"
-                    :class="{ 'underline font-normal': toshow === groupName }"
-                    @click="toshow = groupName"
-                  >
-                    {{ $t('label.' + groupName) }}
-                  </li>
-                </ul>
+            <template v-if="Object.keys(allCarriers).length">
+              <hr class="mt-5 mb-5" />
+              <div class="flex justify-end gap-5 mb-2">
+                <div>
+                  <ul class="flex gap-4 text-sm">
+                    <template v-for="(carrierGroup, groupName) in allCarriers">
+                      <li
+                        v-if="groupName !== 'Home'"
+                        class="cursor-pointer"
+                        :class="{
+                          'underline font-normal': toshow === groupName,
+                        }"
+                        @click="toshow = groupName"
+                      >
+                        {{ $t('label.shippingOption.' + groupName) }}
+                      </li>
+                    </template>
+                  </ul>
+                </div>
               </div>
-            </div>
-            <FormShipping />
-          </template>
+              <FormShipping :displayOptions="['Store', 'RelayPoint']" />
+            </template>
+          </div>
         </BasePanel>
-
-        <!-- Payment step -->
         <BasePanel v-if="valide" :title="$t('tunnel.payment.title')">
-          <FormPayment :disabled="!valide" />
+          <FormPayment />
         </BasePanel>
       </div>
 
@@ -326,4 +195,16 @@ onMounted(async () => {
   </LayoutContainer>
 </template>
 
-<style scoped></style>
+<style scoped lang="scss">
+.deliveryOptions {
+  @apply flex flex-col;
+  &-item {
+    @apply relative border border-zinc-300  z-[1] flex justify-between gap-3 items-center;
+    @apply mb-[-1px] pl-12 py-3 pr-5;
+    @apply text-sm;
+    &.selected {
+      @apply border-black z-[2];
+    }
+  }
+}
+</style>
