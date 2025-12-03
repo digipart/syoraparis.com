@@ -81,11 +81,11 @@ onUnmounted(() => {
     ref="pageProductInformations"
   >
     <div class="pageProductInformations-wrapper">
-      <div class="mb-1">
+      <div class="mb-3">
         <LayoutBreadCrumb :items="breadcrumbItems" />
       </div>
       <div class="relative mb-3 pr-8">
-        <CardProductTitle :product="product" size="lg" tag="h1" class="mb-1" />
+        <CardProductTitle :product="product" size="lg" tag="h1" class="mb-0" />
         <div class="block text-xs mb-1 font-normal">
           <span class="text-gray-888 font-light">
             {{ $t('label.ref') }} :

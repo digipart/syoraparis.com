@@ -74,7 +74,7 @@ const images = computed(() => {
           v-if="images.length"
           :imagePlaceHolder="images[0]?.Src"
           class="w-full scale-[1.3]"
-          :videoUrl="videos[0].Src"
+          :videoUrl="videos?.[0]?.Src"
           :subTitle="title"
         />
       </div>
@@ -164,9 +164,9 @@ $cardProductImage: '.cardProductImage';
     --swiper-navigation-size: 12px;
   }
   // --swiper-theme-color: white
-  @apply w-full relative;
+  @apply w-full relative ;
   &-image {
-    @apply w-full duration-300;
+    @apply w-full h-full duration-300 aspect-[1080/1610] object-cover;
     &--second {
       @apply absolute top-0 left-0 opacity-0 pointer-events-none;
     }

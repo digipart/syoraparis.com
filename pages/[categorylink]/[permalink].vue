@@ -348,7 +348,7 @@ onDeactivated(() => cleanupObserver());
         name="sameStyle"
       >
         <template #top>
-          <BaseHeadLine size="sm" class="font-medium ml-5 lg:ml-10 uppercase">
+          <BaseHeadLine size="md" class="font-medium ml-5 lg:ml-10 uppercase">
             {{ $t('titles.sameStyle') }}
           </BaseHeadLine>
         </template>
@@ -361,7 +361,7 @@ onDeactivated(() => cleanupObserver());
         name="you_also_viewed"
       >
         <template #top>
-          <BaseHeadLine size="sm" class="font-medium ml-5 lg:ml-10 uppercase">
+          <BaseHeadLine size="md" class="font-medium ml-5 lg:ml-10 uppercase">
             {{ $t('titles.you_also_viewed') }}
           </BaseHeadLine>
         </template>

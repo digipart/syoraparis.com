@@ -138,7 +138,7 @@ const loadMedias = () => {
         });
     }
   }
-  
+
   // Track product impression when user hovers over the product
   if (currentProduct.value) {
     trackProductView(currentProduct.value);
@@ -204,30 +204,28 @@ const variantSelected = () => {
     v-loading="loadingProductRealaionShip"
     @mouseleave="setDefaultProduct()"
   >
-    <div class="cardProduct-top relative">
-      <div class="">
-        <BaseMediaPressAndHold
-          v-if="
-            !loadingProductRealaionShip && imagesLarge && imagesLarge?.[0]?.Src
-          "
-          @click="redirect"
-          :src="imagesLarge?.[0]?.Src"
-        >
-          <CardProductMedia
-            v-if="currentProduct"
-            :product="currentProduct"
-            :imageSize="imageSize"
-            :slider="slider"
-          />
-        </BaseMediaPressAndHold>
+    <div class="cardProduct-top relative aspect-[1080/1610]">
+      <BaseMediaPressAndHold
+        v-if="
+          !loadingProductRealaionShip && imagesLarge && imagesLarge?.[0]?.Src
+        "
+        @click="redirect"
+        :src="imagesLarge?.[0]?.Src"
+      >
         <CardProductMedia
-          v-else
-          @click="redirect"
+          v-if="currentProduct"
           :product="currentProduct"
           :imageSize="imageSize"
           :slider="slider"
         />
-      </div>
+      </BaseMediaPressAndHold>
+      <CardProductMedia
+        v-else
+        @click="redirect"
+        :product="currentProduct"
+        :imageSize="imageSize"
+        :slider="slider"
+      />
 
       <CardProductAddToCart
         v-if="addToCart && windowWidth < 992"

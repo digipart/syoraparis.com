@@ -19,7 +19,9 @@ const { initWindowsStore } = windowStore;
 
 const { locale } = useI18n();
 useHead({
-  htmlAttrs: computed(() => ({ lang: locale.value })),
+  htmlAttrs: {
+    lang: locale.value
+  },
 });
 
 const favoriteStore = useFavoritesStore();

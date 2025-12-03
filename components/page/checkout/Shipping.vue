@@ -1,6 +1,7 @@
 <script setup lang="ts">
+const appStore = useAppStore();
+const { shopName } = toRefs(appStore);
 const localePath = useLocalePath();
-
 const activeTab = ref('');
 </script>
 
@@ -26,7 +27,13 @@ const activeTab = ref('');
     <FormShipping />
     <div class="flex-1 mt-5">
       <p class="text-xs">
-        {{ $t('membership.message', { amount: 79, returnDays: 60 }) }}
+        {{
+          $t('membership.message', {
+            amount: 79,
+            returnDays: 60,
+            shopname: shopName,
+          })
+        }}
         <NuxtLink
           :to="localePath({ name: 'account-login' })"
           class="font-medium underline"

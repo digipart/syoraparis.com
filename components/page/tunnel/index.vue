@@ -305,7 +305,7 @@ onMounted(async () => {
               </NuxtLink>
             </div>
           </template>
-          <PerfectScrollbar class="max-h-[944px] overflow-auto p-5">
+          <PerfectScrollbar class="max-h-[944px] p-5">
             <ListingCartItems :editable="false" :mini="true" />
           </PerfectScrollbar>
         </BasePanel>

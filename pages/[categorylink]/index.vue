@@ -105,11 +105,13 @@ if (categorylink) {
           {{ catrgoryInfo?.Description?.Title }}
         </BaseHeadLine>
         <ul v-if="subCategories.length" class="flex flex-wrap mb-5 gap-1">
-          <li v-for="(cat, index) in subCategories" :key="index">
-            <NuxtLink :to="`${categoryUrl(cat)}`" class="subCategoryBtn">
-              {{ cat.Description?.Title }}
-            </NuxtLink>
-          </li>
+          <template v-for="(cat, index) in subCategories" :key="index">
+            <li v-if="cat?.Description">
+              <NuxtLink :to="`${categoryUrl(cat)}`" class="subCategoryBtn">
+                {{ cat?.Description?.Title }}
+              </NuxtLink>
+            </li>
+          </template>
         </ul>
       </div>
       <ListingProducts />

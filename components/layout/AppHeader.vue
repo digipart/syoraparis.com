@@ -64,7 +64,7 @@
         <ButtonMiniCart
           v-if="showCart"
           :iconColor="iconColor"
-          :title="$t('button.favorite')"
+          :title="$t('button.cart')"
         />
       </div>
     </header>

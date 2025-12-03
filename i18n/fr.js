@@ -372,7 +372,7 @@ const fr = {
   },
   membership: {
     message:
-      'Devenez membre de Unicode pour bénéficier de la livraison gratuite sur les commandes de {amount} EUR+ et des retours gratuits pendant {returnDays} jours.',
+      'Devenez membre de {shopname} pour bénéficier de la livraison gratuite sur les commandes de {amount} EUR+ et des retours gratuits pendant {returnDays} jours.',
     login: 'Connexion',
     signup: 'Inscription',
     now: 'Maintenant',

@@ -46,7 +46,7 @@ $banner: '.banner';
   @apply flex flex-col items-center justify-center relative;
 
   &-box {
-    @apply absolute top-0 left-0  z-10 w-full h-full min-h-full flex-1;
+    @apply absolute top-0 left-0  z-10 w-full h-full min-h-full flex-1 bg-black/20;
   }
 
   &-bg {
@@ -65,7 +65,7 @@ $banner: '.banner';
 
   #{$banner} {
     &-title {
-      @apply text-3xl leading-[1] font-bold uppercase text-white;
+      @apply text-3xl leading-[1] font-semibold uppercase text-white;
 
       @screen lg {
         @apply text-6xl leading-[0.8];
@@ -75,7 +75,7 @@ $banner: '.banner';
       }
     }
     &-subtitle {
-      @apply text-sm font-bold leading-none uppercase text-white;
+      @apply text-base font-light leading-none uppercase text-white;
 
       @screen lg {
         @apply text-base;

@@ -53,7 +53,7 @@ const localePath = useLocalePath();
         <NuxtLink
           :to="
             localePath({
-              name: 'cart',
+              name: 'checkout',
             })
           "
         >

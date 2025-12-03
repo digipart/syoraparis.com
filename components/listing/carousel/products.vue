@@ -1,6 +1,6 @@
 <template>
   <div class="carouselProduct" v-if="products" :class="[name]">
-    <div v-if="$slots.top" class="flex justify-between mb-4 lg:mb-5">
+    <div v-if="$slots.top" class="flex justify-between mb-2 lg:mb-3">
       <slot name="top" />
       <div class="navigation">
         <div class="swiper-button-prev custom-swiper-button">

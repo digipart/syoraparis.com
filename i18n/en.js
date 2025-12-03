@@ -368,7 +368,7 @@ const en = {
   },
   membership: {
     message:
-      'Become a Unicode Member for free shipping on orders {amount} EUR+ and {returnDays}-day free returns.',
+      'Become a {shopname} Member for free shipping on orders {amount} EUR+ and {returnDays}-day free returns.',
     login: 'Login',
     signup: 'Sign Up',
     now: 'Now',
