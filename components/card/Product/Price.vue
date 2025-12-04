@@ -35,24 +35,35 @@ const promotionalPrice = computed(() => {
 
 <template>
   <div class="cardProduct-price" :class="[size]">
-    <template v-if="hasPromtion">
-      <b class="font-normal">
-        {{ promotionalPrice?.PriceTaxIncl?.toFixed(2) }}{{ currencySign }}
-      </b>
+    <!-- <div>
+      <template v-if="hasPromtion">
+        <b class="font-normal">
+          {{ promotionalPrice?.PriceTaxIncl?.toFixed(2) }}{{ currencySign }}
+        </b>
 
-      <span class="line-through font-light">
-        {{ regularPrice?.PriceTaxIncl?.toFixed(2) }}{{ currencySign }}
-      </span>
+        <span class="line-through font-light">
+          {{ regularPrice?.PriceTaxIncl?.toFixed(2) }}{{ currencySign }}
+        </span>
 
-      <span class="inline-block font-light">
-        {{ promotionalPrice?.PriceRuleName }}
-      </span>
-    </template>
-    <template v-else>
-      <b class="font-normal"
-        >{{ regularPrice?.PriceTaxIncl?.toFixed(2) }}{{ currencySign }}</b
-      >
-    </template>
+        <span class="inline-block font-light">
+          {{ promotionalPrice?.PriceRuleName }}
+        </span>
+      </template>
+      <template v-else>
+        <b class="font-normal"
+          >{{ regularPrice?.PriceTaxIncl?.toFixed(2) }}{{ currencySign }}</b
+        >
+      </template>
+    </div> -->
+    <a
+      target="_blank"
+      href="https://drive.google.com/file/d/1-pYesSgax87hBk9vqLs5UbHqD0xlEEzx/view"
+      class="block w-full"
+    >
+      <base-button type="primary" class="w-full">
+        <span class="text-xs font-medium"> VENTE PRIVÉE DÉSTOCKAGE </span>
+      </base-button>
+    </a>
   </div>
 </template>
 <style lang="scss">

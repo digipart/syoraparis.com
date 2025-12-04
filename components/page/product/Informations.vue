@@ -121,15 +121,15 @@ onUnmounted(() => {
         <label class="font-normal text-sm mb-2 inline-block"
           >{{ $t('label.color') }} :
         </label>
-        <CardProductColors
+        <!-- <CardProductColors
           :product="product"
           :activeIdProduct="Number(product.IdProduct)"
           size="medium"
           link
-        />
+        /> -->
       </div>
       <div class="mb-5">
-        <div class="justify-between gap-x-4 mb-2 hidden lg:flex">
+        <!-- <div class="justify-between gap-x-4 mb-2 hidden lg:flex">
           <label class="font-normal text-sm inline-block">
             {{ $t('label.size') }} :
           </label>
@@ -142,7 +142,7 @@ onUnmounted(() => {
           >
             <PageProductSizes :product="product" class="" />
           </div>
-        </div>
+        </div> -->
       </div>
       <div class="mb-3 lg:mb-5">
         <div
