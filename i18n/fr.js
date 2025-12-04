@@ -138,6 +138,8 @@ const fr = {
     enter_address_manually: "Saisir l'adresse manuellement",
     address_invoice: 'Adresse de facturation',
     address_delivery: 'Adresse de livraison',
+    delivery: 'Livraison',
+    contact: 'Contact',
     article: 'Article(s)',
     shipping: 'Livraison',
     total: 'Total',
@@ -218,9 +220,14 @@ const fr = {
     brands: 'Marques',
     brand: 'la marque',
     shippingOption: {
+      title: 'Options de livraison',
+      noCarrier: "Entrez votre adresse de livraison pour voir les méthodes d'expédition disponibles.",
       Home: 'Domicile',
       Store: 'Point de dépôt',
       RelayPoint: 'Point relais',
+    },
+    payment: {
+      noPayment: 'Sélectionnez une méthode de livraison pour voir les méthodes de paiement disponibles.',
     },
   },
   component: {

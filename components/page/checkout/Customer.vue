@@ -46,8 +46,12 @@ const displayForm = () => {
   }, 300);
 };
 
-const onAddressCreated = (addressId: number) => {
+const onAddressCreated = async (addressId: number) => {
   showForm.value = false;
+  await fetchShipping({
+    IdAddress: addressId,
+    ResponseLevel: 'summary',
+  });
   emit('onAddressCreated', addressId);
 };
 onMounted(() => {

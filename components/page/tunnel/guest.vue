@@ -2,8 +2,12 @@
 import ShippingService from '~/services/ShippingService';
 import type { CarrierType } from '~/types/ShippingType';
 
+
 const { t } = useI18n();
 const localePath = useLocalePath();
+
+const formDeliveryStore = useFormDeliveryStore();
+const { state, v$ } = toRefs(formDeliveryStore);
 
 const appStore = useAppStore();
 const { currencyIsoCode } = toRefs(appStore);
@@ -18,7 +22,7 @@ const { totalToPay, carrier, totalProductQuantity } = toRefs(cartStore);
 const addressStore = useAddressStore();
 const { addressDelivery } = toRefs(addressStore);
 
-const deliveryOption = ref<'ship' | 'pickup'>('pickup');
+const deliveryOption = ref<'ship' | 'pickup'>('ship');
 
 const storeRelayPoints = ref<CarrierType>(allCarriers as CarrierType);
 
@@ -29,6 +33,7 @@ const pickupAddress = ref('');
 const valide = computed(() => {
   return totalProductQuantity.value && addressDelivery.value && carrier.value;
 });
+
 
 const refreshCodePromo = () => {
   codePromoRefreshing.value = true;
@@ -82,6 +87,22 @@ const getRelayPointWithAddress = (options: {
           :title="t('tunnel.delivery.title')"
           class="mb-[-1px] lg:mb-5"
         >
+          <BaseHeadLine size="md" class="uppercase font-medium mb-3">
+            {{ $t('label.contact') }} :
+          </BaseHeadLine>
+          <div>
+            <div>
+              <InputText
+                id="email"
+                v-model="state.email"
+                type="email"
+                :errors="v$.email?.$errors"
+                :required="true"
+                :label="$t('label.email')"
+              />
+            </div>
+          </div>
+
           <div class="deliveryOptions mb-5">
             <BaseHeadLine size="md" class="uppercase font-medium mb-3">
               {{ $t('label.delivery') }} :
@@ -124,9 +145,8 @@ const getRelayPointWithAddress = (options: {
             <BaseHeadLine size="md" class="uppercase font-medium mb-3">
               {{ $t('label.address_delivery') }} :
             </BaseHeadLine>
-            <PageCheckoutCustomer />
+            <PageCheckoutGuest :hideEmail="true" class="border p-3 mb-5" />
             <!-- Shipping option -->
-            <hr class="mt-5 mb-5" />
             <div class="flex justify-between gap-5 mb-3">
               <div>
                 <BaseHeadLine size="md" class="uppercase font-medium">

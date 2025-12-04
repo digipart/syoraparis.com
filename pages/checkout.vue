@@ -47,7 +47,8 @@ onMounted(async () => {
   <div v-if="loaded">
     <LayoutContinueShopping v-if="!totalProductQuantity" class="mt-16" />
     <template v-else>
-      <PageTunnel />
+      <PageTunnel v-if="isLoggedIn" />
+      <PageTunnelGuest v-else />
     </template>
   </div>
 </template>

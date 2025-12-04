@@ -15,6 +15,8 @@ const { cart } = toRefs(useCart);
 const auth = useAuth();
 const { isLoggedIn, isGuest } = toRefs(auth);
 
+const emit = defineEmits(['onCodePromoApplied']);
+
 onMounted(async () => {
   if (isLoggedIn.value) {
     if (!isGuest.value) {
@@ -33,8 +35,9 @@ const applyCode = (code: string) => {
         IdCart: cart.value.IdCart,
         LanguageIsoCode: languageIsoCode.value,
       })
-      .then(() => {
-        fetchCart();
+      .then(async () => {
+        await fetchCart();
+        emit('onCodePromoApplied');
       })
       .catch((error) => {})
       .finally(() => {

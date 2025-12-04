@@ -285,7 +285,7 @@ const pins = computed(() => ({
 
 onMounted(async () => {
   const loader = new Loader({
-    apiKey: config.public.googleMapKey,
+    apiKey: 'AIzaSyB_B7f6Bvra8jlBCA7moWsNIPNgGJwqtvg',
     version: 'weekly',
   });
 
@@ -363,4 +363,5 @@ function convertIcon(icon: MarkerIcon): google.maps.Icon {
       : undefined,
   };
 }
+
 </script>

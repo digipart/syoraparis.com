@@ -6,10 +6,19 @@ const { editable = true } = defineProps<{
 
 const cartStore = useCartStore();
 const { cart, promoCodes } = toRefs(cartStore);
+const { fetchCart } = cartStore;
 
 const products = computed(() => {
   return cart.value.Products || [];
 });
+
+const emit = defineEmits(['onCodePromoRemoved']);
+
+const refreshCodePromo = async () => {
+  console.log('refreshCodePromo');
+  await fetchCart();
+  emit('onCodePromoRemoved');
+};
 </script>
 
 <template>
@@ -28,7 +37,7 @@ const products = computed(() => {
         :key="promocode.IdPromoCode"
         :promocode="promocode"
         :size="mini ? 'small' : 'medium'"
-        :editable="editable"
+        @onCodeRemoved="refreshCodePromo()"
       />
     </div>
   </div>

@@ -138,6 +138,8 @@ const en = {
     enter_address_manually: 'Enter address manually',
     address_invoice: 'Invoice address',
     address_delivery: 'Delivery address',
+    delivery: 'Delivery',
+    contact: 'Contact',
     article: 'Article(s)',
     shipping: 'Shipping',
     total: 'Total',
@@ -217,9 +219,14 @@ const en = {
     brands: 'Brands',
     brand: 'Brand',
     shippingOption: {
+      noCarrier: 'Enter your shipping address to view available shipping methods.',
+      title: 'Options of delivery',
       Home: 'Home',
       Store: 'Store',
       RelayPoint: 'RelayPoint',
+    },
+    payment: {
+      noPayment: 'Select a shipping method to view available payment methods.',
     },
   },
   component: {

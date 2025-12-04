@@ -16,6 +16,7 @@ const rules = {
     required: helpers.withMessage(t('error.field_required'), required),
   },
 };
+const emit = defineEmits(['onCodePromoApplied']);
 const v$ = useVuelidate(rules, state);
 
 const appStore = useAppStore();
@@ -41,11 +42,11 @@ const submitForm = async () => {
           IdCart: cart.value.IdCart,
           LanguageIsoCode: languageIsoCode.value,
         })
-        .then(() => {
+        .then(async () => {
           v$.value.$reset();
           state.codepromo = '';
-
-          fetchCart();
+          await fetchCart();
+          emit('onCodePromoApplied');
         })
         .catch((err) => {
           error.value = true;

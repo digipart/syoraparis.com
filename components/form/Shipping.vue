@@ -67,7 +67,6 @@ const selectShipping = (event: {
 };
 
 onMounted(() => {
-  toshow.value = displayOptions[0];
   findCarrierLocation();
 });
 </script>
@@ -82,7 +81,7 @@ onMounted(() => {
           :carrier="c"
           @onSelect="selectShipping($event)"
           :active="carrierSelected?.IdCarrier === c.IdCarrier"
-          class="mb-5"
+          class="mb-2"
           :carrierType="groupName"
         />
       </template>
@@ -94,6 +93,6 @@ onMounted(() => {
 $formShipping: '.formShipping';
 
 #{$formShipping} {
-  @apply flex flex-col -mb-5;
+  @apply flex flex-col mb-0;
 }
 </style>

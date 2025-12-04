@@ -31,6 +31,8 @@
         {{ error.$message }}
       </span>
     </div>
+
+    <!-- <BaseButton @click="pushTestValue">test value</BaseButton> -->
   </div>
 </template>
 
@@ -70,6 +72,21 @@ const onFocus = () => {
 
 const onBlur = () => {
   isFocused.value = false;
+};
+
+const pushTestValue = () => {
+  emit('onSelect', {
+    address: '121 Rue Manin, 75019 Paris, France',
+    courtAddress: '121, Rue Manin',
+    streetNumber: '121',
+    route: 'Rue Manin',
+    postalCode: '75019',
+    country: 'France',
+    city: 'Paris',
+    countryIso: 'FR',
+    latitude: 48.8840838,
+    longitude: 2.3900098,
+  });
 };
 
 // onMounted(() => {

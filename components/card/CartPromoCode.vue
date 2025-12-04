@@ -7,7 +7,6 @@ const { currencySign } = toRefs(appStore);
 const loading = ref(false);
 
 const useCart = useCartStore();
-const { fetchCart } = useCart;
 const { cartId } = toRefs(useCart);
 
 const { promocode } = defineProps({
@@ -25,6 +24,9 @@ const { promocode } = defineProps({
   },
 });
 
+
+const emit = defineEmits(['onCodeRemoved']);
+
 const removeCodePromo = () => {
   const codepromoService = new CodepromoService();
   if (cartId.value && promocode?.IdPromoCode) {
@@ -34,8 +36,9 @@ const removeCodePromo = () => {
         IdCart: cartId.value,
         IdPromoCode: promocode?.IdPromoCode,
       })
-      .then(() => {
-        fetchCart();
+      .then(async () => {
+        emit('onCodeRemoved');
+
       })
       .finally(() => {
         loading.value = false;
@@ -54,7 +57,7 @@ const removeCodePromo = () => {
     </div>
     <div class="cartCodePromo-right">
       <b>
-       - {{ promocode?.Reduction?.Value?.TaxIncl?.toFixed(2) }}
+        - {{ promocode?.Reduction?.Value?.TaxIncl?.toFixed(2) }}
         {{ currencySign }}
       </b>
       <small
@@ -63,7 +66,8 @@ const removeCodePromo = () => {
         v-loading="loading"
         @click="removeCodePromo"
       >
-        {{ $t('button.remove') }} <IconX :size="1.3" />
+        <span v-if="size === 'medium'">{{ $t('button.remove') }}</span>
+        <IconX :size="1.6" />
       </small>
     </div>
   </div>
@@ -88,7 +92,7 @@ $cartCodePromo: '.cartCodePromo';
         @apply text-xs;
       }
       &-right {
-        @apply text-xs;
+        @apply text-xs flex-row flex items-center gap-2;
       }
     }
   }

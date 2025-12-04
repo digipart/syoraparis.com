@@ -26,7 +26,16 @@ export default class ShippingService extends Service {
     }
   }
 
-  async fetchRelayPoint(options: { IdAddress: number; IdCarrier: number }) {
+  // Postcode=75012&City=Paris&Address1=&Country=France&IdCarrier=816&CarrierType=RelayPoint
+
+  async fetchRelayPoint(options: {
+    IdAddress?: number;
+    IdCarrier?: number;
+    Postcode?: string;
+    City?: string;
+    Address1?: string;
+    Country?: string;
+  }) {
     options = { ...options, ...{ CarrierType: 'relayPoint' } };
     try {
       const data = await this.$get<RelayPointsType>('carrier/relayPoint', {

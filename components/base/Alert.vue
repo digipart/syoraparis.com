@@ -1,5 +1,5 @@
 <template>
-  <div :class="[`alert alert-${type} ${size}`]">
+  <div :class="[`alert alert-${type} ${size}`, fill ? 'fill' : '']">
     <div v-if="$slots.icon">
       <slot name="icon" />
     </div>
@@ -22,11 +22,13 @@ const { type } = withDefaults(
     type?: 'primary' | 'default' | 'danger';
     closeButton?: boolean;
     size?: 'small' | 'medium';
+    fill?: boolean;
   }>(),
   {
     type: 'primary',
     closeButton: true,
     size: 'medium',
+    fill: false,
   }
 );
 
@@ -46,21 +48,33 @@ const iconColor = computed(() => {
 
 <style lang="scss">
 .alert {
-  @apply px-5 py-4 flex gap-3 border;
+  @apply px-5 py-4 flex items-start gap-3 border; 
   &.alert-default {
-    @apply border-gray-888 text-gray-888;
+    @apply border-zinc-400 text-zinc-400;
+
+    &.fill {
+      @apply bg-zinc-50 text-zinc-800;
+    }
   }
 
   &.alert-primary {
     @apply border-primary text-primary;
+
+    &.fill {
+      @apply bg-primary text-white;
+    }
   }
 
   &.alert-danger {
     @apply border-red-500 text-red-500;
+
+    &.fill {
+      @apply bg-red-500 text-white;
+    }
   }
 
   &.small {
-    @apply px-3 py-2 text-xs ;
+    @apply px-3 py-2 text-xs;
   }
 }
 </style>
