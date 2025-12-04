@@ -109,13 +109,22 @@ onUnmounted(() => {
               })
             "
           >
-            {{ product.Brand?.Name }} 
+            {{ product.Brand?.Name }}
           </NuxtLink>
         </div>
-        <CardProductPrice :product="product" size="medium" />
+        <!-- <CardProductPrice :product="product" size="medium" /> -->
         <!-- <div class="absolute -top-2 right-0">
           <CardProductAddToFavorite :product="product" />
         </div> -->
+        <a
+          target="_blank"
+          href="https://drive.google.com/file/d/1-pYesSgax87hBk9vqLs5UbHqD0xlEEzx/view"
+          class="block w-full"
+        >
+          <base-button type="primary" class="w-full">
+            <span class="text-xs font-medium"> Vente privée stockage </span>
+          </base-button>
+        </a>
       </div>
       <div v-if="product?.Relationship?.Child?.length" class="mb-3 lg:mb-6">
         <label class="font-normal text-sm mb-2 inline-block"
