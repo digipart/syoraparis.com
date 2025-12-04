@@ -58,7 +58,7 @@ const addToCartHandler = (variant: Variant) => {
       href="https://drive.google.com/file/d/1-pYesSgax87hBk9vqLs5UbHqD0xlEEzx/view"
     >
       <base-button type="primary">
-        <span class="text-xs font-medium"> VENTE PRIVÉE DÉSTOCKAGE</span>
+        <span class="text-xs font-medium"> Vente privée déstockage </span>
       </base-button>
     </a>
   </div>

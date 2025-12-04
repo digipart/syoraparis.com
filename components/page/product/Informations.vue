@@ -122,7 +122,7 @@ onUnmounted(() => {
           class="block w-full"
         >
           <base-button type="primary" class="w-full">
-            <span class="text-xs font-medium"> Vente privée stockage </span>
+            <span class="text-xs font-medium"> Vente privée déstockage </span>
           </base-button>
         </a>
       </div>

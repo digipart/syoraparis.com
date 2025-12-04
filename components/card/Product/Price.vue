@@ -56,7 +56,7 @@ const promotionalPrice = computed(() => {
       </template>
     </div> -->
 
-    <span class="text-xs font-medium"> VENTE PRIVÉE DÉSTOCKAGE </span>
+            <span class="text-xs font-medium"> Vente privée déstockage </span>
   </div>
 </template>
 <style lang="scss">
