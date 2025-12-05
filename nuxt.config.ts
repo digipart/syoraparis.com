@@ -108,12 +108,16 @@ export default defineNuxtConfig({
     storageKey: 'nuxt-color-mode',
   },
   i18n: {
-    
     locales: ['en', 'fr'],
-    defaultLocale: (process.env.DEFAULT_LANGUAGE as 'en' | 'fr') || 'fr',
+    defaultLocale: 'fr',
     strategy: 'prefix_except_default',
     customRoutes: 'config',
     pages: routesI18N,
+     // CRITICAL: Disable browser language detection
+    detectBrowserLanguage: false,
+    
+    // Force French on root path
+    differentDomains: false,
   },
   strapi: {
     url: process.env.STRAPI_URL || 'https://cms.syoraparis.com',
