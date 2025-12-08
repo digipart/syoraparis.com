@@ -11,7 +11,7 @@ export type ShippingRequestType = {
   City?: string;
   Address1?: string;
   Country?: string;
-  Ip?: string;
+  IP?: string;
 };
 
 export default class ShippingService extends Service {

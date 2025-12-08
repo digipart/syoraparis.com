@@ -22,8 +22,6 @@ const deliveryOption = ref<'ship' | 'pickup'>(
   carrier.value?.IdRelayPoint !== undefined ? 'pickup' : 'ship'
 );
 
-const storeRelayPoints = ref<CarrierType>(allCarriers as CarrierType);
-
 const codePromoRefreshing = ref(false);
 
 const pickupAddress = ref('');
@@ -38,7 +36,7 @@ const refreshCodePromo = () => {
     codePromoRefreshing.value = false;
   }, 100);
 };
-
+const ip = useIp();
 const setDelivredOption = async (optionType: 'ship' | 'pickup') => {
   deliveryOption.value = optionType;
   if (optionType === 'ship' && addressDelivery.value) {
@@ -46,8 +44,13 @@ const setDelivredOption = async (optionType: 'ship' | 'pickup') => {
       IdAddress: addressDelivery.value?.IdAddress,
     });
   }
+
   if (optionType === 'pickup' && pickupAddress.value) {
-    handleSelectPickupAddress(pickupAddress);
+    handleSelectPickupAddress(pickupAddress.value);
+  } else if (optionType === 'pickup' && ip.value) {
+    fetchShipping({
+      IP: ip.value
+    });
   }
 };
 

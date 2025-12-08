@@ -40,6 +40,7 @@ const refreshCodePromo = () => {
   }, 100);
 };
 
+const ip = useIp();
 const setDelivredOption = async (optionType: 'ship' | 'pickup') => {
   deliveryOption.value = optionType;
   if (optionType === 'ship' && addressDelivery.value) {
@@ -49,6 +50,10 @@ const setDelivredOption = async (optionType: 'ship' | 'pickup') => {
   }
   if (optionType === 'pickup' && pickupAddress.value) {
     handleSelectPickupAddress(pickupAddress);
+  } else if (optionType === 'pickup' && ip.value) {
+    fetchShipping({
+      IP: ip.value,
+    });
   }
 };
 
@@ -60,7 +65,6 @@ const handleSelectPickupAddress = async (e: any) => {
     Country: e.country,
   });
 };
-
 </script>
 
 <template>
@@ -187,9 +191,7 @@ const handleSelectPickupAddress = async (e: any) => {
               :label="$t('label.address')"
               @onSelect="handleSelectPickupAddress"
             />
-            <template
-              v-if="Object.keys(allCarriers).length"
-            >
+            <template v-if="Object.keys(allCarriers).length">
               <div class="flex justify-end gap-5 mb-2">
                 <div>
                   <ul class="flex gap-4 text-sm">
