@@ -1,4 +1,16 @@
 <script setup lang="ts">
+import type { AddressType } from '~/types/AddressType';
+
+const addressStore = useAddressStore();
+const { addressDelivery, addresses } = toRefs(addressStore);
+const { fetchAddresses, updateAddress } = addressStore;
+
+const shippingStore = useShippingStore();
+const { fetchShipping } = shippingStore;
+
+const addressFormAdd = ref<HTMLElement | null>(null);
+
+const listAddressVisible = ref(false);
 const { hideEmail } = defineProps({
   hideEmail: {
     type: Boolean,
@@ -11,6 +23,9 @@ const { state, v$ } = toRefs(formDeliveryStore);
 
 const auth = useAuth();
 const { registerGuest } = auth;
+const { isLoggedIn, isGuest } = toRefs(auth);
+
+const showForm = ref(!isLoggedIn.value);
 
 const localePath = useLocalePath();
 const router = useRouter();
@@ -19,14 +34,28 @@ const router = useRouter();
 
 const submitForm = async () => {
   v$.value.$touch();
+  console.log('v$',v$);
+  
   if (!v$.value.$invalid) {
-    registerGuest().then((data) => {});
+    registerGuest().then(async (data) => {
+      showForm.value = false;
+      console.log(data);
+      await fetchAddresses();
+
+      await fetchShipping({
+        IdAddress: addressDelivery.value?.IdAddress,
+        ResponseLevel: 'summary',
+      });
+      emit('onAddressCreated', addressDelivery.value?.IdAddress);
+    });
   } else {
     showFields();
   }
 };
 
 const addressManually = ref(false);
+const emit = defineEmits(['onAddressCreated']);
+const { t } = useI18n();
 
 const countryStore = useCountryStore();
 const { countries } = toRefs(countryStore);
@@ -41,6 +70,36 @@ const countriesOptions = computed(() => {
     value: country.CountryIsoCode,
   }));
 });
+
+const addressesUpdated = async (addressId?: number) => {
+  if (!addressId && addressDelivery.value) {
+    addressId = addressDelivery.value.IdAddress;
+  }
+  await fetchShipping({
+    IdAddress: addressId,
+    ResponseLevel: 'summary',
+  });
+};
+
+const setAddresseDelivery = (address: AddressType) => {
+  const newAddress = { ...address };
+  newAddress.IsDelivery = true;
+  listAddressVisible.value = false;
+
+  updateAddress(newAddress).then(async (data) => {
+    await fetchShipping({
+      IdAddress: data?.IdAddress,
+      ResponseLevel: 'summary',
+    });
+  });
+};
+
+const displayForm = () => {
+  showForm.value = true;
+  setTimeout(() => {
+    scrollToElementContainer(addressFormAdd.value);
+  }, 300);
+};
 
 const handleSelectAddress = (details: {
   address: string;
@@ -66,96 +125,142 @@ defineExpose({
 
 <template>
   <div class="formDelivery">
-    <form class="formDelivery-form" @submit.prevent="submitForm">
-      <div class="grid grid-cols-12 gap-x-5">
-        <div v-if="!hideEmail" class="col-span-12">
-          <InputText
-            id="email"
-            v-model="state.email"
-            type="email"
-            :errors="v$.email?.$errors"
-            :required="true"
-            :label="$t('label.email')"
-          />
-        </div>
-        <div class="col-span-12 md:col-span-6">
-          <InputText
-            id="name"
-            v-model="state.name"
-            type="text"
-            :errors="v$.name?.$errors"
-            :required="true"
-            :label="$t('label.name')"
-          />
-        </div>
-        <div class="col-span-12 md:col-span-6">
-          <InputText
-            id="firstname"
-            v-model="state.firstname"
-            type="text"
-            :errors="v$.firstname?.$errors"
-            :required="true"
-            :label="$t('label.firstname')"
-          />
-        </div>
-        <div class="col-span-12">
-          <InputGoogoleAutoComplete
-            v-model="state.address"
-            id="address"
-            :errors="v$.address?.$errors"
-            :label="$t('label.address')"
-            :required="true"
-            @onSelect="handleSelectAddress"
-          />
-          <div v-if="!addressManually" class="-mt-5 flex justify-end">
-            <span
-              class="text-xs text-gray-888 underline cursor-pointer"
-              @click="showFields()"
-            >
-              {{ $t('label.enter_address_manually') }}
-            </span>
-          </div>
-        </div>
-        <div
-          v-show="addressManually || v$.$error"
-          class="col-span-12 grid grid-cols-12 gap-x-5"
-        >
-          <div class="col-span-12">
-            <InputSelect
-              id="country"
-              v-model="state.country"
-              type="text"
-              :errors="v$.country?.$errors"
-              :label="$t('label.country')"
-              :selectOptions="countriesOptions"
-              :required="true"
-              :key="state.country"
+    <transition name="slide">
+      <div v-show="!showForm && !listAddressVisible">
+        <div>
+          <!-- Delivery address selected -->
+          <div
+            v-if="addressDelivery"
+            class="border border-black px-5 py-3 mt-3"
+          >
+            <PageCheckoutDeliveryAddressShippingSelected
+              hideShipping
+              @onAddressSubmited="addressesUpdated()"
             />
           </div>
-          <div class="col-span-12 md:col-span-6">
-            <InputText
-              id="postcode"
-              v-model="state.postcode"
-              type="text"
-              :errors="v$.postcode?.$errors"
-              :required="true"
-              :label="$t('label.postcode')"
-            />
-          </div>
-          <div class="col-span-12 md:col-span-6">
-            <InputText
-              id="city"
-              v-model="state.city"
-              type="text"
-              :errors="v$.city?.$errors"
-              :required="true"
-              :label="$t('label.city')"
-            />
-          </div>
+          <span
+            class="underline text-xs cursor-pointer"
+            @click="listAddressVisible = !listAddressVisible"
+            v-if="addresses.length > 0"
+          >
+            {{ t('button.select_another_address') }}
+          </span>
         </div>
+      </div>
+    </transition>
 
-        <div class="col-span-12">
-          <!-- <InputText
+    <transition name="slide">
+      <div v-if="!showForm && listAddressVisible">
+        <div class="flex justify-end mt-3 mb-3">
+          <span class="underline text-xs cursor-pointer" @click="displayForm()">
+            {{ $t('button.add_new_address') }}
+          </span>
+        </div>
+        <PerfectScrollbar class="max-h-96 mb-5">
+          <ListingAccountAddresses
+            activeType="Delivery"
+            @onAddressSelected="setAddresseDelivery($event)"
+          />
+        </PerfectScrollbar>
+      </div>
+    </transition>
+
+    <transition name="slide">
+      <div
+        v-show="showForm"
+        ref="addressFormAdd"
+        class="border border-black p-5"
+      >
+        <form class="formDelivery-form" @submit.prevent="submitForm">
+          <div class="grid grid-cols-12 gap-x-5">
+            <div v-if="!hideEmail" class="col-span-12">
+              <InputText
+                id="email"
+                v-model="state.email"
+                type="email"
+                :errors="v$.email?.$errors"
+                :required="true"
+                :label="$t('label.email')"
+              />
+            </div>
+            <div class="col-span-12 md:col-span-6">
+              <InputText
+                id="name"
+                v-model="state.name"
+                type="text"
+                :errors="v$.name?.$errors"
+                :required="true"
+                :label="$t('label.name')"
+              />
+            </div>
+            <div class="col-span-12 md:col-span-6">
+              <InputText
+                id="firstname"
+                v-model="state.firstname"
+                type="text"
+                :errors="v$.firstname?.$errors"
+                :required="true"
+                :label="$t('label.firstname')"
+              />
+            </div>
+            <div class="col-span-12">
+              <InputGoogoleAutoComplete
+                v-model="state.address"
+                id="address"
+                :errors="v$.address?.$errors"
+                :label="$t('label.address')"
+                :required="true"
+                @onSelect="handleSelectAddress"
+              />
+              <div v-if="!addressManually" class="-mt-5 flex justify-end">
+                <span
+                  class="text-xs text-gray-888 underline cursor-pointer"
+                  @click="showFields()"
+                >
+                  {{ $t('label.enter_address_manually') }}
+                </span>
+              </div>
+            </div>
+            <div
+              v-show="addressManually || v$.$error"
+              class="col-span-12 grid grid-cols-12 gap-x-5"
+            >
+              <div class="col-span-12">
+                <InputSelect
+                  id="country"
+                  v-model="state.country"
+                  type="text"
+                  :errors="v$.country?.$errors"
+                  :label="$t('label.country')"
+                  :selectOptions="countriesOptions"
+                  :required="true"
+                  :key="state.country"
+                />
+              </div>
+              <div class="col-span-12 md:col-span-6">
+                <InputText
+                  id="postcode"
+                  v-model="state.postcode"
+                  type="text"
+                  :errors="v$.postcode?.$errors"
+                  :required="true"
+                  :label="$t('label.postcode')"
+                />
+              </div>
+              <div class="col-span-12 md:col-span-6">
+                <InputText
+                  id="city"
+                  v-model="state.city"
+                  type="text"
+                  :errors="v$.city?.$errors"
+                  :required="true"
+                  :label="$t('label.city')"
+                />
+              </div>
+            </div>
+
+            <div class="col-span-12">
+              <!-- <InputText
             id="prefix"
             v-model="state.prefix"
             type="text"
@@ -163,17 +268,30 @@ defineExpose({
             :label="$t('label.prefix')"
             class="max-w-14"
           /> -->
-          <InputText
-            id="phone"
-            v-model="state.phone"
-            type="tel"
-            :errors="v$.phone?.$errors"
-            :required="true"
-            :label="$t('label.phone')"
-          />
-        </div>
+              <InputText
+                id="phone"
+                v-model="state.phone"
+                type="tel"
+                :errors="v$.phone?.$errors"
+                :required="true"
+                :label="$t('label.phone')"
+              />
+            </div>
+            <div class="col-span-12">
+              <BaseButton
+                type="primary"
+                size="small"
+                class="w-full"
+                :title="$t('button.continue')"
+                submit
+              >
+                <span>{{ $t('button.continue') }}</span>
+              </BaseButton>
+            </div>
+          </div>
+        </form>
       </div>
-    </form>
+    </transition>
   </div>
 </template>
 

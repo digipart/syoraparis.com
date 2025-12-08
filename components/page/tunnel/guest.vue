@@ -2,7 +2,6 @@
 import ShippingService from '~/services/ShippingService';
 import type { CarrierType } from '~/types/ShippingType';
 
-
 const { t } = useI18n();
 const localePath = useLocalePath();
 
@@ -33,7 +32,6 @@ const pickupAddress = ref('');
 const valide = computed(() => {
   return totalProductQuantity.value && addressDelivery.value && carrier.value;
 });
-
 
 const refreshCodePromo = () => {
   codePromoRefreshing.value = true;
@@ -91,16 +89,14 @@ const getRelayPointWithAddress = (options: {
             {{ $t('label.contact') }} :
           </BaseHeadLine>
           <div>
-            <div>
-              <InputText
-                id="email"
-                v-model="state.email"
-                type="email"
-                :errors="v$.email?.$errors"
-                :required="true"
-                :label="$t('label.email')"
-              />
-            </div>
+            <InputText
+              id="email"
+              v-model="state.email"
+              type="email"
+              :errors="v$.email?.$errors"
+              :required="true"
+              :label="$t('label.email')"
+            />
           </div>
 
           <div class="deliveryOptions mb-5">
@@ -145,7 +141,7 @@ const getRelayPointWithAddress = (options: {
             <BaseHeadLine size="md" class="uppercase font-medium mb-3">
               {{ $t('label.address_delivery') }} :
             </BaseHeadLine>
-            <PageCheckoutGuest :hideEmail="true" class="border p-3 mb-5" />
+            <PageCheckoutGuest class="mb-5" hideEmail />
             <!-- Shipping option -->
             <div class="flex justify-between gap-5 mb-3">
               <div>
@@ -265,7 +261,7 @@ const getRelayPointWithAddress = (options: {
           </PerfectScrollbar>
         </BasePanel>
         <PageCheckoutMyRewards @onCodePromoApplied="refreshCodePromo" />
-        <BasePanel class="hidden lg:block">
+        <BasePanel>
           <template #header>
             <div class="flex gap-3 justify-between items-center">
               <BaseHeadLine size="md" class="font-normal uppercase">

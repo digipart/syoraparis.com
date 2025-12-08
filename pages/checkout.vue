@@ -1,7 +1,7 @@
 <script setup lang="ts">
 definePageMeta({
   layout: 'empty',
-  keepalive: false
+  keepalive: false,
 });
 
 const { t } = useI18n();
@@ -11,7 +11,7 @@ useHead(() => ({
 }));
 
 const auth = useAuth();
-const { isLoggedIn } = toRefs(auth);
+const { isLoggedIn, isGuest } = toRefs(auth);
 
 const cartStore = useCartStore();
 const { totalProductQuantity, loaded } = toRefs(cartStore);
@@ -47,8 +47,8 @@ onMounted(async () => {
   <div v-if="loaded">
     <LayoutContinueShopping v-if="!totalProductQuantity" class="mt-16" />
     <template v-else>
-      <PageTunnel v-if="isLoggedIn" />
-      <PageTunnelGuest v-else />
+      <PageTunnel v-if="isLoggedIn && !isGuest" />
+      <PageTunnelGuest v-if="!isLoggedIn || isGuest" />
     </template>
   </div>
 </template>

@@ -51,7 +51,7 @@ onMounted(() => {});
 </script>
 
 <template>
-  <!-- <div
+  <div
     class="pageCatalog-variants"
     @click="($event) => $event.stopPropagation()"
   >
@@ -80,10 +80,8 @@ onMounted(() => {});
       :activeIdProduct="activeIdProduct"
       :max="4"
     />
-  </div> -->
-  <div>
-            <span class="text-xs font-medium"> Vente privée déstockage </span>
   </div>
+
 </template>
 
 <style lang="scss">

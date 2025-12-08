@@ -7,6 +7,11 @@ export type ShippingRequestType = {
   LanguageIsoCode?: string;
   CurrencyIsoCode?: string;
   ResponseLevel?: 'summary' | 'details' | 'complete';
+  Postcode?: string;
+  City?: string;
+  Address1?: string;
+  Country?: string;
+  Ip?: string;
 };
 
 export default class ShippingService extends Service {
@@ -35,6 +40,7 @@ export default class ShippingService extends Service {
     City?: string;
     Address1?: string;
     Country?: string;
+    Ip?: string;
   }) {
     options = { ...options, ...{ CarrierType: 'relayPoint' } };
     try {

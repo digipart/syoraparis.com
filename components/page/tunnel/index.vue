@@ -25,6 +25,7 @@ const storeRelayPoints = ref<CarrierType>(allCarriers as CarrierType);
 const codePromoRefreshing = ref(false);
 
 const pickupAddress = ref('');
+const pickupCarriers = ref<any>(null);
 
 const valide = computed(() => {
   return totalProductQuantity.value && addressDelivery.value && carrier.value;
@@ -37,7 +38,7 @@ const refreshCodePromo = () => {
   }, 100);
 };
 
-const handleSelectPickupAddress = (e: any) => {
+const handleSelectPickupAddress = async (e: any) => {
   getRelayPointWithAddress({
     Postcode: e.postalCode,
     City: e.city,
@@ -53,12 +54,14 @@ const getRelayPointWithAddress = (options: {
   City?: string;
   Address1?: string;
   Country?: string;
+  Ip?: string;
 }) => {
   const shippingService = new ShippingService();
   return shippingService
-    .fetchRelayPoint(options)
+    .fetch(options)
     .then((data) => {
       console.log('data', data);
+      pickupCarriers.value = data.Carriers;
     })
     .catch((error) => {
       throw error;
@@ -177,7 +180,9 @@ const getRelayPointWithAddress = (options: {
               :label="$t('label.address')"
               @onSelect="handleSelectPickupAddress"
             />
-            <template v-if="Object.keys(allCarriers).length">
+            <template
+              v-if="pickupCarriers && Object.keys(pickupCarriers).length"
+            >
               <hr class="mt-5 mb-5" />
               <div class="flex justify-end gap-5 mb-2">
                 <div>

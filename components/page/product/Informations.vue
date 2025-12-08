@@ -112,33 +112,24 @@ onUnmounted(() => {
             {{ product.Brand?.Name }}
           </NuxtLink>
         </div>
-        <!-- <CardProductPrice :product="product" size="medium" /> -->
-        <!-- <div class="absolute -top-2 right-0">
+        <CardProductPrice :product="product" size="medium" />
+        <div class="absolute -top-2 right-0">
           <CardProductAddToFavorite :product="product" />
-        </div> -->
-        <a
-          target="_blank"
-          href="https://drive.google.com/file/d/1-pYesSgax87hBk9vqLs5UbHqD0xlEEzx/view"
-          class="block w-full"
-        >
-          <base-button type="primary" class="w-full">
-            <span class="text-xs font-medium"> Vente privée déstockage </span>
-          </base-button>
-        </a>
+        </div>
       </div>
       <div v-if="product?.Relationship?.Child?.length" class="mb-3 lg:mb-6">
         <label class="font-normal text-sm mb-2 inline-block"
           >{{ $t('label.color') }} :
         </label>
-        <!-- <CardProductColors
+        <CardProductColors
           :product="product"
           :activeIdProduct="Number(product.IdProduct)"
           size="medium"
           link
-        /> -->
+        />
       </div>
       <div class="mb-5">
-        <!-- <div class="justify-between gap-x-4 mb-2 hidden lg:flex">
+        <div class="justify-between gap-x-4 mb-2 hidden lg:flex">
           <label class="font-normal text-sm inline-block">
             {{ $t('label.size') }} :
           </label>
@@ -151,7 +142,7 @@ onUnmounted(() => {
           >
             <PageProductSizes :product="product" class="" />
           </div>
-        </div> -->
+        </div>
       </div>
       <div class="mb-3 lg:mb-5">
         <div
