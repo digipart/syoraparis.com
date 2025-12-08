@@ -40,8 +40,20 @@ const refreshCodePromo = () => {
   }, 100);
 };
 
-const handleSelectPickupAddress = (e: any) => {
-  getRelayPointWithAddress({
+const setDelivredOption = async (optionType: 'ship' | 'pickup') => {
+  deliveryOption.value = optionType;
+  if (optionType === 'ship' && addressDelivery.value) {
+    fetchShipping({
+      IdAddress: addressDelivery.value?.IdAddress,
+    });
+  }
+  if (optionType === 'pickup' && pickupAddress.value) {
+    handleSelectPickupAddress(pickupAddress);
+  }
+};
+
+const handleSelectPickupAddress = async (e: any) => {
+  fetchShipping({
     Postcode: e.postalCode,
     City: e.city,
     Address1: e.address,
@@ -49,24 +61,6 @@ const handleSelectPickupAddress = (e: any) => {
   });
 };
 
-const getRelayPointWithAddress = (options: {
-  IdAddress?: number;
-  IdCarrier?: number;
-  Postcode?: string;
-  City?: string;
-  Address1?: string;
-  Country?: string;
-}) => {
-  const shippingService = new ShippingService();
-  return shippingService
-    .fetchRelayPoint(options)
-    .then((data) => {
-      console.log('data', data);
-    })
-    .catch((error) => {
-      throw error;
-    });
-};
 </script>
 
 <template>
@@ -106,7 +100,7 @@ const getRelayPointWithAddress = (options: {
             <div
               class="deliveryOptions-item"
               :class="{ selected: deliveryOption === 'ship' }"
-              @click="deliveryOption = 'ship'"
+              @click="setDelivredOption('ship')"
             >
               <InputRadio
                 id="do-ship"
@@ -122,7 +116,7 @@ const getRelayPointWithAddress = (options: {
             <div
               class="deliveryOptions-item"
               :class="{ selected: deliveryOption === 'pickup' }"
-              @click="deliveryOption = 'pickup'"
+              @click="setDelivredOption('pickup')"
             >
               <InputRadio
                 id="do-pickup"
@@ -193,8 +187,9 @@ const getRelayPointWithAddress = (options: {
               :label="$t('label.address')"
               @onSelect="handleSelectPickupAddress"
             />
-            <template v-if="Object.keys(allCarriers).length">
-              <hr class="mt-5 mb-5" />
+            <template
+              v-if="Object.keys(allCarriers).length"
+            >
               <div class="flex justify-end gap-5 mb-2">
                 <div>
                   <ul class="flex gap-4 text-sm">

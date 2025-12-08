@@ -18,14 +18,15 @@ const { totalToPay, carrier, totalProductQuantity } = toRefs(cartStore);
 const addressStore = useAddressStore();
 const { addressDelivery } = toRefs(addressStore);
 
-const deliveryOption = ref<'ship' | 'pickup'>('pickup');
+const deliveryOption = ref<'ship' | 'pickup'>(
+  carrier.value?.IdRelayPoint !== undefined ? 'pickup' : 'ship'
+);
 
 const storeRelayPoints = ref<CarrierType>(allCarriers as CarrierType);
 
 const codePromoRefreshing = ref(false);
 
 const pickupAddress = ref('');
-const pickupCarriers = ref<any>(null);
 
 const valide = computed(() => {
   return totalProductQuantity.value && addressDelivery.value && carrier.value;
@@ -38,34 +39,25 @@ const refreshCodePromo = () => {
   }, 100);
 };
 
+const setDelivredOption = async (optionType: 'ship' | 'pickup') => {
+  deliveryOption.value = optionType;
+  if (optionType === 'ship' && addressDelivery.value) {
+    fetchShipping({
+      IdAddress: addressDelivery.value?.IdAddress,
+    });
+  }
+  if (optionType === 'pickup' && pickupAddress.value) {
+    handleSelectPickupAddress(pickupAddress);
+  }
+};
+
 const handleSelectPickupAddress = async (e: any) => {
-  getRelayPointWithAddress({
+  fetchShipping({
     Postcode: e.postalCode,
     City: e.city,
     Address1: e.address,
     Country: e.country,
   });
-};
-
-const getRelayPointWithAddress = (options: {
-  IdAddress?: number;
-  IdCarrier?: number;
-  Postcode?: string;
-  City?: string;
-  Address1?: string;
-  Country?: string;
-  Ip?: string;
-}) => {
-  const shippingService = new ShippingService();
-  return shippingService
-    .fetch(options)
-    .then((data) => {
-      console.log('data', data);
-      pickupCarriers.value = data.Carriers;
-    })
-    .catch((error) => {
-      throw error;
-    });
 };
 </script>
 
@@ -92,7 +84,7 @@ const getRelayPointWithAddress = (options: {
             <div
               class="deliveryOptions-item"
               :class="{ selected: deliveryOption === 'ship' }"
-              @click="deliveryOption = 'ship'"
+              @click="setDelivredOption('ship')"
             >
               <InputRadio
                 id="do-ship"
@@ -108,7 +100,7 @@ const getRelayPointWithAddress = (options: {
             <div
               class="deliveryOptions-item"
               :class="{ selected: deliveryOption === 'pickup' }"
-              @click="deliveryOption = 'pickup'"
+              @click="setDelivredOption('pickup')"
             >
               <InputRadio
                 id="do-pickup"
@@ -177,13 +169,10 @@ const getRelayPointWithAddress = (options: {
             <InputGoogoleAutoComplete
               v-model="pickupAddress"
               id="autocompletePickup"
-              :label="$t('label.address')"
+              :label="$t('label.search_address')"
               @onSelect="handleSelectPickupAddress"
             />
-            <template
-              v-if="pickupCarriers && Object.keys(pickupCarriers).length"
-            >
-              <hr class="mt-5 mb-5" />
+            <template v-if="Object.keys(allCarriers).length">
               <div class="flex justify-end gap-5 mb-2">
                 <div>
                   <ul class="flex gap-4 text-sm">
