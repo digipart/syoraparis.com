@@ -1,14 +1,14 @@
 <template>
-  <div class="cardShipping" :class="{ active }">
-    <span class="cardShipping-span"></span>
+  <div class="cardShipping" :class="{ active, radio, bordered: border }">
+    <span class="cardShipping-span" v-if="radio"></span>
     <div class="cardShipping-item" @click="onSelectHandler()">
       <div class="flex gap-3">
         <div class="flex flex-col flex-1 text-xs uppercase">
-          <span class="font-normal mb-1">
-            {{ carrier?.Price?.TaxIncl?.toFixed(2) }} {{ currencyIsoCode }}
-          </span>
           <span class="font-light">
             {{ carrier?.Name }}
+          </span>
+          <span class="font-normal mb-1">
+            {{ carrier?.Price?.TaxIncl?.toFixed(2) }} {{ currencyIsoCode }}
           </span>
         </div>
         <div class="cardShipping-item-logo">
@@ -59,6 +59,14 @@ const { carrier, carrierType, active } = defineProps({
   },
   carrierType: {
     type: String as PropType<'Home' | 'Store' | 'RelayPoint'>,
+  },
+  radio: {
+    type: Boolean,
+    default: true,
+  },
+  border: {
+    type: Boolean,
+    default: true,
   },
 });
 
@@ -150,7 +158,7 @@ const selectPointRelay = (rpId: string, relayPoints: RelayPointType[]) => {
 $cardShipping: '.cardShipping';
 
 #{$cardShipping} {
-  @apply flex flex-col gap-y-4 border border-gray-bbb relative z-[0] bg-white;
+  @apply flex flex-col gap-y-4 relative z-[0] bg-zinc-200;
 
   &.active {
     @apply border-black z-[1];
@@ -163,8 +171,18 @@ $cardShipping: '.cardShipping';
       }
     }
   }
+  &.radio {
+    #{$cardShipping} {
+      &-item {
+        @apply pl-12;
+      }
+    }
+  }
+  &.bordered {
+    @apply border border-gray-bbb bg-white;
+  }
   &-item {
-    @apply p-5 pl-12 duration-150 cursor-pointer;
+    @apply p-5 pl-5 duration-150 cursor-pointer;
 
     &-logo {
     }

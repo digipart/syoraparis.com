@@ -17,6 +17,7 @@ const { fetchShipping } = shippingStore;
 
 const cartStore = useCartStore();
 const { totalToPay, carrier, totalProductQuantity } = toRefs(cartStore);
+const { updateShipping } = cartStore;
 
 const addressStore = useAddressStore();
 const { addressDelivery } = toRefs(addressStore);
@@ -25,7 +26,7 @@ const deliveryOption = ref<'ship' | 'pickup'>('ship');
 
 const storeRelayPoints = ref<CarrierType>(allCarriers as CarrierType);
 
-const codePromoRefreshing = ref(false);
+const paymentRefreshing = ref(false);
 
 const pickupAddress = ref('');
 
@@ -50,14 +51,15 @@ const pickupCarriers = computed(() => {
 });
 
 const refreshCodePromo = () => {
-  codePromoRefreshing.value = true;
+  paymentRefreshing.value = true;
   setTimeout(() => {
-    codePromoRefreshing.value = false;
+    paymentRefreshing.value = false;
   }, 100);
 };
 
 const ip = useIp();
 const setDelivredOption = async (optionType: 'ship' | 'pickup') => {
+  allCarriers.value = {};
   deliveryOption.value = optionType;
   if (optionType === 'ship' && addressDelivery.value) {
     fetchShipping({
@@ -73,8 +75,33 @@ const setDelivredOption = async (optionType: 'ship' | 'pickup') => {
   }
 };
 
+const customAddressDelivery = computed(() => {
+  if (
+    deliveryOption.value === 'ship' &&
+    state.value.postcode &&
+    state.value.country &&
+    state.value.city
+  ) {
+    return {
+      postcode: state.value.postcode,
+      city: state.value.city,
+      country: state.value.country,
+      address: state.value.address,
+    };
+  }
+  if (deliveryOption.value === 'ship' && ip.value) {
+    return {
+      ip: ip.value,
+    };
+  }
+  return undefined;
+});
+
 const handalFormGuestChange = (state: any) => {
-  console.log(state);
+  paymentRefreshing.value = true;
+  setTimeout(() => {
+    paymentRefreshing.value = false;
+  }, 100);
 };
 
 const handleSelectPickupAddress = async (e: any) => {
@@ -152,6 +179,7 @@ const handleSelectPickupAddress = async (e: any) => {
               <IconShop :size="2.5" />
             </div>
           </div>
+          <CardShipping :carrier="carrier" :radio="false" :border="false" class="mb-5" />
 
           <div v-if="deliveryOption === 'ship'">
             <BaseHeadLine size="md" class="uppercase font-medium mb-3">
@@ -246,11 +274,11 @@ const handleSelectPickupAddress = async (e: any) => {
           </div>
 
           <div class="mt-5">
-            <div v-if="valide && !codePromoRefreshing">
+            <div v-if="valide && !paymentRefreshing">
               <BaseHeadLine size="md" class="uppercase font-medium mb-3">
                 {{ $t('tunnel.payment.title') }} :
               </BaseHeadLine>
-              <FormPayment />
+              <FormPayment :customAddressDelivery="customAddressDelivery" />
             </div>
             <BaseAlert v-else fill type="default" :closeButton="false">
               <span class="text-sm">

@@ -3,10 +3,17 @@ import PaymentService from '~/services/PaymentService';
 import type { AddressType } from '~/types/AddressType';
 import type { PaymentMethodType } from '~/types/PaymentType';
 
-const { disabled } = defineProps<{
+const { disabled, customAddressDelivery } = defineProps<{
   disabled?: boolean;
+  customAddressDelivery?: {
+    postcode?: string;
+    city?: string;
+    country?: string;
+    address?: string;
+    ip?: string;
+  };
 }>();
-
+const { locale } = useI18n();
 const addressStore = useAddressStore();
 const { addressDelivery, addressInvoice } = toRefs(addressStore);
 const { fetchAddresses, updateAddress, updateAddressType } = addressStore;
@@ -146,12 +153,28 @@ const setAddresse = (event: Event) => {
 };
 
 const paymentService = new PaymentService();
+let options: any = {};
+if (customAddressDelivery) {
+  if (customAddressDelivery.ip) {
+    options = {
+      IP: customAddressDelivery.ip,
+    };
+  } else {
+    options = {
+      Postcode: customAddressDelivery.postcode,
+      City: customAddressDelivery.city,
+      Country: customAddressDelivery.country,
+      Address1: customAddressDelivery.address,
+    };
+  }
+} else if (idAddressDelivery.value) {
+  options = { IdAddress: idAddressDelivery.value };
+}
 try {
   const data = await paymentService.paymentMethods({
-    IdAddress: idAddressDelivery.value,
-    LanguageIsoCode: 'fr',
+    ...options,
+    LanguageIsoCode: locale.value,
   });
-
   console.log('payment methods:', data.PaymentMethods);
   paymentMethodsData.value = data.PaymentMethods || [];
 } catch (error) {
