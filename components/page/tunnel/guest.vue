@@ -179,7 +179,7 @@ const handleSelectPickupAddress = async (e: any) => {
               <IconShop :size="2.5" />
             </div>
           </div>
-          <CardShipping :carrier="carrier" :radio="false" :border="false" class="mb-5" />
+          <CardShipping v-if="carrier?.IdCarrier" :carrier="carrier" :radio="false" :border="false" class="mb-5" />
 
           <div v-if="deliveryOption === 'ship'">
             <BaseHeadLine size="md" class="uppercase font-medium mb-3">
