@@ -34,8 +34,8 @@ const router = useRouter();
 
 const submitForm = async () => {
   v$.value.$touch();
-  console.log('v$',v$);
-  
+  console.log('v$', v$);
+
   if (!v$.value.$invalid) {
     registerGuest().then(async (data) => {
       showForm.value = false;
@@ -53,8 +53,8 @@ const submitForm = async () => {
   }
 };
 
-const addressManually = ref(false);
-const emit = defineEmits(['onAddressCreated']);
+const addressManually = ref(true);
+const emit = defineEmits(['onAddressCreated', 'onFormChange']);
 const { t } = useI18n();
 
 const countryStore = useCountryStore();
@@ -118,6 +118,18 @@ const handleSelectAddress = (details: {
   state.value.city = details.city;
 };
 
+watch(state.value, () => {
+  emit('onFormChange', state.value);
+  if (state.value.country && state.value.postcode && state.value.city) {
+    fetchShipping({
+      Postcode: state.value.postcode,
+      City: state.value.city,
+      Address1: state.value.address,
+      Country: state.value.country,
+    });
+  }
+});
+
 defineExpose({
   submitForm,
 });
@@ -131,7 +143,7 @@ defineExpose({
           <!-- Delivery address selected -->
           <div
             v-if="addressDelivery"
-            class="border border-black px-5 py-3 mt-3"
+            class="border border-black px-5 py-3 mt-3 bg-white"
           >
             <PageCheckoutDeliveryAddressShippingSelected
               hideShipping
@@ -166,12 +178,8 @@ defineExpose({
     </transition>
 
     <transition name="slide">
-      <div
-        v-show="showForm"
-        ref="addressFormAdd"
-        class="border border-black p-5"
-      >
-        <form class="formDelivery-form" @submit.prevent="submitForm">
+      <div v-show="showForm" ref="addressFormAdd" class="">
+        <form class="formDelivery-form">
           <div class="grid grid-cols-12 gap-x-5">
             <div v-if="!hideEmail" class="col-span-12">
               <InputText
@@ -181,6 +189,7 @@ defineExpose({
                 :errors="v$.email?.$errors"
                 :required="true"
                 :label="$t('label.email')"
+                border
               />
             </div>
             <div class="col-span-12 md:col-span-6">
@@ -191,6 +200,7 @@ defineExpose({
                 :errors="v$.name?.$errors"
                 :required="true"
                 :label="$t('label.name')"
+                border
               />
             </div>
             <div class="col-span-12 md:col-span-6">
@@ -201,6 +211,7 @@ defineExpose({
                 :errors="v$.firstname?.$errors"
                 :required="true"
                 :label="$t('label.firstname')"
+                border
               />
             </div>
             <div class="col-span-12">
@@ -211,6 +222,7 @@ defineExpose({
                 :label="$t('label.address')"
                 :required="true"
                 @onSelect="handleSelectAddress"
+                border
               />
               <div v-if="!addressManually" class="-mt-5 flex justify-end">
                 <span
@@ -235,6 +247,7 @@ defineExpose({
                   :selectOptions="countriesOptions"
                   :required="true"
                   :key="state.country"
+                  border
                 />
               </div>
               <div class="col-span-12 md:col-span-6">
@@ -245,6 +258,7 @@ defineExpose({
                   :errors="v$.postcode?.$errors"
                   :required="true"
                   :label="$t('label.postcode')"
+                  border
                 />
               </div>
               <div class="col-span-12 md:col-span-6">
@@ -255,6 +269,7 @@ defineExpose({
                   :errors="v$.city?.$errors"
                   :required="true"
                   :label="$t('label.city')"
+                  border
                 />
               </div>
             </div>
@@ -275,9 +290,10 @@ defineExpose({
                 :errors="v$.phone?.$errors"
                 :required="true"
                 :label="$t('label.phone')"
+                border
               />
             </div>
-            <div class="col-span-12">
+            <!-- <div class="col-span-12">
               <BaseButton
                 type="primary"
                 size="small"
@@ -287,7 +303,7 @@ defineExpose({
               >
                 <span>{{ $t('button.continue') }}</span>
               </BaseButton>
-            </div>
+            </div> -->
           </div>
         </form>
       </div>

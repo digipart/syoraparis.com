@@ -61,20 +61,20 @@ const submitForm = async () => {
     >
       {{ $t('error.codepromo_invalid') }}
     </BaseAlert>
-    <form @submit.prevent="submitForm">
-      <div>
+    <form @submit.prevent="submitForm" class="flex gap-2">
+      <div class="flex-1">
         <InputText
           id="codepromo"
           v-model="state.codepromo"
           :errors="v$.codepromo?.$errors"
           :label="$t('cart.codepromo.title')"
+          border
         />
       </div>
 
       <div>
         <BaseButton
           type="primary"
-          size="small"
           submit
           :title="$t('button.apply')"
           class="w-full"

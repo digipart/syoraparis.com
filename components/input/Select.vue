@@ -5,6 +5,7 @@
       'v-select--focused': isFocused || internalValue,
       error: errors?.length,
       required: required,
+      'v-select--border': border,
     }"
   >
     <v-select
@@ -48,6 +49,7 @@ interface Props {
     label: string | undefined;
     value: string | number | undefined;
   }[];
+  border?: boolean;
 }
 
 const props = defineProps<Props>();
@@ -73,9 +75,9 @@ watch(internalValue, (newValue) => {
 <style lang="scss">
 .v-select-input {
   &.v-select {
-    border-top: 0 !important;
-    border-right: 0 !important;
-    border-left: 0 !important;
+    border-top-width: 0 !important;
+    border-right-width: 0 !important;
+    border-left-width: 0 !important;
 
     @apply w-full  relative mb-5 font-light uppercase border-b border-gray-bbb pt-3 pb-1.5;
 
@@ -121,6 +123,31 @@ watch(internalValue, (newValue) => {
 
       .v-select-input {
         @apply border-primary;
+      }
+    }
+    &--border {
+      @apply bg-white border-gray-888 border pr-3 pl-[8px]  pb-1.5 pt-4 text-sm;
+      border-top-width: 1px !important;
+      border-right-width: 1px !important;
+      border-left-width: 1px !important;
+
+      .v-select-label {
+        @apply left-3 top-[22px];
+      }
+
+      &.v-select--focused {
+        .v-select-label,
+        & .v-select-input:not(:placeholder-shown) + .v-select-label,
+        & ~ .v-select-label {
+          @apply top-[11px] left-3 text-xxs text-zinc-500;
+        }
+      }
+
+      .vs__dropdown-toggle {
+        padding-bottom: 0.1px
+      }
+      .vs__actions {
+        @apply -translate-y-1.5
       }
     }
   }

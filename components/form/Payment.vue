@@ -172,18 +172,9 @@ onMounted(() => {});
         {{ t('label.same_as_delivery_address') }}
       </InputCheckBox>
       <div v-if="!hasSameAddressForShipping">
-        <div class="border border-black px-5 py-3 mt-3 mb-3">
+        <div class="border border-black px-5 py-3 mt-3 mb-3 bg-white">
           <PageCheckoutInvoiceAddressSelected />
         </div>
-
-        <PerfectScrollbar class="max-h-96 border-b border-gray-bbb">
-          <ListingAccountAddresses
-            @onAddressSelected="setAddresseInvoice($event)"
-            activeType="Invoice"
-          />
-        </PerfectScrollbar>
-
-        <BaseHr />
       </div>
     </div>
 
@@ -270,8 +261,8 @@ onMounted(() => {});
   @apply flex flex-col gap-2.5;
 
   .collapsible {
+    @apply bg-white;
     .collap-item {
-      @apply mb-3;
     }
   }
 }

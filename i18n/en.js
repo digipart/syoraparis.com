@@ -118,6 +118,7 @@ const en = {
     color: 'Color',
     size: 'Size',
     pieces: 'Pieces',
+    quantity: 'Quantity',
     productDetails: 'Product details',
     user: 'User',
     email: 'Email',

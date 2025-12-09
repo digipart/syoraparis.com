@@ -118,6 +118,7 @@ const fr = {
     color: 'Couleur',
     size: 'Taille',
     pieces: 'Pièces',
+    quantity: 'Quantité',
     productDetails: 'Détails du produit',
     user: 'Utilisateur',
     email: 'Email',

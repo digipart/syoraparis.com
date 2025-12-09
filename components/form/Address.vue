@@ -2,9 +2,13 @@
 import type { AddressType } from '~/types/AddressType';
 const { state, v$ } = useFormAddressValidation();
 
-const { address } = defineProps({
+const { address, inputBorder } = defineProps({
   address: {
     type: {} as PropType<AddressType>,
+  },
+  inputBorder: {
+    type: Boolean,
+    default: false,
   },
 });
 
@@ -138,6 +142,7 @@ defineExpose({
             type="text"
             :errors="v$.alias.$errors"
             :label="$t('label.alias')"
+            :border="inputBorder"
           />
         </div>
         <div>
@@ -148,6 +153,7 @@ defineExpose({
             :errors="v$.name.$errors"
             :required="true"
             :label="$t('label.name')"
+            :border="inputBorder"
           />
         </div>
         <div>
@@ -158,6 +164,7 @@ defineExpose({
             :errors="v$.firstname.$errors"
             :required="true"
             :label="$t('label.firstname')"
+            :border="inputBorder"
           />
         </div>
         <div>
@@ -169,6 +176,7 @@ defineExpose({
             :label="$t('label.address')"
             @onSelect="handleSelect"
             @input="state.courtAddress = state.address"
+            :border="inputBorder"
           />
           <div v-if="!addressManually" class="-mt-5 flex justify-end">
             <span
@@ -188,6 +196,7 @@ defineExpose({
               :errors="v$.postcode.$errors"
               :required="true"
               :label="$t('label.postcode')"
+              :border="inputBorder"
             />
           </div>
           <div>
@@ -198,6 +207,7 @@ defineExpose({
               :errors="v$.city.$errors"
               :required="true"
               :label="$t('label.city')"
+              :border="inputBorder"
             />
           </div>
           <div>
@@ -210,6 +220,7 @@ defineExpose({
               :required="true"
               :selectOptions="countriesOptions"
               :key="state.country"
+              :border="inputBorder"
             />
           </div>
         </div>
@@ -230,6 +241,7 @@ defineExpose({
             :errors="v$.phone.$errors"
             :required="true"
             :label="$t('label.phone')"
+            :border="inputBorder"
           />
         </div>
         <div class="formAddress-cta mt-3">

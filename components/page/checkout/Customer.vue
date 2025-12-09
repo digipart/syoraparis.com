@@ -69,7 +69,7 @@ onMounted(() => {
           <!-- Delivery address selected -->
           <div
             v-if="addressDelivery"
-            class="border border-black px-5 py-3 mt-3"
+            class="border border-black px-5 py-3 mt-3 bg-white"
           >
             <PageCheckoutDeliveryAddressShippingSelected
               hideShipping
@@ -104,14 +104,11 @@ onMounted(() => {
     </transition>
 
     <transition name="slide">
-      <div
-        v-show="showForm"
-        ref="addressFormAdd"
-        class="border border-black p-5"
-      >
+      <div v-show="showForm" ref="addressFormAdd">
         <FormAddress
           @cancel="showForm = !showForm"
           @onAddressCreated="onAddressCreated($event)"
+          inputBorder
         />
       </div>
     </transition>

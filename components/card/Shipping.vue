@@ -1,10 +1,7 @@
 <template>
-  <div class="cardShipping">
-    <div
-      class="cardShipping-item"
-      @click="onSelectHandler()"
-      :class="{ active }"
-    >
+  <div class="cardShipping" :class="{ active }">
+    <span class="cardShipping-span"></span>
+    <div class="cardShipping-item" @click="onSelectHandler()">
       <div class="flex gap-3">
         <div class="flex flex-col flex-1 text-xs uppercase">
           <span class="font-normal mb-1">
@@ -153,15 +150,36 @@ const selectPointRelay = (rpId: string, relayPoints: RelayPointType[]) => {
 $cardShipping: '.cardShipping';
 
 #{$cardShipping} {
-  @apply flex flex-col gap-y-4;
+  @apply flex flex-col gap-y-4 border border-gray-bbb relative z-[0] bg-white;
+
+  &.active {
+    @apply border-black z-[1];
+    #{$cardShipping} {
+      &-span {
+        &::after {
+          content: '';
+          @apply bg-black;
+        }
+      }
+    }
+  }
   &-item {
-    @apply border border-gray-bbb p-5 duration-150 cursor-pointer;
+    @apply p-5 pl-12 duration-150 cursor-pointer;
 
     &-logo {
     }
+  }
 
-    &.active {
-      @apply border-black;
+  &-span {
+    @apply inline-block  absolute h-4 w-4 
+    rounded-full duration-150 translate-y-0.5 mr-2 top-[1.6rem] left-[1rem]
+    border border-black;
+
+    &::after {
+      content: '';
+      @apply absolute bg-transparent left-[1px] top-[1px] duration-150 rounded-full;
+      height: calc(100% - 2px);
+      width: calc(100% - 2px);
     }
   }
 }

@@ -1,7 +1,8 @@
 <script setup lang="ts">
-const { editable = true } = defineProps<{
+const { editable = true, checkout = false } = defineProps<{
   editable?: boolean;
   mini?: boolean;
+  checkout?: boolean;
 }>();
 
 const cartStore = useCartStore();
@@ -28,7 +29,7 @@ const refreshCodePromo = async () => {
       v-for="product in products"
       :key="product.IdProductAttribute"
     >
-      <CardCartItem :product="product" :editable="editable" />
+      <CardCartItem :product="product" :editable="editable" :checkout="checkout" />
       <hr class="my-4" />
     </div>
     <div class="flex flex-col gap-3">

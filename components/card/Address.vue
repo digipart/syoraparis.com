@@ -68,7 +68,7 @@ const clickHandler = () => {
 $cardAddress: '.cardAddress';
 
 #{$cardAddress} {
-  @apply border border-gray-bbb relative uppercase text-xs px-5 py-3;
+  @apply border border-gray-bbb relative uppercase text-xs px-5 py-3 bg-white;
 
   &.active {
     @apply border-black;

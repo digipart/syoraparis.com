@@ -79,7 +79,8 @@ $inputRadio: '.inputRadio';
   }
 
   &-span {
-    @apply inline-block bg-transparent relative h-4 w-4 rounded-full duration-150 translate-y-0.5 mr-2;
+    @apply inline-block bg-transparent relative h-4 w-4 
+    rounded-full duration-150 translate-y-0.5 mr-2;
 
     &::after {
       content: '';

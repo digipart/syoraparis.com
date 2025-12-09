@@ -81,7 +81,7 @@ onMounted(() => {
           :carrier="c"
           @onSelect="selectShipping($event)"
           :active="carrierSelected?.IdCarrier === c.IdCarrier"
-          class="mb-2"
+          class="mb-[-1px]"
           :carrierType="groupName"
         />
       </template>

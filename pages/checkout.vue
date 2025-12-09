@@ -1,6 +1,6 @@
 <script setup lang="ts">
 definePageMeta({
-  layout: 'empty',
+  layout: 'checkout',
   keepalive: false,
 });
 
