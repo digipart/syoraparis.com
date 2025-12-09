@@ -19,8 +19,8 @@ const permalink = computed((): string => {
 const lookbooks = computed(() => {
   console.log(lookbooksData.value);
   
-  if (lookbooksData.value?.lookBookCategories?.length) {
-    return lookbooksData.value?.lookBookCategories[0].lookbooks;
+  if (lookbooksData.value) {
+    return lookbooksData.value[0].lookbooks;
   }
 });
 
@@ -29,8 +29,11 @@ try {
     categoryId: permalink.value,
     locale: locale.value,
   });
-  if (lookbooksData.value?.lookBookCategories?.length) {
-    const category = lookbooksData.value.lookBookCategories[0];
+
+  console.log(lookbooksData.value);
+  
+  if (lookbooksData.value?.length) {
+    const category = lookbooksData.value[0];
 
     useHead({
       title: category?.title || '',

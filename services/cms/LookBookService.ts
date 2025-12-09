@@ -132,7 +132,7 @@ export default class LookBookService extends CmsService {
 
     const { data } = await this.client.query<CmsLookBookCategoriesType>({
       query,
-      variables: { locale: locale },
+      variables: { locale: locale, categoryId: categoryId },
     });
     return data.lookBookCategories;
   }

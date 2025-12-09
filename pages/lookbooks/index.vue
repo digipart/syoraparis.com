@@ -21,6 +21,9 @@ try {
   lookbookCategories.value = await lookbookService.fetchCategories({
     locale: locale.value,
   });
+
+  console.log(lookbookCategories.value);
+  
   
 } catch (error) {
   console.log('error', error);
@@ -31,9 +34,9 @@ try {
 
 <template>
   <div v-if="!loading">
-    <template v-if="lookbookCategories?.lookBookCategories?.length">
+    <template v-if="lookbookCategories">
       <div
-        v-for="lookbook in lookbookCategories?.lookBookCategories"
+        v-for="lookbook in lookbookCategories"
         class="relative"
       >
         <!-- <CmsImage :image="lookbook.image" />
