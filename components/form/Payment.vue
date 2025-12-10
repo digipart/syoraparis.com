@@ -156,7 +156,7 @@ const loadPayments = async () => {
   let isOk = false;
   if (!hasAddressDelivery.value) {
     options = {
-      IP: '91.160.93.4',
+      IP: ip.value,
     };
     isOk = true;
   } else {

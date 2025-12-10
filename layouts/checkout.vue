@@ -65,14 +65,14 @@ $checkoutLayout: '.checkoutLayout';
 .checkout-left {
   @apply pr-5 lg:pr-10 pl-5 pb-16 pt-5 lg:pt-10;
   .box {
-    @apply max-w-[650px] mr-0 ml-auto;
+    @apply max-w-[650px] mr-auto lg:mr-0 ml-auto;
   }
 }
 
 .checkout-right {
   @apply lg:sticky top-[2.5rem] pt-9 pl-5 lg:pl-10 pr-5 min-h-screen bg-white pb-16;
   .box {
-    @apply max-w-[470px] ml-0 mr-auto;
+    @apply max-w-[650px] lg:max-w-[470px] ml-auto lg:ml-0 mr-auto;
   }
 }
 </style>

@@ -21,6 +21,9 @@ export default class PayzenHelper extends PaymentHelper {
       IdCart: cart?.IdCart,
     };
 
+    console.log('options',options);
+    
+
     const service = new Service();
 
     try {

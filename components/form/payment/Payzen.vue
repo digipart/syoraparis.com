@@ -309,8 +309,8 @@ defineExpose({
 
 // Au montage du composant
 onMounted(async () => {
-  if (!customer.value || !cart.value) {
-    error.value = t('Customer or cart information is missing');
+  if (!cart.value) {
+    error.value = t('Cart information is missing');
     return;
   }
 

@@ -2,14 +2,20 @@
 import type { AddressType } from '~/types/AddressType';
 
 const addressStore = useAddressStore();
-const { addressDelivery, addresses } = toRefs(addressStore);
+const { addressDelivery, addressInvoice, addresses } = toRefs(addressStore);
 const { fetchAddresses, updateAddress } = addressStore;
+
+const checkoutStore = useCheckoutStore();
+const { checkoutCustomer, checkoutCarrier } = toRefs(checkoutStore);
 
 const shippingStore = useShippingStore();
 const { fetchShipping } = shippingStore;
 
 const showForm = ref(false);
 const addressFormAdd = ref<HTMLElement | null>(null);
+
+const auth = useAuth();
+const { customer } = toRefs(auth);
 
 const listAddressVisible = ref(false);
 
@@ -54,10 +60,34 @@ const onAddressCreated = async (addressId: number) => {
   // });
   emit('onAddressCreated', addressId);
 };
+
+watch(addressDelivery, () => {
+  setCheckoutCustomer();
+});
+
+const setCheckoutCustomer = () => {
+  checkoutCustomer.value.deliveryAddress.firstname =
+    addressDelivery.value?.Firstname || '';
+  checkoutCustomer.value.deliveryAddress.lastname =
+    addressDelivery.value?.Lastname || '';
+  checkoutCustomer.value.deliveryAddress.email = customer.value?.Email || '';
+  checkoutCustomer.value.deliveryAddress.address =
+    addressDelivery.value?.Address1 || '';
+  checkoutCustomer.value.deliveryAddress.city =
+    addressDelivery.value?.City || '';
+  checkoutCustomer.value.deliveryAddress.phone =
+    addressDelivery.value?.Phone || '';
+  checkoutCustomer.value.deliveryAddress.postalCode =
+    addressDelivery.value?.Postcode || '';
+  checkoutCustomer.value.deliveryAddress.country =
+    addressDelivery.value?.CountryIsoCode || '';
+};
+
 onMounted(() => {
   if (addresses.value.length === 0) {
     showForm.value = true;
   }
+  setCheckoutCustomer();
 });
 </script>
 

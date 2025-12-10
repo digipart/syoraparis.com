@@ -12,6 +12,9 @@ const shippingStore = useShippingStore();
 const { carrier: allCarriers, toshow } = toRefs(shippingStore);
 const { fetchShipping } = shippingStore;
 
+const checkoutStore = useCheckoutStore();
+const { checkoutCustomer, checkoutCarrier } = toRefs(checkoutStore);
+
 const cartStore = useCartStore();
 const { totalToPay, carrier, totalProductQuantity } = toRefs(cartStore);
 
@@ -77,6 +80,10 @@ const handleSelectPickupAddress = async (e: any) => {
   //   Address1: e.address,
   //   Country: e.country,
   // });
+  checkoutCustomer.value.deliveryAddress.address = e.address;
+  checkoutCustomer.value.deliveryAddress.city = e.city;
+  checkoutCustomer.value.deliveryAddress.postalCode = e.postalCode;
+  checkoutCustomer.value.deliveryAddress.country = e.country;
 };
 </script>
 
@@ -89,7 +96,7 @@ const handleSelectPickupAddress = async (e: any) => {
       <IconChevronLeft :size="1.3" class="mr-2" />
       {{ t('label.continue_shopping') }}
     </NuxtLink> -->
-    <div class="grid grid-cols-11  items-start">
+    <div class="grid grid-cols-11 items-start">
       <div class="col-span-12 lg:col-span-6 checkout-left">
         <!-- Delivery Options -->
         <div class="box">
@@ -160,21 +167,7 @@ const handleSelectPickupAddress = async (e: any) => {
                 </ul>
               </div>
             </div>
-            <FormShipping
-              v-if="Object.keys(homeCarriers).length"
-              :displayOptions="['Home']"
-            />
-
-            <div v-else>
-              <BaseAlert fill type="default" :closeButton="false">
-                <span class="text-sm">
-                  {{ $t('label.shippingOption.noCarrier') }}
-                </span>
-                <template #icon>
-                  <IconDeliveryTruckSpeed />
-                </template>
-              </BaseAlert>
-            </div>
+            <FormShipping :displayOptions="['Home']" />
           </div>
 
           <div v-if="deliveryOption === 'pickup'">
@@ -263,6 +256,9 @@ const handleSelectPickupAddress = async (e: any) => {
             <FormCodePromo @onCodePromoApplied="refreshCodePromo" />
           </div>
           <PageTunnelOrderSummary class="mt-5" />
+
+          {{ checkoutCustomer }} <br />
+          {{ checkoutCarrier }}
         </div>
       </div>
     </div>
@@ -294,5 +290,4 @@ const handleSelectPickupAddress = async (e: any) => {
     }
   }
 }
-
 </style>

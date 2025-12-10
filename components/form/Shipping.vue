@@ -80,13 +80,16 @@ const loadCarriers = () => {
     });
   } else {
     fetchShipping({
-      IP: '91.160.93.4',
+      IP: ip.value,
     });
   }
 };
 
 watch(checkoutCustomer.value.deliveryAddress, () => {
-  console.log('hasAddressDelivery', checkoutCustomer.value.deliveryAddress.city);
+  console.log(
+    'hasAddressDelivery',
+    checkoutCustomer.value.deliveryAddress.city
+  );
 
   loadCarriers();
 });
