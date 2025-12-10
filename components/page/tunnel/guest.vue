@@ -5,6 +5,9 @@ import type { CarrierType } from '~/types/ShippingType';
 const { t } = useI18n();
 const localePath = useLocalePath();
 
+const checkoutStore = useCheckoutStore();
+const { checkoutCustomer, checkoutCarrier } = toRefs(checkoutStore);
+
 const formDeliveryStore = useFormDeliveryStore();
 const { state, v$ } = toRefs(formDeliveryStore);
 
@@ -13,7 +16,6 @@ const { currencyIsoCode } = toRefs(appStore);
 
 const shippingStore = useShippingStore();
 const { carrier: allCarriers, toshow } = toRefs(shippingStore);
-const { fetchShipping } = shippingStore;
 
 const cartStore = useCartStore();
 const { totalToPay, carrier, totalProductQuantity } = toRefs(cartStore);
@@ -61,18 +63,18 @@ const ip = useIp();
 const setDelivredOption = async (optionType: 'ship' | 'pickup') => {
   allCarriers.value = {};
   deliveryOption.value = optionType;
-  if (optionType === 'ship' && addressDelivery.value) {
-    fetchShipping({
-      IdAddress: addressDelivery.value?.IdAddress,
-    });
-  }
-  if (optionType === 'pickup' && pickupAddress.value) {
-    handleSelectPickupAddress(pickupAddress);
-  } else if (optionType === 'pickup' && ip.value) {
-    fetchShipping({
-      IP: ip.value,
-    });
-  }
+  // if (optionType === 'ship' && addressDelivery.value) {
+  //   fetchShipping({
+  //     IdAddress: addressDelivery.value?.IdAddress,
+  //   });
+  // }
+  // if (optionType === 'pickup' && pickupAddress.value) {
+  //   handleSelectPickupAddress(pickupAddress);
+  // } else if (optionType === 'pickup' && ip.value) {
+  //   fetchShipping({
+  //     IP: ip.value,
+  //   });
+  // }
 };
 
 const customAddressDelivery = computed(() => {
@@ -105,12 +107,16 @@ const handalFormGuestChange = (state: any) => {
 };
 
 const handleSelectPickupAddress = async (e: any) => {
-  fetchShipping({
-    Postcode: e.postalCode,
-    City: e.city,
-    Address1: e.address,
-    Country: e.country,
-  });
+  // fetchShipping({
+  //   Postcode: e.postalCode,
+  //   City: e.city,
+  //   Address1: e.address,
+  //   Country: e.country,
+  // });
+  checkoutCustomer.value.deliveryAddress.address = e.address;
+  checkoutCustomer.value.deliveryAddress.city = e.city;
+  checkoutCustomer.value.deliveryAddress.postalCode = e.postalCode;
+  checkoutCustomer.value.deliveryAddress.country = e.country;
 };
 </script>
 
@@ -179,7 +185,13 @@ const handleSelectPickupAddress = async (e: any) => {
               <IconShop :size="2.5" />
             </div>
           </div>
-          <CardShipping v-if="carrier?.IdCarrier" :carrier="carrier" :radio="false" :border="false" class="mb-5" />
+          <CardShipping
+            v-if="carrier?.IdCarrier"
+            :carrier="carrier"
+            :radio="false"
+            :border="false"
+            class="mb-5"
+          />
 
           <div v-if="deliveryOption === 'ship'">
             <BaseHeadLine size="md" class="uppercase font-medium mb-3">
@@ -213,21 +225,7 @@ const handleSelectPickupAddress = async (e: any) => {
                 </ul>
               </div>
             </div>
-            <FormShipping
-              v-if="Object.keys(homeCarriers).length"
-              :displayOptions="['Home']"
-            />
-
-            <div v-else>
-              <BaseAlert fill type="default" :closeButton="false">
-                <span class="text-sm">
-                  {{ $t('label.shippingOption.noCarrier') }}
-                </span>
-                <template #icon>
-                  <IconDeliveryTruckSpeed />
-                </template>
-              </BaseAlert>
-            </div>
+            <FormShipping :displayOptions="['Home']" />
           </div>
 
           <div v-if="deliveryOption === 'pickup'">
@@ -241,36 +239,24 @@ const handleSelectPickupAddress = async (e: any) => {
               @onSelect="handleSelectPickupAddress"
               border
             />
-            <template v-if="Object.keys(pickupCarriers).length">
-              <div class="flex justify-end gap-5 mb-2">
-                <div>
-                  <ul class="flex gap-4 text-sm">
-                    <template
-                      v-for="(carrierGroup, groupName) in pickupCarriers"
+            <div class="flex justify-end gap-5 mb-2">
+              <div>
+                <ul class="flex gap-4 text-sm">
+                  <template v-for="(carrierGroup, groupName) in pickupCarriers">
+                    <li
+                      class="cursor-pointer"
+                      :class="{
+                        'underline font-normal': toshow === groupName,
+                      }"
+                      @click="toshow = groupName"
                     >
-                      <li
-                        class="cursor-pointer"
-                        :class="{
-                          'underline font-normal': toshow === groupName,
-                        }"
-                        @click="toshow = groupName"
-                      >
-                        {{ $t('label.shippingOption.' + groupName) }}
-                      </li>
-                    </template>
-                  </ul>
-                </div>
+                      {{ $t('label.shippingOption.' + groupName) }}
+                    </li>
+                  </template>
+                </ul>
               </div>
-              <FormShipping :displayOptions="['Store', 'RelayPoint']" />
-            </template>
-            <BaseAlert v-else fill type="default" :closeButton="false">
-              <span class="text-sm">
-                {{ $t('label.shippingOption.noCarrier') }}
-              </span>
-              <template #icon>
-                <IconShop />
-              </template>
-            </BaseAlert>
+            </div>
+            <FormShipping :displayOptions="['Store', 'RelayPoint']" />
           </div>
 
           <div class="mt-5">
@@ -278,7 +264,7 @@ const handleSelectPickupAddress = async (e: any) => {
               <BaseHeadLine size="md" class="uppercase font-medium mb-3">
                 {{ $t('tunnel.payment.title') }} :
               </BaseHeadLine>
-              <FormPayment :customAddressDelivery="customAddressDelivery" />
+              <FormPayment />
             </div>
             <BaseAlert v-else fill type="default" :closeButton="false">
               <span class="text-sm">
@@ -335,6 +321,9 @@ const handleSelectPickupAddress = async (e: any) => {
             </template>
             <div>
               <FormCodePromo @onCodePromoApplied="refreshCodePromo" />
+
+              {{ checkoutCustomer }} <br />
+              {{ checkoutCarrier }}
             </div>
           </BasePanel>
         </div>

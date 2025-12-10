@@ -9,8 +9,12 @@ const { displayOptions } = defineProps({
   },
 });
 
+const checkoutStore = useCheckoutStore();
+const { hasAddressDelivery, checkoutCustomer } = toRefs(checkoutStore);
+
 const shippingStore = useShippingStore();
 const { carrier, toshow, relayPointSelected } = toRefs(shippingStore);
+const { fetchShipping } = shippingStore;
 
 const cartStore = useCartStore();
 const { updateShipping, fetchCart } = cartStore;
@@ -65,8 +69,30 @@ const selectShipping = (event: {
       loading.value = false;
     });
 };
+const ip = useIp();
+const loadCarriers = () => {
+  if (hasAddressDelivery.value) {
+    fetchShipping({
+      Postcode: checkoutCustomer.value.deliveryAddress.postalCode,
+      City: checkoutCustomer.value.deliveryAddress.city,
+      Address1: checkoutCustomer.value.deliveryAddress.address,
+      Country: checkoutCustomer.value.deliveryAddress.country,
+    });
+  } else {
+    fetchShipping({
+      IP: '91.160.93.4',
+    });
+  }
+};
+
+watch(checkoutCustomer.value.deliveryAddress, () => {
+  console.log('hasAddressDelivery', checkoutCustomer.value.deliveryAddress.city);
+
+  loadCarriers();
+});
 
 onMounted(() => {
+  loadCarriers();
   findCarrierLocation();
 });
 </script>
@@ -86,6 +112,16 @@ onMounted(() => {
         />
       </template>
     </div>
+    <!-- <div v-else>
+              <BaseAlert fill type="default" :closeButton="false">
+                <span class="text-sm">
+                  {{ $t('label.shippingOption.noCarrier') }}
+                </span>
+                <template #icon>
+                  <IconDeliveryTruckSpeed />
+                </template>
+              </BaseAlert>
+            </div> -->
   </div>
 </template>
 

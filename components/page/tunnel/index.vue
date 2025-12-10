@@ -56,27 +56,27 @@ const ip = useIp();
 const setDelivredOption = async (optionType: 'ship' | 'pickup') => {
   deliveryOption.value = optionType;
   if (optionType === 'ship' && addressDelivery.value) {
-    fetchShipping({
-      IdAddress: addressDelivery.value?.IdAddress,
-    });
+    // fetchShipping({
+    //   IdAddress: addressDelivery.value?.IdAddress,
+    // });
   }
 
   if (optionType === 'pickup' && pickupAddress.value) {
     handleSelectPickupAddress(pickupAddress.value);
   } else if (optionType === 'pickup' && ip.value) {
-    fetchShipping({
-      IP: ip.value,
-    });
+    // fetchShipping({
+    //   IP: ip.value,
+    // });
   }
 };
 
 const handleSelectPickupAddress = async (e: any) => {
-  fetchShipping({
-    Postcode: e.postalCode,
-    City: e.city,
-    Address1: e.address,
-    Country: e.country,
-  });
+  // fetchShipping({
+  //   Postcode: e.postalCode,
+  //   City: e.city,
+  //   Address1: e.address,
+  //   Country: e.country,
+  // });
 };
 </script>
 

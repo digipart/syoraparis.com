@@ -20,10 +20,10 @@ const addressesUpdated = async (addressId?: number) => {
   if (!addressId && addressDelivery.value) {
     addressId = addressDelivery.value.IdAddress;
   }
-  await fetchShipping({
-    IdAddress: addressId,
-    ResponseLevel: 'summary',
-  });
+  // await fetchShipping({
+  //   IdAddress: addressId,
+  //   ResponseLevel: 'summary',
+  // });
 };
 
 const setAddresseDelivery = (address: AddressType) => {
@@ -32,10 +32,10 @@ const setAddresseDelivery = (address: AddressType) => {
   listAddressVisible.value = false;
 
   updateAddress(newAddress).then(async (data) => {
-    await fetchShipping({
-      IdAddress: data?.IdAddress,
-      ResponseLevel: 'summary',
-    });
+    // await fetchShipping({
+    //   IdAddress: data?.IdAddress,
+    //   ResponseLevel: 'summary',
+    // });
   });
 };
 
@@ -48,10 +48,10 @@ const displayForm = () => {
 
 const onAddressCreated = async (addressId: number) => {
   showForm.value = false;
-  await fetchShipping({
-    IdAddress: addressId,
-    ResponseLevel: 'summary',
-  });
+  // await fetchShipping({
+  //   IdAddress: addressId,
+  //   ResponseLevel: 'summary',
+  // });
   emit('onAddressCreated', addressId);
 };
 onMounted(() => {

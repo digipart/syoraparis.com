@@ -3,16 +3,13 @@ import PaymentService from '~/services/PaymentService';
 import type { AddressType } from '~/types/AddressType';
 import type { PaymentMethodType } from '~/types/PaymentType';
 
-const { disabled, customAddressDelivery } = defineProps<{
+const { disabled } = defineProps<{
   disabled?: boolean;
-  customAddressDelivery?: {
-    postcode?: string;
-    city?: string;
-    country?: string;
-    address?: string;
-    ip?: string;
-  };
 }>();
+
+const checkoutStore = useCheckoutStore();
+const { hasAddressDelivery, checkoutCustomer } = toRefs(checkoutStore);
+
 const { locale } = useI18n();
 const addressStore = useAddressStore();
 const { addressDelivery, addressInvoice } = toRefs(addressStore);
@@ -154,34 +151,43 @@ const setAddresse = (event: Event) => {
 
 const paymentService = new PaymentService();
 let options: any = {};
-if (customAddressDelivery) {
-  if (customAddressDelivery.ip) {
+const ip = useIp();
+const loadPayments = async () => {
+  let isOk = false;
+  if (!hasAddressDelivery.value) {
     options = {
-      IP: customAddressDelivery.ip,
+      IP: '91.160.93.4',
     };
+    isOk = true;
   } else {
     options = {
-      Postcode: customAddressDelivery.postcode,
-      City: customAddressDelivery.city,
-      Country: customAddressDelivery.country,
-      Address1: customAddressDelivery.address,
+      Postcode: checkoutCustomer.value.deliveryAddress.postalCode,
+      City: checkoutCustomer.value.deliveryAddress.city,
+      Country: checkoutCustomer.value.deliveryAddress.country,
+      Address1: checkoutCustomer.value.deliveryAddress.address,
     };
+    isOk = true;
   }
-} else if (idAddressDelivery.value) {
-  options = { IdAddress: idAddressDelivery.value };
-}
-try {
-  const data = await paymentService.paymentMethods({
-    ...options,
-    LanguageIsoCode: locale.value,
-  });
-  console.log('payment methods:', data.PaymentMethods);
-  paymentMethodsData.value = data.PaymentMethods || [];
-} catch (error) {
-  console.error(t('tunnel.payment.error.fetch_methods'), error);
-}
 
-onMounted(() => {});
+  if (!isOk) {
+    return;
+  }
+
+  try {
+    const data = await paymentService.paymentMethods({
+      ...options,
+      LanguageIsoCode: locale.value,
+    });
+    console.log('payment methods:', data.PaymentMethods);
+    paymentMethodsData.value = data.PaymentMethods || [];
+  } catch (error) {
+    console.error(t('tunnel.payment.error.fetch_methods'), error);
+  }
+};
+
+onMounted(() => {
+  loadPayments();
+});
 </script>
 
 <template>
@@ -195,7 +201,7 @@ onMounted(() => {});
         {{ t('label.same_as_delivery_address') }}
       </InputCheckBox>
       <div v-if="!hasSameAddressForShipping">
-        <div class="border border-black px-5 py-3 mt-3 mb-3 bg-white">
+        <div class="mt-3">
           <PageCheckoutInvoiceAddressSelected />
         </div>
       </div>

@@ -34,10 +34,10 @@ if (route.query.step) {
 onMounted(async () => {
   if (isLoggedIn.value) {
     await fetchAddresses();
-    await fetchShipping({
-      IdAddress: addressDelivery.value?.IdAddress,
-      ResponseLevel: 'summary',
-    });
+    // await fetchShipping({
+    //   IdAddress: addressDelivery.value?.IdAddress,
+    //   ResponseLevel: 'summary',
+    // });
   }
   loading.value = false;
 });
