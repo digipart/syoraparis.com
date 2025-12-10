@@ -17,7 +17,7 @@ export default class MollieHelper extends PaymentHelper {
       const service = new Service();
 
       if (this.cart?.Total?.ToPay?.TaxIncl) {
-        total = this.cart?.Total?.ToPay?.TaxIncl * 100;
+        total = this.cart?.Total?.ToPay?.TaxIncl;
       }
 
       const response = await service.$post<any>('payment/mollie/intent', {
