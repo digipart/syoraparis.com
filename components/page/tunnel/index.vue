@@ -257,8 +257,7 @@ const handleSelectPickupAddress = async (e: any) => {
           </div>
           <PageTunnelOrderSummary class="mt-5" />
 
-          {{ checkoutCustomer }} <br />
-          {{ checkoutCarrier }}
+      
         </div>
       </div>
     </div>

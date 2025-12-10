@@ -281,51 +281,19 @@ const handleSelectPickupAddress = async (e: any) => {
 
       <div class="col-span-12 lg:col-span-5 checkout-right">
         <div class="box">
-          <BasePanel
-            :title="t('tunnel.delivery.order_summary.title')"
-            class="mb-5"
-          >
-            <PageTunnelOrderSummary />
-          </BasePanel>
-          <BasePanel class="hidden lg:block mb-5" bodyPadding="0px">
-            <template #header>
-              <div class="flex gap-3 justify-between items-center">
-                <BaseHeadLine size="md" class="font-normal uppercase">
-                  {{ $t('cart.title') }} ({{ totalProductQuantity }})
-                </BaseHeadLine>
-                <NuxtLink
-                  :to="localePath({ name: 'cart' })"
-                  class="text-sm underline"
-                >
-                  {{ $t('button.modify') }}
-                </NuxtLink>
-              </div>
-            </template>
-            <PerfectScrollbar class="max-h-[944px] p-5">
-              <ListingCartItems
-                :editable="false"
-                :mini="true"
-                @onCodePromoRemoved="refreshCodePromo"
-                checkout
-              />
-            </PerfectScrollbar>
-          </BasePanel>
+          <ListingCartItems
+            :editable="false"
+            :mini="true"
+            @onCodePromoRemoved="refreshCodePromo"
+            checkout
+          />
           <PageCheckoutMyRewards @onCodePromoApplied="refreshCodePromo" />
-          <BasePanel>
-            <template #header>
-              <div class="flex gap-3 justify-between items-center">
-                <BaseHeadLine size="md" class="font-normal uppercase">
-                  {{ $t('cart.codepromo.title') }}
-                </BaseHeadLine>
-              </div>
-            </template>
-            <div>
-              <FormCodePromo @onCodePromoApplied="refreshCodePromo" />
+          <div>
+            <FormCodePromo @onCodePromoApplied="refreshCodePromo" />
+          </div>
+          <PageTunnelOrderSummary class="mt-5" />
 
-              {{ checkoutCustomer }} <br />
-              {{ checkoutCarrier }}
-            </div>
-          </BasePanel>
+        
         </div>
       </div>
     </div>

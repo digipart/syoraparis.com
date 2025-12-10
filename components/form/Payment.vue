@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import MollieHelper from '~/helpers/payments/MollieHelper';
 import PaymentService from '~/services/PaymentService';
 import type { AddressType } from '~/types/AddressType';
 import type { PaymentMethodType } from '~/types/PaymentType';
@@ -17,6 +18,7 @@ const { fetchAddresses, updateAddress, updateAddressType } = addressStore;
 
 const paymentStore = usePaymentStore();
 const { payments } = toRefs(paymentStore);
+
 
 const hasSameAddressForShipping = ref(
   addressDelivery.value?.IdAddress === addressInvoice.value?.IdAddress
@@ -188,6 +190,9 @@ const loadPayments = async () => {
 onMounted(() => {
   loadPayments();
 });
+
+const config = useRuntimeConfig();
+
 </script>
 
 <template>
@@ -207,7 +212,32 @@ onMounted(() => {
       </div>
     </div>
 
-    <BaseCollapsible v-if="paymentMethods.length > 0" :index-active="[0]">
+    <BaseCollapsible v-if="paymentMethods.length > 0" :index-active="[1002]">
+      <BaseCollapsibleItem :index="1002" :closeOthers="true" :hideArrow="true">
+        <template #header>
+          <div class="flex justify-between w-full items-center">
+            <div class="flex flex-col text-xs">
+              <span class="uppercase font-normal">
+                {{ t('tunnel.payment.card.name') }} / Mollie
+              </span>
+              <span class="font-light"> Mollie </span>
+            </div>
+            <div>
+              <img
+                src="/assets/images/visa-mastercard-logo.png"
+                alt="Card"
+                class="h-5"
+              />
+            </div>
+          </div>
+        </template>
+        <template #content>
+          <div class="p-5">
+            <FormPaymentMollie
+            />
+          </div>
+        </template>
+      </BaseCollapsibleItem>
       <BaseCollapsibleItem
         v-for="(s, index) in paymentMethods"
         :key="s?.key"
