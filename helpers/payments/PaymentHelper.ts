@@ -185,7 +185,7 @@ export class PaymentHelper {
 
       TotalProductTaxExcl: this.cart?.Total?.Product?.TaxExcl,
       TotalProductTaxIncl: this.cart?.Total?.Product?.TaxIncl,
-      IdCustomer: '1111',
+      IdCustomer: this.userConnected.Id,
       IdCart: this.cart.IdCart,
       Cart: JSON.stringify(this.custom_data_cart),
       IdPayment: paymentMethod ? paymentMethod.IdPayment : 0,

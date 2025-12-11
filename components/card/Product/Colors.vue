@@ -69,8 +69,7 @@ const emit = defineEmits(['colorClick']);
 const localePath = useLocalePath();
 
 const getRandomHexColor = (): string => {
-  const randomColor = Math.floor(Math.random() * 16777215).toString(16);
-  return `#${randomColor.padStart(6, '0')}`;
+  return `#ffffff`;
 };
 
 const relationshipProducts = computed(() => {
@@ -108,7 +107,7 @@ const getProductUrl = (p: ProductType) => {
     }
   }
   &-color {
-    @apply h-5 w-5 block;
+    @apply h-5 w-5 block border;
   }
 }
 </style>
