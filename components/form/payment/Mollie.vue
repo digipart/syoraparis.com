@@ -45,6 +45,13 @@
         </div>
       </div>
     </form>
+    <div
+      v-if="paymentStatus"
+      class="status-message"
+      :class="paymentStatus.type"
+    >
+      {{ paymentStatus.message }}
+    </div>
   </div>
 </template>
 
@@ -84,8 +91,6 @@ let cardholder: any;
 let cardNumber: any;
 let expiryDate: any;
 let verificationCode: any;
-
-const config = useRuntimeConfig();
 
 onMounted(async () => {
   try {
@@ -174,29 +179,28 @@ const checkFormValidity = () => {
     !errors.expiryDate &&
     !errors.verificationCode;
 };
-
+const config = useRuntimeConfig();
+const router = useRouter();
 const paymentStatus = ref<{ type: string; message: string } | null>(null);
-
 const handleTokenCreated = async (token: string) => {
-  console.log('token', token);
-
   try {
-    // Send token to your backend
-    const molliePayment = new MollieHelper({
-      cart: cart.value,
-      customer: {},
-    });
-
-    await molliePayment.intent(token);
-
     paymentStatus.value = {
-      type: 'success',
-      message: 'Payment successful!',
+      type: 'info',
+      message: 'Processing payment...',
     };
-  } catch (error) {
+
+    const mollieHelper = new MollieHelper({ cart: cart.value, customer: {} });
+    const response = await mollieHelper.postData(token);
+
+    if (response.success) {
+      if (response) {
+        window.location.href = response?.payment?.redirectUrl;
+      }
+    }
+  } catch (error: any) {
     paymentStatus.value = {
       type: 'error',
-      message: 'Payment failed. Please try again.',
+      message: error.data?.message || 'Payment failed. Please try again.',
     };
   }
 };
@@ -264,5 +268,11 @@ label {
   margin-top: 0px;
   display: block;
   @apply absolute bottom-0 translate-y-full  font-normal;
+}
+
+.status-message {
+  color: #e74c3c;
+  font-size: 12px;
+  margin-top: 6px;
 }
 </style>

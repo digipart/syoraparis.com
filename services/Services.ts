@@ -42,7 +42,7 @@ export default class Service {
         }
       });
     }
-    return await $fetch<T>(`/api/${api}${query}`, {
+    return await $fetch<T>(`/api2/${api}${query}`, {
       headers: this.headers(body?.isAuth),
     });
   }
@@ -60,7 +60,7 @@ export default class Service {
       });
     }
 
-    return await $fetch<T>(`/api/${api}`, {
+    return await $fetch<T>(`/api2/${api}`, {
       method: 'POST',
       body: formData,
       headers: this.headers(body?.isAuth),
@@ -69,7 +69,7 @@ export default class Service {
 
   async $put<T>(api: string, body?: { options?: any; isAuth?: boolean }) {
     let dataQS = qs.stringify(body?.options);
-    return await $fetch<T>(`/api/${api}`, {
+    return await $fetch<T>(`/api2/${api}`, {
       method: 'PUT',
       body: dataQS,
       headers: this.headers(body?.isAuth),
@@ -78,7 +78,7 @@ export default class Service {
 
   async $delete<T>(api: string, body?: { options?: any; isAuth?: boolean }) {
     let dataQS = qs.stringify(body?.options);
-    return await $fetch<T>(`/api/${api}`, {
+    return await $fetch<T>(`/api2/${api}`, {
       method: 'DELETE',
       body: dataQS,
       headers: this.headers(body?.isAuth),

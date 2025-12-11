@@ -34,6 +34,7 @@ export default defineNuxtConfig({
       gtmId: process.env.GTM_ID,
       mollieProfileId: process.env.MOLLIE_PROFILE_ID,
       mollieTestMode: process.env.MOLLIE_TEST_MODE,
+      mollieApiKey: process.env.MOLLIE_API_KEY,
 
       hasCountryOut: process.env.HAS_COUNTRY_OUT,
       lockUser: process.env.LOCK_USER,
@@ -55,7 +56,8 @@ export default defineNuxtConfig({
   },
   nitro: {
     routeRules: {
-      '/api/**': { proxy: process.env.API_URL + '/**' },
+      // '/api/**': { proxy: process.env.API_URL + '/**' },
+      '/api2/**': { proxy: process.env.API_URL + '/**' },
     },
   },
   // Updated server configuration to match Nuxt 4 types
