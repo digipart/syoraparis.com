@@ -15,7 +15,7 @@ const auth = useAuth();
 const { customer } = toRefs(auth);
 
 const addressStore = useAddressStore();
-const { addressDelivery } = toRefs(addressStore);
+const { addressDelivery, addressInvoice } = toRefs(addressStore);
 
 const localePath = useLocalePath();
 const router = useRouter();
@@ -45,7 +45,7 @@ const postData = async () => {
         clientSecret: clientSecret.value,
         paymentMethod: paymentMethod,
         addressDelivery: addressDelivery?.value,
-        addressInvoice: addressDelivery?.value,
+        addressInvoice: addressInvoice?.value,
       });
 
       return true;
@@ -157,7 +157,6 @@ onMounted(async () => {
   await loadScript('https://js.stripe.com/v3/');
 
   stripe.value = Stripe(config.public.stripePublicKey);
-
 
   // fetchCart().then(() => {
   stripePayment.value = new StripeHelper({

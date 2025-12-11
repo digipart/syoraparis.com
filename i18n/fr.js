@@ -271,7 +271,7 @@ const fr = {
       title: 'Méthode de paiement',
       card: {
         name: 'Payer par carte bancaire',
-        sname: 'sécurisé par Stripe',
+        sname: 'sécurisé par Mollie',
       },
       card_payzen: {
         name: 'Payer par carte bancaire',

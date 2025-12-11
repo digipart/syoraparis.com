@@ -57,10 +57,12 @@
 
 <script setup lang="ts">
 import MollieHelper from '~/helpers/payments/MollieHelper';
+import type { PaymentMethodType } from '~/types/PaymentType';
 
 const props = defineProps<{
   amount?: number;
   currency?: string;
+  paymentMethod?: PaymentMethodType;
 }>();
 
 const emit = defineEmits<{
@@ -72,6 +74,8 @@ const cartStore = useCartStore();
 const { cart } = toRefs(cartStore);
 
 const { mollie, loadMollie } = useMollie();
+const addressStore = useAddressStore();
+const { addressDelivery, addressInvoice } = toRefs(addressStore);
 
 const cardholderEl = ref<HTMLElement>();
 const cardNumberEl = ref<HTMLElement>();
@@ -190,11 +194,16 @@ const handleTokenCreated = async (token: string) => {
     };
 
     const mollieHelper = new MollieHelper({ cart: cart.value, customer: {} });
-    const response = await mollieHelper.postData(token);
+    const response = await mollieHelper.startPayement({
+      token,
+      paymentMethod: props.paymentMethod,
+      addressDelivery: addressDelivery.value,
+      addressInvoice: addressDelivery.value,
+    });
 
     if (response.success) {
       if (response) {
-        window.location.href = response?.payment?.redirectUrl;
+        // window.location.href = response?.payment?.redirectUrl;
       }
     }
   } catch (error: any) {

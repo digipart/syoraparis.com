@@ -52,7 +52,17 @@ export default class MollieHelper extends PaymentHelper {
     super({ cart, customer });
   }
 
-  async postData(token: string) {
+  async startPayement({
+    token,
+    paymentMethod,
+    addressDelivery,
+    addressInvoice,
+  }: {
+    token: string;
+    paymentMethod: PaymentMethodType;
+    addressDelivery: AddressType;
+    addressInvoice: AddressType;
+  }) {
     let total = 0;
 
     try {
@@ -73,16 +83,50 @@ export default class MollieHelper extends PaymentHelper {
           },
           orderId: this.cart.IdCart,
           redirectUrl: `${config.public.url}/order/accepted?orderid=${this.cart.IdCart}&init=1`,
-          webhookUrl: 'https://yoursite.com/api/payment/webhook',
+          webhookUrl: 'https://sy.digipart.fr/api/payment/mollie/ipn',
           description: 'Order #' + this.cart.IdCart,
         },
       });
 
       if (response.success) {
+        this.postData({
+          token: response.payment.id,
+          paymentMethod: paymentMethod,
+          addressDelivery: addressDelivery,
+          addressInvoice: addressInvoice,
+        });
         return response;
       } else {
         throw new Error('Payment failed');
       }
+    } catch (error) {
+      throw error;
+    }
+  }
+
+  async postData({
+    token,
+    paymentMethod,
+    addressDelivery,
+    addressInvoice,
+  }: {
+    token: string;
+    paymentMethod: PaymentMethodType;
+    addressDelivery: AddressType;
+    addressInvoice: AddressType;
+  }) {
+    try {
+      const service = new Service();
+      const response = await service.$post<any>('payment/mollie/data', {
+        options: {
+          CardToken: token,
+          Metadata: JSON.stringify(
+            this.custom_data({ paymentMethod, addressDelivery, addressInvoice })
+          ),
+        },
+        isAuth: true,
+      });
+      return response;
     } catch (error) {
       throw error;
     }

@@ -19,7 +19,6 @@ const { fetchAddresses, updateAddress, updateAddressType } = addressStore;
 const paymentStore = usePaymentStore();
 const { payments } = toRefs(paymentStore);
 
-
 const hasSameAddressForShipping = ref(
   addressDelivery.value?.IdAddress === addressInvoice.value?.IdAddress
 );
@@ -192,7 +191,6 @@ onMounted(() => {
 });
 
 const config = useRuntimeConfig();
-
 </script>
 
 <template>
@@ -213,31 +211,6 @@ const config = useRuntimeConfig();
     </div>
 
     <BaseCollapsible v-if="paymentMethods.length > 0" :index-active="[1002]">
-      <BaseCollapsibleItem :index="1002" :closeOthers="true" :hideArrow="true">
-        <template #header>
-          <div class="flex justify-between w-full items-center">
-            <div class="flex flex-col text-xs">
-              <span class="uppercase font-normal">
-                {{ t('tunnel.payment.card.name') }} / Mollie
-              </span>
-              <span class="font-light"> Mollie </span>
-            </div>
-            <div>
-              <img
-                src="/assets/images/visa-mastercard-logo.png"
-                alt="Card"
-                class="h-5"
-              />
-            </div>
-          </div>
-        </template>
-        <template #content>
-          <div class="p-5">
-            <FormPaymentMollie
-            />
-          </div>
-        </template>
-      </BaseCollapsibleItem>
       <BaseCollapsibleItem
         v-for="(s, index) in paymentMethods"
         :key="s?.key"
@@ -263,11 +236,13 @@ const config = useRuntimeConfig();
         <template #content>
           <div class="p-5">
             <template v-if="s?.key === 'card'">
-              <FormPaymentStripe
+              <!-- <FormPaymentStripe
                 :paymentMethod="s.data"
                 :disabled="disabled"
                 form-type="card"
-              />
+              /> -->
+
+              <FormPaymentMollie :paymentMethod="s.data" />
             </template>
             <template v-if="s?.key === 'card-payzen'">
               <FormPaymentPayzen :paymentMethod="s.data" />
