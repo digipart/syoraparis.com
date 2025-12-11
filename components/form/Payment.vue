@@ -9,7 +9,8 @@ const { disabled } = defineProps<{
 }>();
 
 const checkoutStore = useCheckoutStore();
-const { hasAddressDelivery, checkoutCustomer } = toRefs(checkoutStore);
+const { hasAddressDelivery, checkoutCustomer, checkoutPaymentMethods } =
+  toRefs(checkoutStore);
 
 const { locale } = useI18n();
 const addressStore = useAddressStore();
@@ -33,7 +34,6 @@ interface PaymentMethodUI {
   data: PaymentMethodType;
 }
 
-const paymentMethodsData = ref<PaymentMethodType[]>([]);
 const { t } = useI18n();
 
 const paymentMethods = computed(() => {
@@ -64,7 +64,7 @@ const paymentMethods = computed(() => {
   //           "Position": 6
   //       },
 
-  paymentMethodsData.value.forEach((payment: PaymentMethodType) => {
+  checkoutPaymentMethods.value.forEach((payment: PaymentMethodType) => {
     if (payment.PaymentCode === 'STRIPE') {
       pMs.push({
         id: 1,
@@ -150,46 +150,6 @@ const setAddresse = (event: Event) => {
   }
 };
 
-const paymentService = new PaymentService();
-let options: any = {};
-const ip = useIp();
-const loadPayments = async () => {
-  let isOk = false;
-  if (!hasAddressDelivery.value) {
-    options = {
-      IP: ip.value,
-    };
-    isOk = true;
-  } else {
-    options = {
-      Postcode: checkoutCustomer.value.deliveryAddress.postalCode,
-      City: checkoutCustomer.value.deliveryAddress.city,
-      Country: checkoutCustomer.value.deliveryAddress.country,
-      Address1: checkoutCustomer.value.deliveryAddress.address,
-    };
-    isOk = true;
-  }
-
-  if (!isOk) {
-    return;
-  }
-
-  try {
-    const data = await paymentService.paymentMethods({
-      ...options,
-      LanguageIsoCode: locale.value,
-    });
-    console.log('payment methods:', data.PaymentMethods);
-    paymentMethodsData.value = data.PaymentMethods || [];
-  } catch (error) {
-    console.error(t('tunnel.payment.error.fetch_methods'), error);
-  }
-};
-
-onMounted(() => {
-  loadPayments();
-});
-
 const config = useRuntimeConfig();
 </script>
 
@@ -209,12 +169,11 @@ const config = useRuntimeConfig();
         </div>
       </div>
     </div>
-
-    <BaseCollapsible v-if="paymentMethods.length > 0" :index-active="[1002]">
+    <BaseCollapsible v-if="paymentMethods.length > 0" :index-active="[1]">
       <BaseCollapsibleItem
         v-for="(s, index) in paymentMethods"
         :key="s?.key"
-        :index="index"
+        :index="index+1"
         :closeOthers="true"
         :hideArrow="true"
       >
@@ -225,7 +184,7 @@ const config = useRuntimeConfig();
                 {{ s?.name }}
               </span>
               <span class="font-light">
-                {{ s?.sname }}
+                {{ s?.sname }} {{ index }}
               </span>
             </div>
             <div>
@@ -280,8 +239,8 @@ const config = useRuntimeConfig();
         <template #content>
           <div class="p-5">
             <FormPaymentAlma
-              v-if="paymentMethodsData.length > 0"
-              :paymentMethods="paymentMethodsData"
+              v-if="checkoutPaymentMethods.length > 0"
+              :paymentMethods="checkoutPaymentMethods"
             />
           </div>
         </template>

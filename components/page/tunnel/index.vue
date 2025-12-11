@@ -80,10 +80,11 @@ const handleSelectPickupAddress = async (e: any) => {
   //   Address1: e.address,
   //   Country: e.country,
   // });
+  pickupAddress.value = e.address;
   checkoutCustomer.value.deliveryAddress.address = e.address;
   checkoutCustomer.value.deliveryAddress.city = e.city;
   checkoutCustomer.value.deliveryAddress.postalCode = e.postalCode;
-  checkoutCustomer.value.deliveryAddress.country = e.country;
+  checkoutCustomer.value.deliveryAddress.country = e.countryIso;
 };
 </script>
 
@@ -201,16 +202,8 @@ const handleSelectPickupAddress = async (e: any) => {
                   </ul>
                 </div>
               </div>
-              <FormShipping :displayOptions="['Store', 'RelayPoint']" />
             </template>
-            <BaseAlert v-else fill type="default" :closeButton="false">
-              <span class="text-sm">
-                {{ $t('label.shippingOption.noCarrier') }}
-              </span>
-              <template #icon>
-                <IconShop />
-              </template>
-            </BaseAlert>
+            <FormShipping :displayOptions="['Store', 'RelayPoint']" />
           </div>
           <div class="mt-5">
             <BaseHeadLine size="md" class="uppercase font-medium mb-3">
@@ -256,8 +249,6 @@ const handleSelectPickupAddress = async (e: any) => {
             <FormCodePromo @onCodePromoApplied="refreshCodePromo" />
           </div>
           <PageTunnelOrderSummary class="mt-5" />
-
-      
         </div>
       </div>
     </div>

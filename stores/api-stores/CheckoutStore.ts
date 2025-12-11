@@ -1,6 +1,7 @@
 import { defineStore } from 'pinia';
 import BrandService from '~/services/BrandService';
 import type { BrandType } from '~/types/BrandType';
+import type { PaymentMethodType } from '~/types/PaymentType';
 import type { RelayPointType } from '~/types/RelayPointsType';
 import type { CarrierType } from '~/types/ShippingType';
 
@@ -54,15 +55,22 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
     },
   });
   const checkoutCarrier = ref<CheckoutCarrier>();
+  const checkoutPaymentMethods = ref<PaymentMethodType[]>([]);
 
-  const hasAddressDelivery = computed(() => {
-    return (
+  const hasAddressDelivery = ref(false);
+
+  watch(checkoutCustomer.value.deliveryAddress, () => {
+    hasAddressDelivery.value =
       checkoutCustomer.value.deliveryAddress.postalCode !== '' &&
       checkoutCustomer.value.deliveryAddress.country !== '' &&
       checkoutCustomer.value.deliveryAddress.city !== '' &&
-      checkoutCustomer.value.deliveryAddress.address !== ''
-    );
+      checkoutCustomer.value.deliveryAddress.address !== '';
   });
 
-  return { checkoutCustomer, checkoutCarrier, hasAddressDelivery };
+  return {
+    checkoutCustomer,
+    checkoutCarrier,
+    hasAddressDelivery,
+    checkoutPaymentMethods,
+  };
 });
