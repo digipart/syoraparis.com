@@ -57,13 +57,6 @@
 
 <script setup lang="ts">
 import MollieHelper from '~/helpers/payments/MollieHelper';
-import type { PaymentMethodType } from '~/types/PaymentType';
-
-const props = defineProps<{
-  amount?: number;
-  currency?: string;
-  paymentMethod?: PaymentMethodType;
-}>();
 
 const emit = defineEmits<{
   tokenCreated: [token: string];

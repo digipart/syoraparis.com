@@ -45,6 +45,7 @@ type MollieResponse = {
       };
     };
   };
+  paymentUrl?: string;
 };
 
 export default class MollieHelper extends PaymentHelper {
@@ -60,8 +61,6 @@ export default class MollieHelper extends PaymentHelper {
   }: {
     token: string;
     paymentMethod: PaymentMethodType;
-    addressDelivery: AddressType;
-    addressInvoice: AddressType;
   }) {
     let total = 0;
 
@@ -85,6 +84,7 @@ export default class MollieHelper extends PaymentHelper {
           redirectUrl: `${config.public.url}/order/accepted?orderid=${this.cart.IdCart}&init=1`,
           webhookUrl: 'https://sy.digipart.fr/api/payment/mollie/ipn',
           description: 'Order #' + this.cart.IdCart,
+          metadata: JSON.stringify(this.custom_data({})),
         },
       });
 
@@ -104,6 +104,41 @@ export default class MollieHelper extends PaymentHelper {
     }
   }
 
+  async startPayementMethod(paymentName: string) {
+    let total = 0;
+
+    try {
+      if (this.cart?.Total?.ToPay?.TaxIncl) {
+        total = this.cart?.Total?.ToPay?.TaxIncl;
+      }
+
+      const config = useRuntimeConfig();
+
+      const response = await $fetch<MollieResponse>('/api/mollie/create', {
+        method: 'POST',
+        body: {
+          method: paymentName,
+          amount: {
+            currency: this.cart?.Currency?.IsoCode,
+            value: total.toFixed(2),
+          },
+          orderId: this.cart.IdCart,
+          redirectUrl: `${config.public.url}/order/accepted?orderid=${this.cart.IdCart}&init=1`,
+          webhookUrl: 'https://sy.digipart.fr/api/payment/mollie/ipn',
+          description: 'Order #' + this.cart.IdCart,
+          metadata: JSON.stringify(this.custom_data({})),
+        },
+      });
+
+      if (response.paymentUrl) {
+        return response;
+      } else {
+        throw new Error('Payment failed');
+      }
+    } catch (error) {
+      throw error;
+    }
+  }
   async postData({
     token,
     paymentMethod,

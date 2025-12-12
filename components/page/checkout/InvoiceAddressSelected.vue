@@ -55,7 +55,7 @@ watch(state.value, () => {
   <div class="">
     <div
       v-if="addressInvoice"
-      class="text-xs text-gray-888 flex gap-3 justify-between items-end"
+      class="text-xs text-gray-888 flex gap-3 justify-between items-end bg-white px-5 py-3 border border-black"
     >
       <div class="flex-1">
         <span>
@@ -73,11 +73,12 @@ watch(state.value, () => {
       </div>
     </div>
     <transition name="slide" v-if="isLoggedIn">
-      <div v-show="isEditing" ref="addressFormAdd" class="">
+      <div v-show="isEditing" ref="addressFormAdd" class="mt-3">
         <FormAddress
           v-if="addressInvoice"
           :address="addressInvoice"
           @cancel="isEditing = !isEditing"
+          inputBorder
         />
       </div>
     </transition>

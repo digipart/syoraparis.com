@@ -14,98 +14,39 @@ const { hasAddressDelivery, checkoutCustomer, checkoutPaymentMethods } =
 
 const { locale } = useI18n();
 const addressStore = useAddressStore();
-const { addressDelivery, addressInvoice } = toRefs(addressStore);
+const { addressDelivery, addressInvoice, addresses } = toRefs(addressStore);
 const { fetchAddresses, updateAddress, updateAddressType } = addressStore;
 
 const paymentStore = usePaymentStore();
 const { payments } = toRefs(paymentStore);
+const addressFormAdd = ref<HTMLElement | null>(null);
 
 const hasSameAddressForShipping = ref(
   addressDelivery.value?.IdAddress === addressInvoice.value?.IdAddress
 );
 
-// Define a type for our payment method UI representation
-interface PaymentMethodUI {
-  id: number;
-  key: string;
-  name: string;
-  sname: string;
-  logo: string;
-  data: PaymentMethodType;
-}
-
+const showForm = ref(false);
+const listAddressVisible = ref(false);
 const { t } = useI18n();
 
-const paymentMethods = computed(() => {
-  const pMs: PaymentMethodUI[] = [];
+const getPaymentImage = (paymenName?: string) => {
+  switch (paymenName?.toLowerCase()) {
+    case 'creditcard':
+      return '/assets/images/visa-mastercard-logo.png';
+    case 'paypal':
+      return '/assets/images/paypal-logo.png';
+    case 'applepay':
+      return '/assets/images/apple-pay.svg';
+    case 'googlepay':
+      return '/assets/images/google-pay.svg';
+    case 'alma':
+      return '/assets/images/alma-logo.svg';
+    case 'klarna':
+      return '/assets/images/klarna-logo.svg';
+  }
 
-  // {
-  //           "IdPayment": 10,
-  //           "PaymentName": "Alma 2 fois",
-  //           "PaymentCode": "ALMA2X",
-  //           "AmountMin": 0,
-  //           "AmountMax": 0,
-  //           "Position": 4
-  //       },
-  //       {
-  //           "IdPayment": 3,
-  //           "PaymentName": "Alma 3 fois d\u00e8s 150\u20ac",
-  //           "PaymentCode": "ALMA3X",
-  //           "AmountMin": 150,
-  //           "AmountMax": 1000,
-  //           "Position": 5
-  //       },
-  //       {
-  //           "IdPayment": 4,
-  //           "PaymentName": "Alma 4 fois d\u00e8s 150\u20ac",
-  //           "PaymentCode": "ALMA4X",
-  //           "AmountMin": 0,
-  //           "AmountMax": 0,
-  //           "Position": 6
-  //       },
-
-  checkoutPaymentMethods.value.forEach((payment: PaymentMethodType) => {
-    if (payment.PaymentCode === 'STRIPE') {
-      pMs.push({
-        id: 1,
-        key: 'card',
-        name: t('tunnel.payment.card.name'),
-        sname: t('tunnel.payment.card.sname'),
-        logo: '/assets/images/visa-mastercard-logo.png',
-        data: payment,
-      });
-    } else if (payment.PaymentCode === 'PAYZEN') {
-      pMs.push({
-        id: 2,
-        key: 'card-payzen',
-        name: t('tunnel.payment.card_payzen.name'),
-        sname: t('tunnel.payment.card_payzen.sname'),
-        logo: '/assets/images/visa-mastercard-logo.png',
-        data: payment,
-      });
-    } else if (payment.PaymentCode === 'PAYPAL') {
-      pMs.push({
-        id: 3,
-        key: 'paypal',
-        name: t('tunnel.payment.paypal.name'),
-        sname: t('tunnel.payment.paypal.sname'),
-        logo: '/assets/images/paypal-logo.png',
-        data: payment,
-      });
-    } else if (payment.PaymentCode === 'KLARNA') {
-      pMs.push({
-        id: 4,
-        key: 'klarna',
-        name: t('tunnel.payment.klarna.name'),
-        sname: t('tunnel.payment.klarna.sname'),
-        logo: '/assets/images/klarna-logo.png',
-        data: payment,
-      });
-    }
-  });
-
-  return pMs;
-});
+  return undefined;
+};
 
 const shippingSelected = ref(-1);
 
@@ -124,7 +65,7 @@ const setAddresseInvoice = (address: AddressType) => {
   // newAddress.IsInvoice = true;
   // newAddress.IsDelivery =
   //   addressDelivery.value?.IdAddress === addressInvoice.value?.IdAddress;
-
+  listAddressVisible.value = false;
   if (address.IdAddress) {
     updateAddressType({
       IdAddress: address.IdAddress,
@@ -132,6 +73,13 @@ const setAddresseInvoice = (address: AddressType) => {
       IsDelivery: addressDelivery.value?.IdAddress === address?.IdAddress,
     });
   }
+};
+
+const displayForm = () => {
+  showForm.value = true;
+  setTimeout(() => {
+    scrollToElementContainer(addressFormAdd.value);
+  }, 300);
 };
 
 const setAddresse = (event: Event) => {
@@ -163,13 +111,140 @@ const config = useRuntimeConfig();
       >
         {{ t('label.same_as_delivery_address') }}
       </InputCheckBox>
-      <div v-if="!hasSameAddressForShipping">
-        <div class="mt-3">
-          <PageCheckoutInvoiceAddressSelected />
-        </div>
+      <div v-if="!hasSameAddressForShipping" class="mb-5">
+        <transition name="slide">
+          <div v-show="!showForm && !listAddressVisible">
+            <div class="mt-3">
+              <PageCheckoutInvoiceAddressSelected />
+            </div>
+            <span
+              class="underline text-xs cursor-pointer"
+              @click="listAddressVisible = !listAddressVisible"
+              v-if="addresses.length > 0"
+            >
+              {{ t('button.select_another_address') }}
+            </span>
+          </div>
+        </transition>
+        <transition name="slide">
+          <div v-if="!showForm && listAddressVisible">
+            <div class="flex justify-end mt-3 mb-3">
+              <span
+                class="underline text-xs cursor-pointer"
+                @click="displayForm()"
+              >
+                {{ $t('button.add_new_address') }}
+              </span>
+            </div>
+            <PerfectScrollbar class="max-h-96 mb-5">
+              <ListingAccountAddresses
+                activeType="Delivery"
+                @onAddressSelected="setAddresseInvoice($event)"
+              />
+            </PerfectScrollbar>
+          </div>
+        </transition>
+        <transition name="slide">
+          <div v-show="showForm" ref="addressFormAdd">
+            <FormAddress
+              @cancel="showForm = !showForm"
+              @onAddressCreated="setAddresseInvoice($event)"
+              inputBorder
+            />
+          </div>
+        </transition>
       </div>
     </div>
-    <BaseCollapsible v-if="paymentMethods.length > 0" :index-active="[1]">
+
+    <BaseCollapsible
+      v-if="checkoutPaymentMethods.length > 0"
+      :index-active="[1]"
+    >
+      <BaseCollapsibleItem
+        v-for="(pm, index) in checkoutPaymentMethods"
+        :key="pm.IdPayment"
+        :index="index + 1"
+        :closeOthers="true"
+        :hideArrow="true"
+      >
+        <template #header>
+          <div class="flex justify-between w-full items-center">
+            <div class="flex flex-col text-xs">
+              <span class="uppercase font-normal">
+                {{ pm?.PaymentName }}
+              </span>
+              <span class="font-light"> {{ pm.PaymentDescription }} </span>
+            </div>
+            <div>
+              <img
+                v-if="getPaymentImage(pm.PaymentCode)"
+                :src="getPaymentImage(pm.PaymentCode)"
+                :alt="pm.PaymentName"
+                class="h-5"
+              />
+            </div>
+          </div>
+        </template>
+        <template #content>
+          <div class="p-5">
+            <!-- Mollie -->
+            <FormPaymentMollieBankcards
+              v-if="
+                pm.PaymentProvider?.toLowerCase() === 'mollie' &&
+                pm.PaymentCode?.toLowerCase() === 'creditcard'
+              "
+            />
+            <FormPaymentMolliePaypal
+              v-if="
+                pm.PaymentProvider?.toLowerCase() === 'mollie' &&
+                pm.PaymentCode?.toLowerCase() === 'paypal'
+              "
+            />
+            <FormPaymentMollieApplePay
+              v-if="
+                pm.PaymentProvider?.toLowerCase() === 'mollie' &&
+                pm.PaymentCode?.toLowerCase() === 'applepay'
+              "
+            />
+            <FormPaymentMollieGooglePay
+              v-if="
+                pm.PaymentProvider?.toLowerCase() === 'mollie' &&
+                pm.PaymentCode?.toLowerCase() === 'googlepay'
+              "
+            />
+
+            <!-- PAYZEN -->
+            <FormPaymentPayzenBankcards
+              v-if="
+                pm.PaymentProvider?.toLowerCase() === 'payzen' &&
+                pm.PaymentCode?.toLowerCase() === 'creditcard'
+              "
+              :paymentMethod="pm"
+            />
+
+            <!-- Strip -->
+            <FormPaymentStripe
+              v-if="
+                pm.PaymentProvider?.toLowerCase() === 'stripe' &&
+                pm.PaymentCode?.toLowerCase() === 'creditcard'
+              "
+              :paymentMethod="pm"
+              form-type="card"
+            />
+            <FormPaymentStripe
+              v-if="
+                pm.PaymentProvider?.toLowerCase() === 'stripe' &&
+                pm.PaymentCode?.toLowerCase() === 'klarna'
+              "
+              :paymentMethod="pm"
+              form-type="klarna"
+            />
+          </div>
+        </template>
+      </BaseCollapsibleItem>
+    </BaseCollapsible>
+
+    <!-- <BaseCollapsible v-if="paymentMethods.length > 0" :index-active="[1]">
       <BaseCollapsibleItem
         v-for="(s, index) in paymentMethods"
         :key="s?.key"
@@ -194,14 +269,14 @@ const config = useRuntimeConfig();
         </template>
         <template #content>
           <div class="p-5">
-            <template v-if="s?.key === 'card'">
-              <!-- <FormPaymentStripe
+            <template v-if="s?.key === 'card'"> -->
+    <!-- <FormPaymentStripe
                 :paymentMethod="s.data"
                 :disabled="disabled"
                 form-type="card"
               /> -->
 
-              <FormPaymentMollie :paymentMethod="s.data" />
+    <!-- <FormPaymentMollie :paymentMethod="s.data" />
             </template>
             <template v-if="s?.key === 'card-payzen'">
               <FormPaymentPayzen :paymentMethod="s.data" />
@@ -244,8 +319,8 @@ const config = useRuntimeConfig();
             />
           </div>
         </template>
-      </BaseCollapsibleItem>
-    </BaseCollapsible>
+      </BaseCollapsibleItem> 
+    </BaseCollapsible>-->
   </div>
 </template>
 

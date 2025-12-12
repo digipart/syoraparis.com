@@ -299,7 +299,7 @@ const handleSelectPickupAddress = async (e: any) => {
     </div>
     <Teleport to="body">
       <div
-        class="flex lg:hidden fixed bottom-0 w-full border-t border-black bg-white py-3 px-5"
+        class="flex lg:hidden fixed bottom-0 w-full border-t border-black bg-white py-3 px-5 z-10"
       >
         <div class="flex-1 flex items-center font-normal justify-end text-sm">
           <span class="ml-5 mr-2 uppercase">{{ $t('cart.total') }} : </span>

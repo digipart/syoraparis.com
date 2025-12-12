@@ -19,13 +19,11 @@ const submitForm = async () => {
   }
 };
 
-const addressManually = ref(false);
 
 const countryStore = useCountryStore();
 const { countries } = toRefs(countryStore);
 
 const showFields = () => {
-  addressManually.value = true;
 };
 
 const countriesOptions = computed(() => {
@@ -100,16 +98,9 @@ defineExpose({
             :required="true"
             @onSelect="handleSelectAddress"
           />
-          <div v-if="!addressManually" class="-mt-5 flex justify-end">
-            <span
-              class="text-xs text-gray-888 underline cursor-pointer"
-              @click="showFields()"
-            >
-              {{ $t('label.enter_address_manually') }}
-            </span>
-          </div>
+        
         </div>
-        <div v-show="addressManually || v$.$error">
+        <div >
           <div>
             <InputText
               id="postcode"

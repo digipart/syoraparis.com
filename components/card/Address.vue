@@ -59,6 +59,7 @@ const clickHandler = () => {
         class="mt-5"
         @cancel="edit = !edit"
         :address="address"
+        input-border
       />
     </transition>
   </div>

@@ -153,15 +153,15 @@ export class PaymentHelper {
     addressDelivery,
     addressInvoice,
   }: {
-    paymentMethod: PaymentMethodType;
-    addressDelivery: AddressType;
-    addressInvoice: AddressType;
+    paymentMethod?: PaymentMethodType;
+    addressDelivery?: AddressType;
+    addressInvoice?: AddressType;
   }) {
     const data = {
       IdCarrier: this.carrier?.IdCarrier,
 
-      IdAddress: addressDelivery.IdAddress,
-      IdAddressInvoice: addressInvoice.IdAddress,
+      IdAddress: addressDelivery?.IdAddress,
+      IdAddressInvoice: addressInvoice?.IdAddress,
 
       ConversionRate: this.cart?.Currency?.ConversionRate,
 

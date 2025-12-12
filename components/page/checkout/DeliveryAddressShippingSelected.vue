@@ -23,7 +23,7 @@
       <div
         v-show="isEditing"
         ref="addressFormAdd"
-        class="border border-black p-5 mt-3"
+        class="mt-3"
       >
         <FormAddress
           v-if="addressDelivery"
@@ -31,6 +31,7 @@
           @cancel="isEditing = !isEditing"
           @onAddressCreated="$emit('onAddressSubmited')"
           @onAddressEdited="$emit('onAddressSubmited')"
+          inputBorder
         />
       </div>
     </transition>

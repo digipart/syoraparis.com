@@ -1,6 +1,13 @@
 export default defineEventHandler(async (event) => {
-  const { token, amount, description, orderId, redirectUrl, webhookUrl } =
-    await readBody(event);
+  const {
+    token,
+    amount,
+    description,
+    orderId,
+    redirectUrl,
+    webhookUrl,
+    metadata,
+  } = await readBody(event);
   const config = useRuntimeConfig();
 
   try {
@@ -20,6 +27,7 @@ export default defineEventHandler(async (event) => {
         redirectUrl: redirectUrl,
         webhookUrl: webhookUrl,
         cardToken: token,
+        metadata,
       },
     });
 

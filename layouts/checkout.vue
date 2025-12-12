@@ -70,7 +70,7 @@ $checkoutLayout: '.checkoutLayout';
 }
 
 .checkout-right {
-  @apply lg:sticky top-[2.5rem] pt-9 pl-5 lg:pl-10 pr-5 min-h-screen bg-white pb-16;
+  @apply lg:sticky top-[2.5rem] pt-9 pl-5 lg:pl-10 pr-5 lg:min-h-screen bg-white pb-20 lg:pb-16;
   .box {
     @apply max-w-[650px] lg:max-w-[470px] ml-auto lg:ml-0 mr-auto;
   }

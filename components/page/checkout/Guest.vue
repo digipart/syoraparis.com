@@ -56,16 +56,13 @@ const submitForm = async () => {
   }
 };
 
-const addressManually = ref(true);
 const emit = defineEmits(['onAddressCreated', 'onFormChange']);
 const { t } = useI18n();
 
 const countryStore = useCountryStore();
 const { countries } = toRefs(countryStore);
 
-const showFields = () => {
-  addressManually.value = true;
-};
+const showFields = () => {};
 
 const countriesOptions = computed(() => {
   return countries.value.map((country) => ({
@@ -236,7 +233,7 @@ defineExpose({
                 @onSelect="handleSelectAddress"
                 border
               />
-              <div v-if="!addressManually" class="-mt-5 flex justify-end">
+              <div class="-mt-5 flex justify-end">
                 <span
                   class="text-xs text-gray-888 underline cursor-pointer"
                   @click="showFields()"
@@ -245,10 +242,7 @@ defineExpose({
                 </span>
               </div>
             </div>
-            <div
-              v-show="addressManually || v$.$error"
-              class="col-span-12 grid grid-cols-12 gap-x-5"
-            >
+            <div class="col-span-12 grid grid-cols-12 gap-x-5">
               <div class="col-span-12">
                 <InputSelect
                   id="country"
