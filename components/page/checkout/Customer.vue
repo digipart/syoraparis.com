@@ -9,7 +9,6 @@ const checkoutStore = useCheckoutStore();
 const { checkoutCustomer, checkoutCarrier } = toRefs(checkoutStore);
 
 const shippingStore = useShippingStore();
-const { fetchShipping } = shippingStore;
 
 const showForm = ref(false);
 const addressFormAdd = ref<HTMLElement | null>(null);
@@ -26,10 +25,6 @@ const addressesUpdated = async (addressId?: number) => {
   if (!addressId && addressDelivery.value) {
     addressId = addressDelivery.value.IdAddress;
   }
-  // await fetchShipping({
-  //   IdAddress: addressId,
-  //   ResponseLevel: 'summary',
-  // });
 };
 
 const setAddresseDelivery = (address: AddressType) => {
@@ -38,10 +33,7 @@ const setAddresseDelivery = (address: AddressType) => {
   listAddressVisible.value = false;
 
   updateAddress(newAddress).then(async (data) => {
-    // await fetchShipping({
-    //   IdAddress: data?.IdAddress,
-    //   ResponseLevel: 'summary',
-    // });
+    
   });
 };
 
@@ -54,10 +46,7 @@ const displayForm = () => {
 
 const onAddressCreated = async (addressId: number) => {
   showForm.value = false;
-  // await fetchShipping({
-  //   IdAddress: addressId,
-  //   ResponseLevel: 'summary',
-  // });
+
   emit('onAddressCreated', addressId);
 };
 
@@ -84,9 +73,11 @@ const setCheckoutCustomer = () => {
 };
 
 onMounted(() => {
-  if (addresses.value.length === 0) {
-    showForm.value = true;
-  }
+  setTimeout(() => {
+    if (addresses.value.length === 0) {
+      showForm.value = true;
+    }
+  }, 100);
   setCheckoutCustomer();
 });
 </script>

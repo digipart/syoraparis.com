@@ -8,11 +8,11 @@
         type="primary"
       >
         <span
-          v-if="!isProcessing"
+          v-if="!isProcessing || !isCheckoutValid"
           class="flex items-center justify-center gap-2"
         >
-          <IconPaypal :size="4" />
-          Pay with PayPal
+          {{ $t('tunnel.payment.paypal.name') }}
+          <IconPaypal :size="2" />
         </span>
         <span v-else>Processing...</span>
       </BaseButton>
@@ -56,6 +56,8 @@ const { cart } = toRefs(cartStore);
 
 const addressStore = useAddressStore();
 const { addressDelivery, addressInvoice } = toRefs(addressStore);
+const checkoutStore = useCheckoutStore();
+const { isCheckoutValid } = toRefs(checkoutStore);
 
 const config = useRuntimeConfig();
 const router = useRouter();
@@ -77,6 +79,8 @@ onMounted(async () => {
 });
 
 const handlePayPalPayment = async () => {
+  if (!isCheckoutValid.value) return;
+
   if (isProcessing.value) return;
 
   isProcessing.value = true;

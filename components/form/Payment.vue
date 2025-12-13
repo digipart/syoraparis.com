@@ -1,29 +1,33 @@
 <script setup lang="ts">
-import MollieHelper from '~/helpers/payments/MollieHelper';
-import PaymentService from '~/services/PaymentService';
 import type { AddressType } from '~/types/AddressType';
-import type { PaymentMethodType } from '~/types/PaymentType';
 
 const { disabled } = defineProps<{
   disabled?: boolean;
 }>();
 
 const checkoutStore = useCheckoutStore();
-const { hasAddressDelivery, checkoutCustomer, checkoutPaymentMethods } =
+const { checkoutCarrier, checkoutCustomer, checkoutPaymentMethods } =
   toRefs(checkoutStore);
 
-const { locale } = useI18n();
 const addressStore = useAddressStore();
 const { addressDelivery, addressInvoice, addresses } = toRefs(addressStore);
-const { fetchAddresses, updateAddress, updateAddressType } = addressStore;
+const { updateAddressType } = addressStore;
 
-const paymentStore = usePaymentStore();
-const { payments } = toRefs(paymentStore);
 const addressFormAdd = ref<HTMLElement | null>(null);
 
 const hasSameAddressForShipping = ref(
-  addressDelivery.value?.IdAddress === addressInvoice.value?.IdAddress
+  checkoutCustomer.value.deliveryAddress.city ===
+    checkoutCustomer.value.invoiceAddress.city &&
+    checkoutCustomer.value.deliveryAddress.country ===
+      checkoutCustomer.value.invoiceAddress.country &&
+    checkoutCustomer.value.deliveryAddress.postalCode ===
+      checkoutCustomer.value.invoiceAddress.postalCode &&
+    checkoutCustomer.value.deliveryAddress.address ===
+      checkoutCustomer.value.invoiceAddress.address
 );
+
+if (addressInvoice) {
+}
 
 const showForm = ref(false);
 const listAddressVisible = ref(false);
@@ -103,6 +107,11 @@ const config = useRuntimeConfig();
 
 <template>
   <div class="formPayment">
+    <!-- <pre class="text-xs">
+
+      {{ checkoutCustomer }} <br>
+    {{ checkoutCarrier }}
+  </pre> -->
     <div>
       <InputCheckBox
         id="same_address_for_shipping"

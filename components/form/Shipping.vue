@@ -11,8 +11,12 @@ const { displayOptions } = defineProps({
 });
 
 const checkoutStore = useCheckoutStore();
-const { hasAddressDelivery, checkoutCustomer, checkoutPaymentMethods } =
-  toRefs(checkoutStore);
+const {
+  hasAddressDelivery,
+  checkoutCustomer,
+  checkoutPaymentMethods,
+  checkoutCarrier,
+} = toRefs(checkoutStore);
 
 const shippingStore = useShippingStore();
 const { carrier, toshow, relayPointSelected } = toRefs(shippingStore);
@@ -20,7 +24,7 @@ const { fetchShipping } = shippingStore;
 
 const cartStore = useCartStore();
 const { updateShipping, fetchCart } = cartStore;
-const { carrier: carrierSelected } = toRefs(cartStore);
+const { carrier: carrierSelected, cart } = toRefs(cartStore);
 
 const loading = ref(false);
 const { locale } = useI18n();
@@ -58,7 +62,7 @@ const selectShipping = (event: {
   }
 
   updateShipping(option)
-    .then(() => {
+    .then((c) => {
       // toshow.value =
 
       if (event.relayPointID && event.relayPoints) {
@@ -66,8 +70,13 @@ const selectShipping = (event: {
           (rp) => rp.Id === event.relayPointID
         );
         relayPointSelected.value = rpSelected || null;
+        checkoutCarrier.value.relayPoint = rpSelected;
       }
-      fetchCart();
+      fetchCart().then(() => {
+        if (carrier.value) {
+          checkoutCarrier.value.carrier = cart.value.Shipping?.Carrier;
+        }
+      });
     })
     .finally(() => {
       loading.value = false;
@@ -102,8 +111,8 @@ const loadCarriers = async () => {
     const options = {
       IP: ip.value,
     };
-    await fetchShipping(options);
-    await loadPayments(options);
+    // await fetchShipping(options);
+    // await loadPayments(options);
   }
 };
 

@@ -36,7 +36,7 @@
         <div class="col-span-2 mt-3">
           <BaseButton
             submit
-            :disabled="isProcessing || !isFormValid"
+            :disabled="isProcessing || !isFormValid || !isCheckoutValid"
             class="w-full"
             type="primary"
           >
@@ -65,6 +65,9 @@ const emit = defineEmits<{
 
 const cartStore = useCartStore();
 const { cart } = toRefs(cartStore);
+
+const checkoutStore = useCheckoutStore();
+const { isCheckoutValid } = toRefs(checkoutStore);
 
 const { mollie, loadMollie } = useMollie();
 const addressStore = useAddressStore();
@@ -215,6 +218,7 @@ const handleError = (error: string) => {
 };
 
 const handleSubmit = async () => {
+  if (!isCheckoutValid.value) return;
   if (!mollie.value || isProcessing.value || !isFormValid.value) return;
 
   isProcessing.value = true;
@@ -236,11 +240,12 @@ const handleSubmit = async () => {
   }
 };
 
-onUnmounted(() => {
-  if (cardNumber) cardNumber.unmount();
-  if (expiryDate) expiryDate.unmount();
-  if (verificationCode) verificationCode.unmount();
-});
+// onUnmounted(() => {
+//   if (cardholder) cardholder.unmount();
+//   if (cardNumber) cardNumber.unmount();
+//   if (expiryDate) expiryDate.unmount();
+//   if (verificationCode) verificationCode.unmount();
+// });
 </script>
 
 <style lang="scss">

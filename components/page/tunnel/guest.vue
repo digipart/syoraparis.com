@@ -1,12 +1,8 @@
 <script setup lang="ts">
-import ShippingService from '~/services/ShippingService';
 import type { CarrierType } from '~/types/ShippingType';
 
-const { t } = useI18n();
-const localePath = useLocalePath();
-
 const checkoutStore = useCheckoutStore();
-const { checkoutCustomer, checkoutCarrier } = toRefs(checkoutStore);
+const { checkoutCustomer } = toRefs(checkoutStore);
 
 const formDeliveryStore = useFormDeliveryStore();
 const { state, v$ } = toRefs(formDeliveryStore);
@@ -21,12 +17,7 @@ const cartStore = useCartStore();
 const { totalToPay, carrier, totalProductQuantity } = toRefs(cartStore);
 const { updateShipping } = cartStore;
 
-const addressStore = useAddressStore();
-const { addressDelivery } = toRefs(addressStore);
-
 const deliveryOption = ref<'ship' | 'pickup'>('ship');
-
-const storeRelayPoints = ref<CarrierType>(allCarriers as CarrierType);
 
 const paymentRefreshing = ref(false);
 
@@ -63,41 +54,7 @@ const ip = useIp();
 const setDelivredOption = async (optionType: 'ship' | 'pickup') => {
   allCarriers.value = {};
   deliveryOption.value = optionType;
-  // if (optionType === 'ship' && addressDelivery.value) {
-  //   fetchShipping({
-  //     IdAddress: addressDelivery.value?.IdAddress,
-  //   });
-  // }
-  // if (optionType === 'pickup' && pickupAddress.value) {
-  //   handleSelectPickupAddress(pickupAddress);
-  // } else if (optionType === 'pickup' && ip.value) {
-  //   fetchShipping({
-  //     IP: ip.value,
-  //   });
-  // }
 };
-
-const customAddressDelivery = computed(() => {
-  if (
-    deliveryOption.value === 'ship' &&
-    state.value.postcode &&
-    state.value.country &&
-    state.value.city
-  ) {
-    return {
-      postcode: state.value.postcode,
-      city: state.value.city,
-      country: state.value.country,
-      address: state.value.address,
-    };
-  }
-  if (deliveryOption.value === 'ship' && ip.value) {
-    return {
-      ip: ip.value,
-    };
-  }
-  return undefined;
-});
 
 const handalFormGuestChange = (state: any) => {
   paymentRefreshing.value = true;
@@ -107,17 +64,15 @@ const handalFormGuestChange = (state: any) => {
 };
 
 const handleSelectPickupAddress = async (e: any) => {
-  // fetchShipping({
-  //   Postcode: e.postalCode,
-  //   City: e.city,
-  //   Address1: e.address,
-  //   Country: e.country,
-  // });
   checkoutCustomer.value.deliveryAddress.address = e.address;
   checkoutCustomer.value.deliveryAddress.city = e.city;
   checkoutCustomer.value.deliveryAddress.postalCode = e.postalCode;
   checkoutCustomer.value.deliveryAddress.country = e.country;
 };
+
+onMounted(() => {
+  updateShipping({ idCarrier: 0 });
+});
 </script>
 
 <template>
@@ -292,8 +247,6 @@ const handleSelectPickupAddress = async (e: any) => {
             <FormCodePromo @onCodePromoApplied="refreshCodePromo" />
           </div>
           <PageTunnelOrderSummary class="mt-5" />
-
-        
         </div>
       </div>
     </div>

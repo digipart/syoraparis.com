@@ -10,19 +10,19 @@ const { currencyIsoCode } = toRefs(appStore);
 
 const shippingStore = useShippingStore();
 const { carrier: allCarriers, toshow } = toRefs(shippingStore);
-const { fetchShipping } = shippingStore;
 
 const checkoutStore = useCheckoutStore();
 const { checkoutCustomer, checkoutCarrier } = toRefs(checkoutStore);
 
 const cartStore = useCartStore();
-const { totalToPay, carrier, totalProductQuantity } = toRefs(cartStore);
+const { totalToPay, carrier, totalProductQuantity, cart } = toRefs(cartStore);
 
 const addressStore = useAddressStore();
-const { addressDelivery } = toRefs(addressStore);
+const { addressDelivery, addressInvoice } = toRefs(addressStore);
 
 const deliveryOption = ref<'ship' | 'pickup'>(
-  carrier.value?.IdRelayPoint !== undefined ? 'pickup' : 'ship'
+  // carrier.value?.IdRelayPoint !== undefined ? 'pickup' : 'ship'
+  'ship'
 );
 
 const codePromoRefreshing = ref(false);
@@ -59,33 +59,71 @@ const ip = useIp();
 const setDelivredOption = async (optionType: 'ship' | 'pickup') => {
   deliveryOption.value = optionType;
   if (optionType === 'ship' && addressDelivery.value) {
-    // fetchShipping({
-    //   IdAddress: addressDelivery.value?.IdAddress,
-    // });
+    
   }
 
   if (optionType === 'pickup' && pickupAddress.value) {
     handleSelectPickupAddress(pickupAddress.value);
   } else if (optionType === 'pickup' && ip.value) {
-    // fetchShipping({
-    //   IP: ip.value,
-    // });
+   
   }
 };
 
 const handleSelectPickupAddress = async (e: any) => {
-  // fetchShipping({
-  //   Postcode: e.postalCode,
-  //   City: e.city,
-  //   Address1: e.address,
-  //   Country: e.country,
-  // });
+ 
   pickupAddress.value = e.address;
   checkoutCustomer.value.deliveryAddress.address = e.address;
   checkoutCustomer.value.deliveryAddress.city = e.city;
   checkoutCustomer.value.deliveryAddress.postalCode = e.postalCode;
   checkoutCustomer.value.deliveryAddress.country = e.countryIso;
 };
+
+const setCheckouCustomer = () => {
+  if (deliveryOption.value === 'ship') {
+    if (addressDelivery.value) {
+      checkoutCustomer.value.deliveryAddress.address =
+        addressDelivery.value.Address1 || '';
+      checkoutCustomer.value.deliveryAddress.city =
+        addressDelivery.value.City || '';
+      checkoutCustomer.value.deliveryAddress.postalCode =
+        addressDelivery.value.Postcode || '';
+      checkoutCustomer.value.deliveryAddress.country =
+        addressDelivery.value.CountryIsoCode || '';
+      checkoutCustomer.value.deliveryAddress.firstname =
+        addressDelivery.value.Firstname || '';
+      checkoutCustomer.value.deliveryAddress.lastname =
+        addressDelivery.value.Lastname || '';
+      checkoutCustomer.value.deliveryAddress.phone =
+        addressDelivery.value.MobilePhone || '';
+    }
+
+    if (addressInvoice.value) {
+      checkoutCustomer.value.invoiceAddress.address =
+        addressInvoice.value.Address1 || '';
+      checkoutCustomer.value.invoiceAddress.city =
+        addressInvoice.value.City || '';
+      checkoutCustomer.value.invoiceAddress.postalCode =
+        addressInvoice.value.Postcode || '';
+      checkoutCustomer.value.invoiceAddress.country =
+        addressInvoice.value.CountryIsoCode || '';
+      checkoutCustomer.value.invoiceAddress.firstname =
+        addressInvoice.value.Firstname || '';
+      checkoutCustomer.value.invoiceAddress.lastname =
+        addressInvoice.value.Lastname || '';
+      checkoutCustomer.value.invoiceAddress.phone =
+        addressInvoice.value.MobilePhone || '';
+    }
+
+    if (carrier.value) {
+      checkoutCarrier.value.carrier = cart.value?.Shipping?.Carrier;
+      // checkoutCarrier.value.relayPoint = cart.value?.Shipping?.Carrier?.RelayPoint;
+    }
+  }
+};
+
+onMounted(() => {
+  setCheckouCustomer();
+});
 </script>
 
 <template>

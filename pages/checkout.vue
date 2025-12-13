@@ -17,11 +17,7 @@ const cartStore = useCartStore();
 const { totalProductQuantity, loaded } = toRefs(cartStore);
 
 const addressStore = useAddressStore();
-const { addressDelivery } = toRefs(addressStore);
 const { fetchAddresses } = addressStore;
-
-const shippingStore = useShippingStore();
-const { fetchShipping } = shippingStore;
 
 const step = ref(1);
 const loading = ref(true);
@@ -30,15 +26,11 @@ const route = useRoute();
 if (route.query.step) {
   step.value = Number(route.query.step);
 }
+if (isLoggedIn.value) {
+  await fetchAddresses();
+}
 
 onMounted(async () => {
-  if (isLoggedIn.value) {
-    await fetchAddresses();
-    // await fetchShipping({
-    //   IdAddress: addressDelivery.value?.IdAddress,
-    //   ResponseLevel: 'summary',
-    // });
-  }
   loading.value = false;
 });
 </script>

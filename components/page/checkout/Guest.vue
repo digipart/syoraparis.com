@@ -3,13 +3,12 @@ import type { AddressType } from '~/types/AddressType';
 
 const addressStore = useAddressStore();
 const { addressDelivery, addresses } = toRefs(addressStore);
-const { fetchAddresses, updateAddress } = addressStore;
+const { updateAddress } = addressStore;
 
 const checkoutStore = useCheckoutStore();
 const { checkoutCustomer, checkoutCarrier } = toRefs(checkoutStore);
 
 const shippingStore = useShippingStore();
-const { fetchShipping } = shippingStore;
 
 const addressFormAdd = ref<HTMLElement | null>(null);
 
@@ -43,12 +42,7 @@ const submitForm = async () => {
     registerGuest().then(async (data) => {
       showForm.value = false;
       console.log(data);
-      // await fetchAddresses();
 
-      // await fetchShipping({
-      //   IdAddress: addressDelivery.value?.IdAddress,
-      //   ResponseLevel: 'summary',
-      // });
       emit('onAddressCreated', addressDelivery.value?.IdAddress);
     });
   } else {
@@ -75,10 +69,6 @@ const addressesUpdated = async (addressId?: number) => {
   if (!addressId && addressDelivery.value) {
     addressId = addressDelivery.value.IdAddress;
   }
-  // await fetchShipping({
-  //   IdAddress: addressId,
-  //   ResponseLevel: 'summary',
-  // });
 };
 
 const setAddresseDelivery = (address: AddressType) => {
@@ -86,12 +76,7 @@ const setAddresseDelivery = (address: AddressType) => {
   newAddress.IsDelivery = true;
   listAddressVisible.value = false;
 
-  updateAddress(newAddress).then(async (data) => {
-    // await fetchShipping({
-    //   IdAddress: data?.IdAddress,
-    //   ResponseLevel: 'summary',
-    // });
-  });
+  updateAddress(newAddress).then(async (data) => {});
 };
 
 const displayForm = () => {
@@ -129,13 +114,15 @@ watch(state.value, () => {
   checkoutCustomer.value.deliveryAddress.postalCode = state.value.postcode;
   checkoutCustomer.value.deliveryAddress.country = state.value.country;
 
+  checkoutCustomer.value.invoiceAddress.firstname = state.value.firstname;
+  checkoutCustomer.value.invoiceAddress.lastname = state.value.name;
+  checkoutCustomer.value.invoiceAddress.address = state.value.address;
+  checkoutCustomer.value.invoiceAddress.city = state.value.city;
+  checkoutCustomer.value.invoiceAddress.phone = state.value.phone;
+  checkoutCustomer.value.invoiceAddress.postalCode = state.value.postcode;
+  checkoutCustomer.value.invoiceAddress.country = state.value.country;
+
   if (state.value.country && state.value.postcode && state.value.city) {
-    // fetchShipping({
-    //   Postcode: state.value.postcode,
-    //   City: state.value.city,
-    //   Address1: state.value.address,
-    //   Country: state.value.country,
-    // });
   }
 });
 
