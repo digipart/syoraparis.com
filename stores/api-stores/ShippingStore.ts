@@ -29,7 +29,7 @@ export const useShippingStore = defineStore('shippingStore', () => {
     if (data.Carriers) {
       carriers.value = data.Carriers;
       try {
-        toshow.value = carriers.value[0];
+        toshow.value = carriers.value[0] || '';
       } catch (err) {
         console.error('Error setting toshow:', err);
       }

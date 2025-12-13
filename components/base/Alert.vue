@@ -19,7 +19,7 @@
 <script setup lang="ts">
 const { type } = withDefaults(
   defineProps<{
-    type?: 'primary' | 'default' | 'danger';
+    type?: 'primary' | 'default' | 'danger' | 'warning';
     closeButton?: boolean;
     size?: 'small' | 'medium';
     fill?: boolean;
@@ -38,6 +38,8 @@ const iconColor = computed(() => {
       return '#ef4444';
     case 'primary':
       return 'black';
+    case 'warning':
+      return '#ffc107';
     default:
       return '#888888';
   }
@@ -48,7 +50,7 @@ const iconColor = computed(() => {
 
 <style lang="scss">
 .alert {
-  @apply px-5 py-4 flex items-start gap-3 border; 
+  @apply px-5 py-4 flex items-start gap-3 border;
   &.alert-default {
     @apply border-zinc-400 text-zinc-400;
 
@@ -70,6 +72,14 @@ const iconColor = computed(() => {
 
     &.fill {
       @apply bg-red-500 text-white;
+    }
+  }
+
+  &.alert-warning {
+    @apply border-[#ffe0a3] text-[#ffc107];
+
+    &.fill {
+      @apply bg-[#fff9e6] text-[#c99700];
     }
   }
 

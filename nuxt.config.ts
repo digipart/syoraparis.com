@@ -23,7 +23,7 @@ export default defineNuxtConfig({
       apiUrl: process.env.API_URL,
       googleMapKey: process.env.GOOGLE_MAP_KEY,
       googleClientId: process.env.GOOGLE_CLIENT_ID,
-      
+
       strapiUrl: process.env.STRAPI_URL,
       stripePublicKey: process.env.STRIPE_PUBLIC_KEY,
       paypalClientID: process.env.PAYPAL_CLIENT_ID,
@@ -32,6 +32,9 @@ export default defineNuxtConfig({
       almaClientId: process.env.ALMA_CLIENT_ID,
       almaToken: process.env.ALMA_TOKEN,
       gtmId: process.env.GTM_ID,
+      mollieProfileId: process.env.MOLLIE_PROFILE_ID,
+      mollieTestMode: process.env.MOLLIE_TEST_MODE,
+      mollieApiKey: process.env.MOLLIE_API_KEY,
 
       hasCountryOut: process.env.HAS_COUNTRY_OUT,
       lockUser: process.env.LOCK_USER,
@@ -53,7 +56,8 @@ export default defineNuxtConfig({
   },
   nitro: {
     routeRules: {
-      '/api/**': { proxy: process.env.API_URL + '/**' },
+      // '/api/**': { proxy: process.env.API_URL + '/**' },
+      '/api2/**': { proxy: process.env.API_URL + '/**' },
     },
   },
   // Updated server configuration to match Nuxt 4 types
@@ -113,9 +117,9 @@ export default defineNuxtConfig({
     strategy: 'prefix_except_default',
     customRoutes: 'config',
     pages: routesI18N,
-     // CRITICAL: Disable browser language detection
+    // CRITICAL: Disable browser language detection
     detectBrowserLanguage: false,
-    
+
     // Force French on root path
     differentDomains: false,
   },

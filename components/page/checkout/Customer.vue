@@ -2,14 +2,19 @@
 import type { AddressType } from '~/types/AddressType';
 
 const addressStore = useAddressStore();
-const { addressDelivery, addresses } = toRefs(addressStore);
+const { addressDelivery, addressInvoice, addresses } = toRefs(addressStore);
 const { fetchAddresses, updateAddress } = addressStore;
 
+const checkoutStore = useCheckoutStore();
+const { checkoutCustomer, checkoutCarrier } = toRefs(checkoutStore);
+
 const shippingStore = useShippingStore();
-const { fetchShipping } = shippingStore;
 
 const showForm = ref(false);
 const addressFormAdd = ref<HTMLElement | null>(null);
+
+const auth = useAuth();
+const { customer } = toRefs(auth);
 
 const listAddressVisible = ref(false);
 
@@ -20,10 +25,6 @@ const addressesUpdated = async (addressId?: number) => {
   if (!addressId && addressDelivery.value) {
     addressId = addressDelivery.value.IdAddress;
   }
-  await fetchShipping({
-    IdAddress: addressId,
-    ResponseLevel: 'summary',
-  });
 };
 
 const setAddresseDelivery = (address: AddressType) => {
@@ -32,10 +33,7 @@ const setAddresseDelivery = (address: AddressType) => {
   listAddressVisible.value = false;
 
   updateAddress(newAddress).then(async (data) => {
-    await fetchShipping({
-      IdAddress: data?.IdAddress,
-      ResponseLevel: 'summary',
-    });
+    
   });
 };
 
@@ -48,16 +46,39 @@ const displayForm = () => {
 
 const onAddressCreated = async (addressId: number) => {
   showForm.value = false;
-  await fetchShipping({
-    IdAddress: addressId,
-    ResponseLevel: 'summary',
-  });
+
   emit('onAddressCreated', addressId);
 };
+
+watch(addressDelivery, () => {
+  setCheckoutCustomer();
+});
+
+const setCheckoutCustomer = () => {
+  checkoutCustomer.value.deliveryAddress.firstname =
+    addressDelivery.value?.Firstname || '';
+  checkoutCustomer.value.deliveryAddress.lastname =
+    addressDelivery.value?.Lastname || '';
+  checkoutCustomer.value.deliveryAddress.email = customer.value?.Email || '';
+  checkoutCustomer.value.deliveryAddress.address =
+    addressDelivery.value?.Address1 || '';
+  checkoutCustomer.value.deliveryAddress.city =
+    addressDelivery.value?.City || '';
+  checkoutCustomer.value.deliveryAddress.phone =
+    addressDelivery.value?.Phone || '';
+  checkoutCustomer.value.deliveryAddress.postalCode =
+    addressDelivery.value?.Postcode || '';
+  checkoutCustomer.value.deliveryAddress.country =
+    addressDelivery.value?.CountryIsoCode || '';
+};
+
 onMounted(() => {
-  if (addresses.value.length === 0) {
-    showForm.value = true;
-  }
+  setTimeout(() => {
+    if (addresses.value.length === 0) {
+      showForm.value = true;
+    }
+  }, 100);
+  setCheckoutCustomer();
 });
 </script>
 
@@ -69,7 +90,7 @@ onMounted(() => {
           <!-- Delivery address selected -->
           <div
             v-if="addressDelivery"
-            class="border border-black px-5 py-3 mt-3"
+            class="border border-black px-5 py-3 mt-3 bg-white"
           >
             <PageCheckoutDeliveryAddressShippingSelected
               hideShipping
@@ -104,14 +125,11 @@ onMounted(() => {
     </transition>
 
     <transition name="slide">
-      <div
-        v-show="showForm"
-        ref="addressFormAdd"
-        class="border border-black p-5"
-      >
+      <div v-show="showForm" ref="addressFormAdd">
         <FormAddress
           @cancel="showForm = !showForm"
           @onAddressCreated="onAddressCreated($event)"
+          inputBorder
         />
       </div>
     </transition>

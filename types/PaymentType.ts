@@ -12,4 +12,7 @@ export type PaymentMethodType = {
   AmountMin?: number;
   AmountMax?: number;
   Position?: number;
+  IdPaymentPovider?: number;
+  PaymentProvider?: string;
+  PaymentDescription?: string;
 };

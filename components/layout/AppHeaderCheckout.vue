@@ -31,7 +31,7 @@ const localePath = useLocalePath();
   &-menu {
     @apply px-4 h-14 py-1.5  bg-white
   flex justify-between items-center
-  border-b-black border-b duration-500 text-black;
+    duration-500 text-black;
   }
 }
 </style>

@@ -1,23 +1,14 @@
 <script setup lang="ts">
-import { useVuelidate } from '@vuelidate/core';
-import { required, helpers } from '@vuelidate/validators';
 import CodepromoService from '~/services/CodepromoService';
+
+const formPromocodeStore = useFormPromocodeStore();
+const { state, v$ } = toRefs(formPromocodeStore);
 
 const { t } = useI18n();
 
 const error = ref(false);
 
-const state = reactive({
-  codepromo: '',
-});
-
-const rules = {
-  codepromo: {
-    required: helpers.withMessage(t('error.field_required'), required),
-  },
-};
 const emit = defineEmits(['onCodePromoApplied']);
-const v$ = useVuelidate(rules, state);
 
 const appStore = useAppStore();
 const { languageIsoCode } = toRefs(appStore);
@@ -61,23 +52,29 @@ const submitForm = async () => {
 
 <template>
   <div class="newsletterForm">
-    <BaseAlert v-if="error" size="small" type="danger" class="mb-3" :closeButton="false">
+    <BaseAlert
+      v-if="error"
+      size="small"
+      type="danger"
+      class="mb-3"
+      :closeButton="false"
+    >
       {{ $t('error.codepromo_invalid') }}
     </BaseAlert>
-    <form @submit.prevent="submitForm">
-      <div>
+    <form @submit.prevent="submitForm" class="flex gap-2">
+      <div class="flex-1">
         <InputText
           id="codepromo"
           v-model="state.codepromo"
           :errors="v$.codepromo?.$errors"
           :label="$t('cart.codepromo.title')"
+          border
         />
       </div>
 
       <div>
         <BaseButton
           type="primary"
-          size="small"
           submit
           :title="$t('button.apply')"
           class="w-full"

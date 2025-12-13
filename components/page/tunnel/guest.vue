@@ -1,10 +1,8 @@
 <script setup lang="ts">
-import ShippingService from '~/services/ShippingService';
 import type { CarrierType } from '~/types/ShippingType';
 
-
-const { t } = useI18n();
-const localePath = useLocalePath();
+const checkoutStore = useCheckoutStore();
+const { checkoutCustomer } = toRefs(checkoutStore);
 
 const formDeliveryStore = useFormDeliveryStore();
 const { state, v$ } = toRefs(formDeliveryStore);
@@ -14,65 +12,71 @@ const { currencyIsoCode } = toRefs(appStore);
 
 const shippingStore = useShippingStore();
 const { carrier: allCarriers, toshow } = toRefs(shippingStore);
-const { fetchShipping } = shippingStore;
 
 const cartStore = useCartStore();
 const { totalToPay, carrier, totalProductQuantity } = toRefs(cartStore);
-
-const addressStore = useAddressStore();
-const { addressDelivery } = toRefs(addressStore);
+const { updateShipping } = cartStore;
 
 const deliveryOption = ref<'ship' | 'pickup'>('ship');
 
-const storeRelayPoints = ref<CarrierType>(allCarriers as CarrierType);
-
-const codePromoRefreshing = ref(false);
+const paymentRefreshing = ref(false);
 
 const pickupAddress = ref('');
 
 const valide = computed(() => {
-  return totalProductQuantity.value && addressDelivery.value && carrier.value;
+  return totalProductQuantity.value && carrier.value;
 });
 
+const homeCarriers = computed(() => {
+  if (allCarriers.value && allCarriers.value.Home) {
+    return { Home: allCarriers.value.Home };
+  }
+  return {};
+});
+
+const pickupCarriers = computed(() => {
+  if (!allCarriers.value) {
+    return {};
+  }
+  const carriers = { ...allCarriers.value };
+  delete carriers.Home;
+  return carriers;
+});
 
 const refreshCodePromo = () => {
-  codePromoRefreshing.value = true;
+  paymentRefreshing.value = true;
   setTimeout(() => {
-    codePromoRefreshing.value = false;
+    paymentRefreshing.value = false;
   }, 100);
 };
 
-const handleSelectPickupAddress = (e: any) => {
-  getRelayPointWithAddress({
-    Postcode: e.postalCode,
-    City: e.city,
-    Address1: e.address,
-    Country: e.country,
-  });
+const ip = useIp();
+const setDelivredOption = async (optionType: 'ship' | 'pickup') => {
+  allCarriers.value = {};
+  deliveryOption.value = optionType;
 };
 
-const getRelayPointWithAddress = (options: {
-  IdAddress?: number;
-  IdCarrier?: number;
-  Postcode?: string;
-  City?: string;
-  Address1?: string;
-  Country?: string;
-}) => {
-  const shippingService = new ShippingService();
-  return shippingService
-    .fetchRelayPoint(options)
-    .then((data) => {
-      console.log('data', data);
-    })
-    .catch((error) => {
-      throw error;
-    });
+const handalFormGuestChange = (state: any) => {
+  paymentRefreshing.value = true;
+  setTimeout(() => {
+    paymentRefreshing.value = false;
+  }, 100);
 };
+
+const handleSelectPickupAddress = async (e: any) => {
+  checkoutCustomer.value.deliveryAddress.address = e.address;
+  checkoutCustomer.value.deliveryAddress.city = e.city;
+  checkoutCustomer.value.deliveryAddress.postalCode = e.postalCode;
+  checkoutCustomer.value.deliveryAddress.country = e.country;
+};
+
+onMounted(() => {
+  updateShipping({ idCarrier: 0 });
+});
 </script>
 
 <template>
-  <LayoutContainer small>
+  <div>
     <!-- <NuxtLink
       to="/"
       class="hidden lg:inline-flex items-center cursor-pointer text-sm mb-2"
@@ -80,27 +84,23 @@ const getRelayPointWithAddress = (options: {
       <IconChevronLeft :size="1.3" class="mr-2" />
       {{ t('label.continue_shopping') }}
     </NuxtLink> -->
-    <div class="grid grid-cols-12 gap-5 items-start pb-16">
-      <div class="col-span-12 lg:col-span-8">
+    <div class="grid grid-cols-11 items-start">
+      <div class="col-span-12 lg:col-span-6 checkout-left">
         <!-- Delivery Options -->
-        <BasePanel
-          :title="t('tunnel.delivery.title')"
-          class="mb-[-1px] lg:mb-5"
-        >
+        <div class="box">
           <BaseHeadLine size="md" class="uppercase font-medium mb-3">
             {{ $t('label.contact') }} :
           </BaseHeadLine>
           <div>
-            <div>
-              <InputText
-                id="email"
-                v-model="state.email"
-                type="email"
-                :errors="v$.email?.$errors"
-                :required="true"
-                :label="$t('label.email')"
-              />
-            </div>
+            <InputText
+              id="email"
+              v-model="state.email"
+              type="email"
+              :errors="v$.email?.$errors"
+              :required="true"
+              :label="$t('label.email')"
+              border
+            />
           </div>
 
           <div class="deliveryOptions mb-5">
@@ -110,7 +110,7 @@ const getRelayPointWithAddress = (options: {
             <div
               class="deliveryOptions-item"
               :class="{ selected: deliveryOption === 'ship' }"
-              @click="deliveryOption = 'ship'"
+              @click="setDelivredOption('ship')"
             >
               <InputRadio
                 id="do-ship"
@@ -126,7 +126,7 @@ const getRelayPointWithAddress = (options: {
             <div
               class="deliveryOptions-item"
               :class="{ selected: deliveryOption === 'pickup' }"
-              @click="deliveryOption = 'pickup'"
+              @click="setDelivredOption('pickup')"
             >
               <InputRadio
                 id="do-pickup"
@@ -140,12 +140,23 @@ const getRelayPointWithAddress = (options: {
               <IconShop :size="2.5" />
             </div>
           </div>
+          <CardShipping
+            v-if="carrier?.IdCarrier"
+            :carrier="carrier"
+            :radio="false"
+            :border="false"
+            class="mb-5"
+          />
 
           <div v-if="deliveryOption === 'ship'">
             <BaseHeadLine size="md" class="uppercase font-medium mb-3">
               {{ $t('label.address_delivery') }} :
             </BaseHeadLine>
-            <PageCheckoutGuest :hideEmail="true" class="border p-3 mb-5" />
+            <PageCheckoutGuest
+              class="mb-5"
+              hideEmail
+              @onFormChange="handalFormGuestChange($event)"
+            />
             <!-- Shipping option -->
             <div class="flex justify-between gap-5 mb-3">
               <div>
@@ -153,11 +164,10 @@ const getRelayPointWithAddress = (options: {
                   {{ $t('label.shippingOption.title') }} :
                 </BaseHeadLine>
               </div>
-              <div v-if="Object.keys(allCarriers).length">
+              <div v-if="Object.keys(homeCarriers).length">
                 <ul class="flex gap-4 text-sm">
-                  <template v-for="(carrierGroup, groupName) in allCarriers">
+                  <template v-for="(carrierGroup, groupName) in homeCarriers">
                     <li
-                      v-if="groupName === 'Home'"
                       class="cursor-pointer"
                       :class="{
                         'underline font-normal': toshow === groupName,
@@ -170,21 +180,7 @@ const getRelayPointWithAddress = (options: {
                 </ul>
               </div>
             </div>
-            <FormShipping
-              v-if="Object.keys(allCarriers).length"
-              :displayOptions="['Home']"
-            />
-
-            <div v-else>
-              <BaseAlert fill type="default" :closeButton="false">
-                <span class="text-sm">
-                  {{ $t('label.shippingOption.noCarrier') }}
-                </span>
-                <template #icon>
-                  <IconDeliveryTruckSpeed />
-                </template>
-              </BaseAlert>
-            </div>
+            <FormShipping :displayOptions="['Home']" />
           </div>
 
           <div v-if="deliveryOption === 'pickup'">
@@ -196,92 +192,67 @@ const getRelayPointWithAddress = (options: {
               id="autocompletePickup"
               :label="$t('label.address')"
               @onSelect="handleSelectPickupAddress"
+              border
             />
-            <template v-if="Object.keys(allCarriers).length">
-              <hr class="mt-5 mb-5" />
-              <div class="flex justify-end gap-5 mb-2">
-                <div>
-                  <ul class="flex gap-4 text-sm">
-                    <template v-for="(carrierGroup, groupName) in allCarriers">
-                      <li
-                        v-if="groupName !== 'Home'"
-                        class="cursor-pointer"
-                        :class="{
-                          'underline font-normal': toshow === groupName,
-                        }"
-                        @click="toshow = groupName"
-                      >
-                        {{ $t('label.shippingOption.' + groupName) }}
-                      </li>
-                    </template>
-                  </ul>
-                </div>
+            <div class="flex justify-end gap-5 mb-2">
+              <div>
+                <ul class="flex gap-4 text-sm">
+                  <template v-for="(carrierGroup, groupName) in pickupCarriers">
+                    <li
+                      class="cursor-pointer"
+                      :class="{
+                        'underline font-normal': toshow === groupName,
+                      }"
+                      @click="toshow = groupName"
+                    >
+                      {{ $t('label.shippingOption.' + groupName) }}
+                    </li>
+                  </template>
+                </ul>
               </div>
-              <FormShipping :displayOptions="['Store', 'RelayPoint']" />
-            </template>
+            </div>
+            <FormShipping :displayOptions="['Store', 'RelayPoint']" />
           </div>
-        </BasePanel>
-        <BasePanel :title="$t('tunnel.payment.title')">
-          <FormPayment v-if="valide && !codePromoRefreshing" />
-          <BaseAlert v-else fill type="default" :closeButton="false">
-            <span class="text-sm">
-              {{ $t('label.payment.noPayment') }}
-            </span>
 
-            <template #icon>
-              <IconPayment />
-            </template>
-          </BaseAlert>
-        </BasePanel>
+          <div class="mt-5">
+            <div v-if="valide && !paymentRefreshing">
+              <BaseHeadLine size="md" class="uppercase font-medium mb-3">
+                {{ $t('tunnel.payment.title') }} :
+              </BaseHeadLine>
+              <FormPayment />
+            </div>
+            <BaseAlert v-else fill type="default" :closeButton="false">
+              <span class="text-sm">
+                {{ $t('label.payment.noPayment') }}
+              </span>
+
+              <template #icon>
+                <IconPayment />
+              </template>
+            </BaseAlert>
+          </div>
+        </div>
       </div>
 
-      <div class="col-span-12 lg:col-span-4 lg:sticky top-[4.5rem]">
-        <BasePanel
-          :title="t('tunnel.delivery.order_summary.title')"
-          class="mb-5"
-        >
-          <PageTunnelOrderSummary />
-        </BasePanel>
-        <BasePanel class="hidden lg:block mb-5" bodyPadding="0px">
-          <template #header>
-            <div class="flex gap-3 justify-between items-center">
-              <BaseHeadLine size="md" class="font-normal uppercase">
-                {{ $t('cart.title') }} ({{ totalProductQuantity }})
-              </BaseHeadLine>
-              <NuxtLink
-                :to="localePath({ name: 'cart' })"
-                class="text-sm underline"
-              >
-                {{ $t('button.modify') }}
-              </NuxtLink>
-            </div>
-          </template>
-          <PerfectScrollbar class="max-h-[944px] p-5">
-            <ListingCartItems
-              :editable="false"
-              :mini="true"
-              @onCodePromoRemoved="refreshCodePromo"
-            />
-          </PerfectScrollbar>
-        </BasePanel>
-        <PageCheckoutMyRewards @onCodePromoApplied="refreshCodePromo" />
-        <BasePanel class="hidden lg:block">
-          <template #header>
-            <div class="flex gap-3 justify-between items-center">
-              <BaseHeadLine size="md" class="font-normal uppercase">
-                {{ $t('cart.codepromo.title') }}
-              </BaseHeadLine>
-            </div>
-          </template>
+      <div class="col-span-12 lg:col-span-5 checkout-right">
+        <div class="box">
+          <ListingCartItems
+            :editable="false"
+            :mini="true"
+            @onCodePromoRemoved="refreshCodePromo"
+            checkout
+          />
+          <PageCheckoutMyRewards @onCodePromoApplied="refreshCodePromo" />
           <div>
             <FormCodePromo @onCodePromoApplied="refreshCodePromo" />
           </div>
-        </BasePanel>
+          <PageTunnelOrderSummary class="mt-5" />
+        </div>
       </div>
     </div>
     <Teleport to="body">
       <div
-        class="flex lg:hidden fixed bottom-0 w-full border-t border-black bg-white py-3 px-5"
+        class="flex lg:hidden fixed bottom-0 w-full border-t border-black bg-white py-3 px-5 z-10"
       >
         <div class="flex-1 flex items-center font-normal justify-end text-sm">
           <span class="ml-5 mr-2 uppercase">{{ $t('cart.total') }} : </span>
@@ -291,18 +262,19 @@ const getRelayPointWithAddress = (options: {
         </div>
       </div>
     </Teleport>
-  </LayoutContainer>
+  </div>
 </template>
 
 <style scoped lang="scss">
 .deliveryOptions {
   @apply flex flex-col;
   &-item {
-    @apply relative border border-zinc-300  z-[1] flex justify-between gap-3 items-center;
+    @apply relative border border-zinc-300 bg-white z-[1] 
+    flex justify-between gap-3 items-center cursor-pointer;
     @apply mb-[-1px] pl-12 py-3 pr-5;
     @apply text-sm;
     &.selected {
-      @apply border-black z-[2];
+      @apply border-black bg-zinc-50  z-[2];
     }
   }
 }

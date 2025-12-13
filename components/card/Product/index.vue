@@ -264,13 +264,13 @@ const variantSelected = () => {
           </div>
         </div>
 
-        <!-- <CardProductColors
+        <CardProductColors
           v-if="size === 'medium'"
           :product="product"
           :activeIdProduct="Number(product?.IdProduct)"
           :max="1"
           class="mt-1"
-        /> -->
+        />
       </div>
 
       <div

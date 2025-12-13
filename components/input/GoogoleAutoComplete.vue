@@ -32,7 +32,7 @@
       </span>
     </div>
 
-    <!-- <BaseButton @click="pushTestValue">test value</BaseButton> -->
+    <BaseButton @click="pushTestValue">test value</BaseButton>
   </div>
 </template>
 
@@ -88,54 +88,6 @@ const pushTestValue = () => {
     longitude: 2.3900098,
   });
 };
-
-// onMounted(() => {
-//   if (autocompleteInput.value) {
-//     const initAutocomplete = () => {
-//       const options: google.maps.places.AutocompleteOptions = {
-//         componentRestrictions: { country: countryIsoCode.value }, // Restrict to France
-//         types: ['address'],
-//       };
-
-//       const autocomplete = new google.maps.places.Autocomplete(
-//         autocompleteInput.value!,
-//         options
-//       );
-//       autocomplete.addListener('place_changed', () => {
-//         const place = autocomplete.getPlace();
-//         const address = place.formatted_address || '';
-//         const postalCode =
-//           place.address_components?.find((ac) =>
-//             ac.types.includes('postal_code')
-//           )?.long_name || '';
-//         const country =
-//           place.address_components?.find((ac) => ac.types.includes('country'))
-//             ?.long_name || '';
-//         const city =
-//           place.address_components?.find((ac) => ac.types.includes('locality'))
-//             ?.long_name || '';
-//         const countryIso =
-//           place.address_components?.find((ac) => ac.types.includes('country'))
-//             ?.short_name || '';
-
-//         emit('update:modelValue', address);
-//         emit('onSelect', {
-//           address,
-//           postalCode,
-//           country,
-//           city,
-//           countryIso
-//         });
-//       });
-//     };
-
-//     if (typeof google !== 'undefined') {
-//       initAutocomplete();
-//     } else {
-//       window.addEventListener('load', initAutocomplete);
-//     }
-//   }
-// });
 
 onMounted(() => {
   if (autocompleteInput.value) {
@@ -254,9 +206,21 @@ $googleAutoComplete: '.googleAutoComplete';
     }
   }
   &--border {
+    @apply bg-white;
     input {
       @apply border border-gray-888
-      px-5 py-3 text-base;
+      px-3  pb-1.5 pt-4 text-sm;
+    }
+    #{$googleAutoComplete} {
+      &-label {
+        @apply left-3 top-[22px];
+      }
+    }
+    &.googleAutoComplete--focused {
+      #{$googleAutoComplete}-label,
+      & input:not(:placeholder-shown) + #{$googleAutoComplete}-label {
+        @apply top-3 text-xxs text-zinc-500;
+      }
     }
   }
   &--icon {

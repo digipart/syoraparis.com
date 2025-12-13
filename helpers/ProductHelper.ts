@@ -30,6 +30,29 @@ export class ProductHelper {
     return null;
   }
 
+  static getSelectedOption(product: ProductType) {
+    if (product?.Variant) {
+      const selectedProduct = product.Variant.find(
+        (variant) => variant.Selected
+      );
+      if (selectedProduct?.Combination) {
+        //   return selectedProduct
+        //     ? selectedProduct?.Combination.IdProductAttribute
+        //     : null;
+        if (selectedProduct?.Combination?.Attributes) {
+          const sizeAttribute = selectedProduct?.Combination?.Attributes.find(
+            (attr: Attribute) => attr.GroupName === 'Size'
+          );
+          return {
+            label: sizeAttribute?.AttributeName,
+            value: selectedProduct.Combination.IdProductAttribute,
+          };
+        }
+      }
+    }
+    return {};
+  }
+
   // const size = computed(() => {
   //   return product?.Variant?.Combination?.Attributes?.find(
   //     (attr) => attr.GroupName === 'Size'

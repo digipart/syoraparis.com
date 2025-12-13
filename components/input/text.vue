@@ -184,10 +184,22 @@ $inputText: '.inputText';
   }
 
   &--border {
+    @apply bg-white;
     input,
     textarea {
       @apply border border-gray-888
-      px-5 py-3 text-base;
+      px-3  pb-1.5 pt-4 text-sm;
+    }
+    #{$inputText} {
+      &-label {
+        @apply left-3 top-3.5;
+      }
+    }
+    &.inputText--focused {
+      #{$inputText}-label,
+      & input:not(:placeholder-shown) + #{$inputText}-label {
+        @apply top-[7px] text-xxs text-zinc-500;
+      }
     }
   }
   &--icon {

@@ -18,6 +18,12 @@ const windowStore = useWindowStore();
 const { initWindowsStore } = windowStore;
 
 const { locale } = useI18n();
+const ip = useIp()
+const event = useRequestEvent()
+if (event) {
+  ip.value = event.context.ip
+}
+
 useHead({
   htmlAttrs: {
     lang: locale.value

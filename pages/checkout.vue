@@ -1,7 +1,7 @@
 <script setup lang="ts">
 definePageMeta({
-  layout: 'empty',
-  keepalive: false
+  layout: 'checkout',
+  keepalive: false,
 });
 
 const { t } = useI18n();
@@ -11,17 +11,13 @@ useHead(() => ({
 }));
 
 const auth = useAuth();
-const { isLoggedIn } = toRefs(auth);
+const { isLoggedIn, isGuest } = toRefs(auth);
 
 const cartStore = useCartStore();
 const { totalProductQuantity, loaded } = toRefs(cartStore);
 
 const addressStore = useAddressStore();
-const { addressDelivery } = toRefs(addressStore);
 const { fetchAddresses } = addressStore;
-
-const shippingStore = useShippingStore();
-const { fetchShipping } = shippingStore;
 
 const step = ref(1);
 const loading = ref(true);
@@ -30,15 +26,11 @@ const route = useRoute();
 if (route.query.step) {
   step.value = Number(route.query.step);
 }
+if (isLoggedIn.value) {
+  await fetchAddresses();
+}
 
 onMounted(async () => {
-  if (isLoggedIn.value) {
-    await fetchAddresses();
-    await fetchShipping({
-      IdAddress: addressDelivery.value?.IdAddress,
-      ResponseLevel: 'summary',
-    });
-  }
   loading.value = false;
 });
 </script>
@@ -47,8 +39,8 @@ onMounted(async () => {
   <div v-if="loaded">
     <LayoutContinueShopping v-if="!totalProductQuantity" class="mt-16" />
     <template v-else>
-      <PageTunnel v-if="isLoggedIn" />
-      <PageTunnelGuest v-else />
+      <PageTunnel v-if="isLoggedIn && !isGuest" />
+      <PageTunnelGuest v-if="!isLoggedIn || isGuest" />
     </template>
   </div>
 </template>

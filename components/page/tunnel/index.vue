@@ -10,17 +10,20 @@ const { currencyIsoCode } = toRefs(appStore);
 
 const shippingStore = useShippingStore();
 const { carrier: allCarriers, toshow } = toRefs(shippingStore);
-const { fetchShipping } = shippingStore;
+
+const checkoutStore = useCheckoutStore();
+const { checkoutCustomer, checkoutCarrier } = toRefs(checkoutStore);
 
 const cartStore = useCartStore();
-const { totalToPay, carrier, totalProductQuantity } = toRefs(cartStore);
+const { totalToPay, carrier, totalProductQuantity, cart } = toRefs(cartStore);
 
 const addressStore = useAddressStore();
-const { addressDelivery } = toRefs(addressStore);
+const { addressDelivery, addressInvoice } = toRefs(addressStore);
 
-const deliveryOption = ref<'ship' | 'pickup'>('pickup');
-
-const storeRelayPoints = ref<CarrierType>(allCarriers as CarrierType);
+const deliveryOption = ref<'ship' | 'pickup'>(
+  // carrier.value?.IdRelayPoint !== undefined ? 'pickup' : 'ship'
+  'ship'
+);
 
 const codePromoRefreshing = ref(false);
 
@@ -30,44 +33,101 @@ const valide = computed(() => {
   return totalProductQuantity.value && addressDelivery.value && carrier.value;
 });
 
+const homeCarriers = computed(() => {
+  if (allCarriers.value && allCarriers.value.Home) {
+    return { Home: allCarriers.value.Home };
+  }
+  return {};
+});
+
+const pickupCarriers = computed(() => {
+  if (!allCarriers.value) {
+    return {};
+  }
+  const carriers = { ...allCarriers.value };
+  delete carriers.Home;
+  return carriers;
+});
+
 const refreshCodePromo = () => {
   codePromoRefreshing.value = true;
   setTimeout(() => {
     codePromoRefreshing.value = false;
   }, 100);
 };
+const ip = useIp();
+const setDelivredOption = async (optionType: 'ship' | 'pickup') => {
+  deliveryOption.value = optionType;
+  if (optionType === 'ship' && addressDelivery.value) {
+    
+  }
 
-const handleSelectPickupAddress = (e: any) => {
-  getRelayPointWithAddress({
-    Postcode: e.postalCode,
-    City: e.city,
-    Address1: e.address,
-    Country: e.country,
-  });
+  if (optionType === 'pickup' && pickupAddress.value) {
+    handleSelectPickupAddress(pickupAddress.value);
+  } else if (optionType === 'pickup' && ip.value) {
+   
+  }
 };
 
-const getRelayPointWithAddress = (options: {
-  IdAddress?: number;
-  IdCarrier?: number;
-  Postcode?: string;
-  City?: string;
-  Address1?: string;
-  Country?: string;
-}) => {
-  const shippingService = new ShippingService();
-  return shippingService
-    .fetchRelayPoint(options)
-    .then((data) => {
-      console.log('data', data);
-    })
-    .catch((error) => {
-      throw error;
-    });
+const handleSelectPickupAddress = async (e: any) => {
+ 
+  pickupAddress.value = e.address;
+  checkoutCustomer.value.deliveryAddress.address = e.address;
+  checkoutCustomer.value.deliveryAddress.city = e.city;
+  checkoutCustomer.value.deliveryAddress.postalCode = e.postalCode;
+  checkoutCustomer.value.deliveryAddress.country = e.countryIso;
 };
+
+const setCheckouCustomer = () => {
+  if (deliveryOption.value === 'ship') {
+    if (addressDelivery.value) {
+      checkoutCustomer.value.deliveryAddress.address =
+        addressDelivery.value.Address1 || '';
+      checkoutCustomer.value.deliveryAddress.city =
+        addressDelivery.value.City || '';
+      checkoutCustomer.value.deliveryAddress.postalCode =
+        addressDelivery.value.Postcode || '';
+      checkoutCustomer.value.deliveryAddress.country =
+        addressDelivery.value.CountryIsoCode || '';
+      checkoutCustomer.value.deliveryAddress.firstname =
+        addressDelivery.value.Firstname || '';
+      checkoutCustomer.value.deliveryAddress.lastname =
+        addressDelivery.value.Lastname || '';
+      checkoutCustomer.value.deliveryAddress.phone =
+        addressDelivery.value.MobilePhone || '';
+    }
+
+    if (addressInvoice.value) {
+      checkoutCustomer.value.invoiceAddress.address =
+        addressInvoice.value.Address1 || '';
+      checkoutCustomer.value.invoiceAddress.city =
+        addressInvoice.value.City || '';
+      checkoutCustomer.value.invoiceAddress.postalCode =
+        addressInvoice.value.Postcode || '';
+      checkoutCustomer.value.invoiceAddress.country =
+        addressInvoice.value.CountryIsoCode || '';
+      checkoutCustomer.value.invoiceAddress.firstname =
+        addressInvoice.value.Firstname || '';
+      checkoutCustomer.value.invoiceAddress.lastname =
+        addressInvoice.value.Lastname || '';
+      checkoutCustomer.value.invoiceAddress.phone =
+        addressInvoice.value.MobilePhone || '';
+    }
+
+    if (carrier.value) {
+      checkoutCarrier.value.carrier = cart.value?.Shipping?.Carrier;
+      // checkoutCarrier.value.relayPoint = cart.value?.Shipping?.Carrier?.RelayPoint;
+    }
+  }
+};
+
+onMounted(() => {
+  setCheckouCustomer();
+});
 </script>
 
 <template>
-  <LayoutContainer small>
+  <div class="">
     <!-- <NuxtLink
       to="/"
       class="hidden lg:inline-flex items-center cursor-pointer text-sm mb-2"
@@ -75,13 +135,10 @@ const getRelayPointWithAddress = (options: {
       <IconChevronLeft :size="1.3" class="mr-2" />
       {{ t('label.continue_shopping') }}
     </NuxtLink> -->
-    <div class="grid grid-cols-12 gap-5 items-start pb-16">
-      <div class="col-span-12 lg:col-span-8">
+    <div class="grid grid-cols-11 items-start">
+      <div class="col-span-12 lg:col-span-6 checkout-left">
         <!-- Delivery Options -->
-        <BasePanel
-          :title="t('tunnel.delivery.title')"
-          class="mb-[-1px] lg:mb-5"
-        >
+        <div class="box">
           <div class="deliveryOptions mb-5">
             <BaseHeadLine size="md" class="uppercase font-medium mb-3">
               {{ $t('label.delivery') }} :
@@ -89,7 +146,7 @@ const getRelayPointWithAddress = (options: {
             <div
               class="deliveryOptions-item"
               :class="{ selected: deliveryOption === 'ship' }"
-              @click="deliveryOption = 'ship'"
+              @click="setDelivredOption('ship')"
             >
               <InputRadio
                 id="do-ship"
@@ -105,7 +162,7 @@ const getRelayPointWithAddress = (options: {
             <div
               class="deliveryOptions-item"
               :class="{ selected: deliveryOption === 'pickup' }"
-              @click="deliveryOption = 'pickup'"
+              @click="setDelivredOption('pickup')"
             >
               <InputRadio
                 id="do-pickup"
@@ -133,11 +190,10 @@ const getRelayPointWithAddress = (options: {
                   {{ $t('label.shippingOption.title') }} :
                 </BaseHeadLine>
               </div>
-              <div v-if="Object.keys(allCarriers).length">
+              <div v-if="Object.keys(homeCarriers).length">
                 <ul class="flex gap-4 text-sm">
-                  <template v-for="(carrierGroup, groupName) in allCarriers">
+                  <template v-for="(carrierGroup, groupName) in homeCarriers">
                     <li
-                      v-if="groupName === 'Home'"
                       class="cursor-pointer"
                       :class="{
                         'underline font-normal': toshow === groupName,
@@ -150,21 +206,7 @@ const getRelayPointWithAddress = (options: {
                 </ul>
               </div>
             </div>
-            <FormShipping
-              v-if="Object.keys(allCarriers).length"
-              :displayOptions="['Home']"
-            />
-
-            <div v-else>
-              <BaseAlert fill type="default" :closeButton="false">
-                <span class="text-sm">
-                  {{ $t('label.shippingOption.noCarrier') }}
-                </span>
-                <template #icon>
-                  <IconDeliveryTruckSpeed />
-                </template>
-              </BaseAlert>
-            </div>
+            <FormShipping :displayOptions="['Home']" />
           </div>
 
           <div v-if="deliveryOption === 'pickup'">
@@ -174,17 +216,18 @@ const getRelayPointWithAddress = (options: {
             <InputGoogoleAutoComplete
               v-model="pickupAddress"
               id="autocompletePickup"
-              :label="$t('label.address')"
+              :label="$t('label.search_address')"
               @onSelect="handleSelectPickupAddress"
+              border
             />
-            <template v-if="Object.keys(allCarriers).length">
-              <hr class="mt-5 mb-5" />
+            <template v-if="Object.keys(pickupCarriers).length">
               <div class="flex justify-end gap-5 mb-2">
                 <div>
                   <ul class="flex gap-4 text-sm">
-                    <template v-for="(carrierGroup, groupName) in allCarriers">
+                    <template
+                      v-for="(carrierGroup, groupName) in pickupCarriers"
+                    >
                       <li
-                        v-if="groupName !== 'Home'"
                         class="cursor-pointer"
                         :class="{
                           'underline font-normal': toshow === groupName,
@@ -197,33 +240,29 @@ const getRelayPointWithAddress = (options: {
                   </ul>
                 </div>
               </div>
-              <FormShipping :displayOptions="['Store', 'RelayPoint']" />
             </template>
+            <FormShipping :displayOptions="['Store', 'RelayPoint']" />
           </div>
-        </BasePanel>
-        <BasePanel :title="$t('tunnel.payment.title')">
-          <FormPayment v-if="valide && !codePromoRefreshing" />
-          <BaseAlert v-else fill type="default" :closeButton="false">
-            <span class="text-sm">
-              {{ $t('label.payment.noPayment') }}
-            </span>
+          <div class="mt-5">
+            <BaseHeadLine size="md" class="uppercase font-medium mb-3">
+              {{ $t('tunnel.payment.title') }} :
+            </BaseHeadLine>
+            <FormPayment v-if="valide && !codePromoRefreshing" />
+            <BaseAlert v-else fill type="default" :closeButton="false">
+              <span class="text-sm">
+                {{ $t('label.payment.noPayment') }}
+              </span>
 
-            <template #icon>
-              <IconPayment />
-            </template>
-          </BaseAlert>
-        </BasePanel>
+              <template #icon>
+                <IconPayment />
+              </template>
+            </BaseAlert>
+          </div>
+        </div>
       </div>
 
-      <div class="col-span-12 lg:col-span-4 lg:sticky top-[4.5rem]">
-        <BasePanel
-          :title="t('tunnel.delivery.order_summary.title')"
-          class="mb-5"
-        >
-          <PageTunnelOrderSummary />
-        </BasePanel>
-        <BasePanel class="hidden lg:block mb-5" bodyPadding="0px">
-          <template #header>
+      <div class="col-span-12 lg:col-span-5 checkout-right">
+        <!-- <template #header>
             <div class="flex gap-3 justify-between items-center">
               <BaseHeadLine size="md" class="font-normal uppercase">
                 {{ $t('cart.title') }} ({{ totalProductQuantity }})
@@ -235,33 +274,25 @@ const getRelayPointWithAddress = (options: {
                 {{ $t('button.modify') }}
               </NuxtLink>
             </div>
-          </template>
-          <PerfectScrollbar class="max-h-[944px] p-5">
-            <ListingCartItems
-              :editable="false"
-              :mini="true"
-              @onCodePromoRemoved="refreshCodePromo"
-            />
-          </PerfectScrollbar>
-        </BasePanel>
-        <PageCheckoutMyRewards @onCodePromoApplied="refreshCodePromo" />
-        <BasePanel class="hidden lg:block">
-          <template #header>
-            <div class="flex gap-3 justify-between items-center">
-              <BaseHeadLine size="md" class="font-normal uppercase">
-                {{ $t('cart.codepromo.title') }}
-              </BaseHeadLine>
-            </div>
-          </template>
+          </template> -->
+        <div class="box">
+          <ListingCartItems
+            :editable="false"
+            :mini="true"
+            @onCodePromoRemoved="refreshCodePromo"
+            checkout
+          />
+          <PageCheckoutMyRewards @onCodePromoApplied="refreshCodePromo" />
           <div>
             <FormCodePromo @onCodePromoApplied="refreshCodePromo" />
           </div>
-        </BasePanel>
+          <PageTunnelOrderSummary class="mt-5" />
+        </div>
       </div>
     </div>
     <Teleport to="body">
       <div
-        class="flex lg:hidden fixed bottom-0 w-full border-t border-black bg-white py-3 px-5"
+        class="flex lg:hidden fixed bottom-0 w-full border-t border-black bg-white py-3 px-5 z-10"
       >
         <div class="flex-1 flex items-center font-normal justify-end text-sm">
           <span class="ml-5 mr-2 uppercase">{{ $t('cart.total') }} : </span>
@@ -271,18 +302,19 @@ const getRelayPointWithAddress = (options: {
         </div>
       </div>
     </Teleport>
-  </LayoutContainer>
+  </div>
 </template>
 
 <style scoped lang="scss">
 .deliveryOptions {
   @apply flex flex-col;
   &-item {
-    @apply relative border border-zinc-300  z-[1] flex justify-between gap-3 items-center;
+    @apply relative border border-zinc-300 bg-white z-[1] 
+    flex justify-between gap-3 items-center cursor-pointer;
     @apply mb-[-1px] pl-12 py-3 pr-5;
     @apply text-sm;
     &.selected {
-      @apply border-black z-[2];
+      @apply border-black bg-zinc-50  z-[2];
     }
   }
 }

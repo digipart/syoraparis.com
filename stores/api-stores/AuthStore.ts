@@ -155,7 +155,7 @@ export const useAuth = defineStore('useAuthStore', () => {
       });
   }
 
-  async function registerGuest() {
+  async function registerGuest(options: CustomerRegisterType) {
     const authService = new AuthService();
 
     const cartStore = useCartStore();
@@ -170,19 +170,8 @@ export const useAuth = defineStore('useAuthStore', () => {
     const { currencyIsoCode, countryIsoCode, languageIsoCode } =
       toRefs(appStore);
 
-    const formDeliveryStore = useFormDeliveryStore();
-    const { state } = toRefs(formDeliveryStore);
 
-    const options: CustomerRegisterType = {
-      Lastname: state.value.name,
-      Firstname: state.value.firstname,
-      Email: state.value.email,
-      Address1: state.value.address,
-      Postcode: state.value.postcode,
-      City: state.value.city,
-      MobilePhone: state.value.phone,
-    };
-
+    
     options.CountryIsoCode = countryIsoCode.value;
     options.CurrencyIsoCode = currencyIsoCode.value;
     options.LanguageIsoCode = languageIsoCode.value;
@@ -210,6 +199,62 @@ export const useAuth = defineStore('useAuthStore', () => {
       throw error;
     }
   }
+
+  // async function registerGuest() {
+  //   const authService = new AuthService();
+
+  //   const cartStore = useCartStore();
+  //   const { removeCartFromCookie } = cartStore;
+  //   const { cartId } = toRefs(cartStore);
+
+  //   const favoriteStore = useFavoritesStore();
+  //   const { removeFavoriteFromCookie } = favoriteStore;
+  //   const { favoriteId } = toRefs(favoriteStore);
+
+  //   const appStore = useAppStore();
+  //   const { currencyIsoCode, countryIsoCode, languageIsoCode } =
+  //     toRefs(appStore);
+
+  //   const formDeliveryStore = useFormDeliveryStore();
+  //   const { state } = toRefs(formDeliveryStore);
+
+  //   const options: CustomerRegisterType = {
+  //     Lastname: state.value.name,
+  //     Firstname: state.value.firstname,
+  //     Email: state.value.email,
+  //     Address1: state.value.address,
+  //     Postcode: state.value.postcode,
+  //     City: state.value.city,
+  //     MobilePhone: state.value.phone,
+  //   };
+
+  //   options.CountryIsoCode = countryIsoCode.value;
+  //   options.CurrencyIsoCode = currencyIsoCode.value;
+  //   options.LanguageIsoCode = languageIsoCode.value;
+  //   options.Guest = true;
+  //   options.IsDelivery = true;
+  //   options.IsInvoice = true;
+
+  //   try {
+  //     if (cartId.value) {
+  //       options.IdCart = Number(cartId.value);
+  //       removeCartFromCookie();
+  //     }
+  //     if (favoriteId.value) {
+  //       options.IdFavorite = Number(favoriteId.value);
+  //       removeFavoriteFromCookie();
+  //     }
+
+  //     const data = await authService.registerGuest(options);
+
+  //     updateAuthData(data);
+  //     initStore();
+
+  //     return data;
+  //   } catch (error) {
+  //     throw error;
+  //   }
+  // }
 
   function logout() {
     token.value = null;
@@ -251,16 +296,17 @@ export const useAuth = defineStore('useAuthStore', () => {
     }
   }
 
-  async function loginWithFacebook(facebookData: { 
-    accessToken: string, 
-    userId: string, 
-    email?: string, 
-    name?: string, 
-    picture?: string 
+  async function loginWithFacebook(facebookData: {
+    accessToken: string;
+    userId: string;
+    email?: string;
+    name?: string;
+    picture?: string;
   }) {
     try {
       const firstname = facebookData.name?.split(' ')[0] || '';
-      const lastname = facebookData.name?.split(' ').slice(1).join(' ') || firstname;
+      const lastname =
+        facebookData.name?.split(' ').slice(1).join(' ') || firstname;
       const options: LoginOptions = {
         FacebookCustomerId: facebookData.userId,
         Email: facebookData.email,

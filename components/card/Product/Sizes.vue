@@ -35,7 +35,7 @@ const addToCartHandler = (variant: Variant) => {
 
 <template>
   <div class="cardProduct-sizes">
-    <!-- <div v-if="label" class="uppercase font-normal py-5 px-4">
+    <div v-if="label" class="uppercase font-normal py-5 px-4">
       {{ $t('titles.select_a_size') }}
     </div>
 
@@ -52,15 +52,7 @@ const addToCartHandler = (variant: Variant) => {
           </div>
         </template>
       </li>
-    </ul> -->
-    <a
-      target="_blank"
-      href="https://drive.google.com/file/d/1-pYesSgax87hBk9vqLs5UbHqD0xlEEzx/view"
-    >
-      <base-button type="primary">
-        <span class="text-xs font-medium"> Vente privée déstockage </span>
-      </base-button>
-    </a>
+    </ul>
   </div>
 </template>
 

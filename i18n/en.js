@@ -118,6 +118,7 @@ const en = {
     color: 'Color',
     size: 'Size',
     pieces: 'Pieces',
+    quantity: 'Quantity',
     productDetails: 'Product details',
     user: 'User',
     email: 'Email',
@@ -269,7 +270,7 @@ const en = {
       title: 'Payment Method',
       card: {
         name: 'Pay with Bank card',
-        sname: 'secured by stripe',
+        sname: 'secured by Mollie',
       },
       card_payzen: {
         name: 'Pay with Bank card',

@@ -35,28 +35,24 @@ const promotionalPrice = computed(() => {
 
 <template>
   <div class="cardProduct-price" :class="[size]">
-    <!-- <div>
-      <template v-if="hasPromtion">
-        <b class="font-normal">
-          {{ promotionalPrice?.PriceTaxIncl?.toFixed(2) }}{{ currencySign }}
-        </b>
+    <template v-if="hasPromtion">
+      <b class="font-normal">
+        {{ promotionalPrice?.PriceTaxIncl?.toFixed(2) }}{{ currencySign }}
+      </b>
 
-        <span class="line-through font-light">
-          {{ regularPrice?.PriceTaxIncl?.toFixed(2) }}{{ currencySign }}
-        </span>
+      <span class="line-through font-light">
+        {{ regularPrice?.PriceTaxIncl?.toFixed(2) }}{{ currencySign }}
+      </span>
 
-        <span class="inline-block font-light">
-          {{ promotionalPrice?.PriceRuleName }}
-        </span>
-      </template>
-      <template v-else>
-        <b class="font-normal"
-          >{{ regularPrice?.PriceTaxIncl?.toFixed(2) }}{{ currencySign }}</b
-        >
-      </template>
-    </div> -->
-
-            <span class="text-xs font-medium"> Vente privée déstockage </span>
+      <span class="inline-block font-light">
+        {{ promotionalPrice?.PriceRuleName }}
+      </span>
+    </template>
+    <template v-else>
+      <b class="font-normal"
+        >{{ regularPrice?.PriceTaxIncl?.toFixed(2) }}{{ currencySign }}</b
+      >
+    </template>
   </div>
 </template>
 <style lang="scss">

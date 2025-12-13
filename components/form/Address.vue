@@ -2,9 +2,13 @@
 import type { AddressType } from '~/types/AddressType';
 const { state, v$ } = useFormAddressValidation();
 
-const { address } = defineProps({
+const { address, inputBorder } = defineProps({
   address: {
     type: {} as PropType<AddressType>,
+  },
+  inputBorder: {
+    type: Boolean,
+    default: false,
   },
 });
 
@@ -97,11 +101,7 @@ const submitForm = async () => {
   }
 };
 
-const addressManually = ref(false);
-
-const showFields = () => {
-  addressManually.value = true;
-};
+const showFields = () => {};
 
 const handleSelect = (details: {
   address: string;
@@ -130,17 +130,18 @@ defineExpose({
 <template>
   <div class="formAddress">
     <form class="formAddress-form" @submit.prevent="submitForm">
-      <div class="">
-        <div>
+      <div class="grid grid-cols-12 gap-x-5">
+        <div class="col-span-12">
           <InputText
             id="alias"
             v-model="state.alias"
             type="text"
             :errors="v$.alias.$errors"
             :label="$t('label.alias')"
+            :border="inputBorder"
           />
         </div>
-        <div>
+        <div class="col-span-12 md:col-span-6">
           <InputText
             id="name"
             v-model="state.name"
@@ -148,9 +149,10 @@ defineExpose({
             :errors="v$.name.$errors"
             :required="true"
             :label="$t('label.name')"
+            :border="inputBorder"
           />
         </div>
-        <div>
+        <div class="col-span-12 md:col-span-6">
           <InputText
             id="firstname"
             v-model="state.firstname"
@@ -158,9 +160,10 @@ defineExpose({
             :errors="v$.firstname.$errors"
             :required="true"
             :label="$t('label.firstname')"
+            :border="inputBorder"
           />
         </div>
-        <div>
+        <div class="col-span-12">
           <InputGoogoleAutoComplete
             v-model="state.address"
             id="autocomplete"
@@ -169,52 +172,46 @@ defineExpose({
             :label="$t('label.address')"
             @onSelect="handleSelect"
             @input="state.courtAddress = state.address"
+            :border="inputBorder"
           />
-          <div v-if="!addressManually" class="-mt-5 flex justify-end">
-            <span
-              class="text-xs text-gray-888 underline normal-case cursor-pointer"
-              @click="showFields()"
-            >
-              {{ $t('label.enter_address_manually') }}
-            </span>
-          </div>
         </div>
-        <div v-show="addressManually">
-          <div>
-            <InputText
-              id="postcode"
-              v-model="state.postcode"
-              type="text"
-              :errors="v$.postcode.$errors"
-              :required="true"
-              :label="$t('label.postcode')"
-            />
-          </div>
-          <div>
-            <InputText
-              id="city"
-              v-model="state.city"
-              type="text"
-              :errors="v$.city.$errors"
-              :required="true"
-              :label="$t('label.city')"
-            />
-          </div>
-          <div>
-            <InputSelect
-              id="country"
-              v-model="state.country"
-              type="text"
-              :errors="v$.country.$errors"
-              :label="$t('label.country')"
-              :required="true"
-              :selectOptions="countriesOptions"
-              :key="state.country"
-            />
-          </div>
+        <div class="col-span-12 md:col-span-6">
+          <InputText
+            id="postcode"
+            v-model="state.postcode"
+            type="text"
+            :errors="v$.postcode.$errors"
+            :required="true"
+            :label="$t('label.postcode')"
+            :border="inputBorder"
+          />
+        </div>
+        <div class="col-span-12 md:col-span-6">
+          <InputText
+            id="city"
+            v-model="state.city"
+            type="text"
+            :errors="v$.city.$errors"
+            :required="true"
+            :label="$t('label.city')"
+            :border="inputBorder"
+          />
+        </div>
+        <div class="col-span-12">
+          <InputSelect
+            id="country"
+            v-model="state.country"
+            type="text"
+            :errors="v$.country.$errors"
+            :label="$t('label.country')"
+            :required="true"
+            :selectOptions="countriesOptions"
+            :key="state.country"
+            :border="inputBorder"
+          />
         </div>
 
-        <div class="flex gap-3">
+        <div class="col-span-12 flex gap-3">
           <!-- <InputText
             id="prefix"
             v-model="state.prefix"
@@ -230,9 +227,10 @@ defineExpose({
             :errors="v$.phone.$errors"
             :required="true"
             :label="$t('label.phone')"
+            :border="inputBorder"
           />
         </div>
-        <div class="formAddress-cta mt-3">
+        <div class="formAddress-cta col-span-12">
           <BaseButton
             type="primary"
             size="small"

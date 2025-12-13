@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import PaymentService from '~/services/PaymentService';
 import type { RelayPointType } from '~/types/RelayPointsType';
 import type { CarrierGenre, CarrierType } from '~/types/ShippingType';
 
@@ -9,14 +10,25 @@ const { displayOptions } = defineProps({
   },
 });
 
+const checkoutStore = useCheckoutStore();
+const {
+  hasAddressDelivery,
+  checkoutCustomer,
+  checkoutPaymentMethods,
+  checkoutCarrier,
+} = toRefs(checkoutStore);
+
 const shippingStore = useShippingStore();
 const { carrier, toshow, relayPointSelected } = toRefs(shippingStore);
+const { fetchShipping } = shippingStore;
 
 const cartStore = useCartStore();
 const { updateShipping, fetchCart } = cartStore;
-const { carrier: carrierSelected } = toRefs(cartStore);
+const { carrier: carrierSelected, cart } = toRefs(cartStore);
 
 const loading = ref(false);
+const { locale } = useI18n();
+const { t } = useI18n();
 
 const findCarrierLocation = (): keyof CarrierType | null => {
   for (const location in carrier.value) {
@@ -50,7 +62,7 @@ const selectShipping = (event: {
   }
 
   updateShipping(option)
-    .then(() => {
+    .then((c) => {
       // toshow.value =
 
       if (event.relayPointID && event.relayPoints) {
@@ -58,15 +70,58 @@ const selectShipping = (event: {
           (rp) => rp.Id === event.relayPointID
         );
         relayPointSelected.value = rpSelected || null;
+        checkoutCarrier.value.relayPoint = rpSelected;
       }
-      fetchCart();
+      fetchCart().then(() => {
+        if (carrier.value) {
+          checkoutCarrier.value.carrier = cart.value.Shipping?.Carrier;
+        }
+      });
     })
     .finally(() => {
       loading.value = false;
     });
 };
+const ip = useIp();
+const paymentService = new PaymentService();
+const loadPayments = async (options: any) => {
+  try {
+    const data = await paymentService.paymentMethods({
+      ...options,
+      LanguageIsoCode: locale.value,
+    });
+    console.log('payment methods:', data.PaymentMethods);
+    checkoutPaymentMethods.value = data.PaymentMethods || [];
+  } catch (error) {
+    console.error(t('tunnel.payment.error.fetch_methods'), error);
+  }
+};
+
+const loadCarriers = async () => {
+  if (hasAddressDelivery.value) {
+    const options = {
+      Postcode: checkoutCustomer.value.deliveryAddress.postalCode,
+      City: checkoutCustomer.value.deliveryAddress.city,
+      Address1: checkoutCustomer.value.deliveryAddress.address,
+      Country: checkoutCustomer.value.deliveryAddress.country,
+    };
+    await fetchShipping(options);
+    await loadPayments(options);
+  } else {
+    const options = {
+      IP: ip.value,
+    };
+    // await fetchShipping(options);
+    // await loadPayments(options);
+  }
+};
+
+watch(checkoutCustomer.value.deliveryAddress, () => {
+  loadCarriers();
+});
 
 onMounted(() => {
+  loadCarriers();
   findCarrierLocation();
 });
 </script>
@@ -81,10 +136,20 @@ onMounted(() => {
           :carrier="c"
           @onSelect="selectShipping($event)"
           :active="carrierSelected?.IdCarrier === c.IdCarrier"
-          class="mb-2"
+          class="mb-[-1px]"
           :carrierType="groupName"
         />
       </template>
+    </div>
+    <div v-if="!carrier || Object.keys(carrier).length === 0">
+      <BaseAlert fill type="default" :closeButton="false">
+        <span class="text-sm">
+          {{ $t('label.shippingOption.noCarrier') }}
+        </span>
+        <template #icon>
+          <IconDeliveryTruckSpeed />
+        </template>
+      </BaseAlert>
     </div>
   </div>
 </template>

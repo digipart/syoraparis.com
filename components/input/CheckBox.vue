@@ -105,7 +105,7 @@ $inputCheckbox: '.inputCheckbox';
   }
 
   &-span {
-    @apply inline-block bg-transparent relative h-4 w-4 duration-150  translate-y-0.5 mr-2;
+    @apply inline-block bg-transparent relative h-4 w-4 duration-150  translate-y-0.5 mr-2 -top-0.5;
 
     &::after {
       content: '';
