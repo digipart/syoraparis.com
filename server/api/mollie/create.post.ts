@@ -1,58 +1,61 @@
-import { createMollieClient } from '@mollie/api-client';
-
 export default defineEventHandler(async (event) => {
   try {
-    const {
-      method,
-      amount,
-      description,
-      orderId,
-      redirectUrl,
-      webhookUrl,
-      metadata,
-    } = await readBody(event);
+    // Step 1: Check if we can read the body
+    console.log('[STEP 1] Reading body...');
+    const body = await readBody(event);
+    console.log('[STEP 1] Body received:', body);
 
+    // Step 2: Check if config is accessible
+    console.log('[STEP 2] Getting config...');
     const config = useRuntimeConfig();
-    
-    // Check if API key exists
+    console.log('[STEP 2] Config retrieved');
+
+    // Step 3: Check if API key exists
+    console.log('[STEP 3] Checking API key...');
     if (!config.mollieApiKey) {
-      throw createError({
-        statusCode: 500,
-        message: 'Mollie API key not configured'
-      });
+      throw new Error('MOLLIE_API_KEY is not set in environment');
     }
+    console.log('[STEP 3] API key exists, prefix:', config.mollieApiKey.substring(0, 10));
 
+    // Step 4: Try to import Mollie
+    console.log('[STEP 4] Importing Mollie...');
+    const { createMollieClient } = await import('@mollie/api-client');
+    console.log('[STEP 4] Mollie imported successfully');
+
+    // Step 5: Create Mollie client
+    console.log('[STEP 5] Creating Mollie client...');
     const mollie = createMollieClient({
-      apiKey: config.mollieApiKey, // Server-side only!
+      apiKey: config.mollieApiKey,
     });
+    console.log('[STEP 5] Mollie client created');
 
-    // Validate webhook URL is not localhost in production
-    if (webhookUrl && webhookUrl.includes('localhost')) {
-      console.warn('Warning: webhook URL contains localhost');
-    }
-
+    // Step 6: Create payment
+    console.log('[STEP 6] Creating payment...');
     const payment = await mollie.payments.create({
       amount: { 
-        currency: amount.currency, 
-        value: amount.value 
+        currency: body.amount.currency, 
+        value: body.amount.value 
       },
-      description: description,
-      method: method,
-      redirectUrl: redirectUrl,
-      webhookUrl: webhookUrl,
-      metadata,
+      description: body.description,
+      method: body.method,
+      redirectUrl: body.redirectUrl,
+      webhookUrl: body.webhookUrl,
+      metadata: body.metadata,
     });
+    console.log('[STEP 6] Payment created:', payment.id);
 
     return {
       paymentUrl: payment.getCheckoutUrl(),
     };
 
   } catch (error: any) {
-    console.error('Mollie payment creation error:', error);
+    console.error('❌ ERROR AT STEP:', error.message);
+    console.error('❌ FULL ERROR:', error);
     
-    throw createError({
-      statusCode: error.statusCode || 500,
-      message: error.message || 'Failed to create payment'
-    });
+    return {
+      error: true,
+      message: error.message,
+      stack: error.stack
+    };
   }
 });
