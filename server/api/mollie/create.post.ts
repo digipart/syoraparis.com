@@ -1,8 +1,6 @@
 import { createMollieClient } from '@mollie/api-client';
 
 export default defineEventHandler(async (event) => {
-  const body = await readBody(event);
-  const config = useRuntimeConfig();
   const {
     method,
     amount,
@@ -12,33 +10,22 @@ export default defineEventHandler(async (event) => {
     webhookUrl,
     metadata,
   } = await readBody(event);
-  return {
+
+  // const config = useRuntimeConfig();
+  const mollie = createMollieClient({
+    apiKey: 'live_xSqwVrP5FeUNcRjfQ52vfRPFez2W4P',
+  });
+
+  const payment = await mollie.payments.create({
     amount: { currency: amount.currency, value: amount.value },
     description: description,
     method: method,
     redirectUrl: redirectUrl,
     webhookUrl: webhookUrl,
     metadata,
-    mollieApiKey: config.public.mollieApiKey,
+  });
+
+  return {
+    paymentUrl: payment.getCheckoutUrl(),
   };
-  try {
-    const mollie = createMollieClient({
-      apiKey: config.public.mollieApiKey,
-    });
-
-    const payment = await mollie.payments.create({
-      amount: { currency: amount.currency, value: amount.value },
-      description: description,
-      method: method,
-      redirectUrl: redirectUrl,
-      webhookUrl: webhookUrl,
-      metadata,
-    });
-
-    return {
-      paymentUrl: payment.getCheckoutUrl(),
-    };
-  } catch (error) {
-    return error;
-  }
 });
