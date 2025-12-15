@@ -16,7 +16,10 @@ export default defineEventHandler(async (event) => {
       throw new Error('Invalid amount specified for payment.');
     }
 
+    
     const config = useRuntimeConfig();
+    console.log('config.public.mollieApiKey', config.public.mollieApiKey);
+    
     const mollie = createMollieClient({
       apiKey: config.public.mollieApiKey,
     });
@@ -38,7 +41,9 @@ export default defineEventHandler(async (event) => {
     return createError({
       statusCode: 500,
       statusMessage: 'Server Error',
-      message: error.message || 'An unexpected error occurred while creating the payment.',
+      message:
+        error.message ||
+        'An unexpected error occurred while creating the payment.',
     });
   }
 });
