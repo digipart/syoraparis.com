@@ -2,6 +2,7 @@ import { createMollieClient } from '@mollie/api-client';
 
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
+  const config = useRuntimeConfig();
   const {
     method,
     amount,
@@ -18,9 +19,9 @@ export default defineEventHandler(async (event) => {
     redirectUrl: redirectUrl,
     webhookUrl: webhookUrl,
     metadata,
+    mollieApiKey: config.public.mollieApiKey,
   };
   try {
-    const config = useRuntimeConfig();
     const mollie = createMollieClient({
       apiKey: config.public.mollieApiKey,
     });
