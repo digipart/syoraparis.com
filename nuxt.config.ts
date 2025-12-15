@@ -11,6 +11,7 @@ export default defineNuxtConfig({
     // }
   },
   runtimeConfig: {
+    mollieApiKey: process.env.MOLLIE_API_KEY,
     public: {
       shopname: process.env.SHOP_NAME,
       shopEmail: process.env.SHOP_EMAIL,
@@ -34,7 +35,6 @@ export default defineNuxtConfig({
       gtmId: process.env.GTM_ID,
       mollieProfileId: process.env.MOLLIE_PROFILE_ID,
       mollieTestMode: process.env.MOLLIE_TEST_MODE,
-      mollieApiKey: process.env.MOLLIE_API_KEY,
 
       hasCountryOut: process.env.HAS_COUNTRY_OUT,
       lockUser: process.env.LOCK_USER,
