@@ -107,11 +107,7 @@ const config = useRuntimeConfig();
 
 <template>
   <div class="formPayment">
-    <!-- <pre class="text-xs">
-
-      {{ checkoutCustomer }} <br>
-    {{ checkoutCarrier }}
-  </pre> -->
+    
     <div>
       <InputCheckBox
         id="same_address_for_shipping"
