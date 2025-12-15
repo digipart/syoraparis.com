@@ -13,6 +13,7 @@
   "dependencies": {
     "@googlemaps/js-api-loader": "^1.16.8",
     "@mdi/font": "^7.4.47",
+    "@mollie/api-client": "^4.3.3",
     "@nuxt/image": "^1.11.0",
     "@nuxtjs/color-mode": "^3.4.2",
     "@nuxtjs/i18n": "^9.5.5",

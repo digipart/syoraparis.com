@@ -11,9 +11,9 @@ export default defineEventHandler(async (event) => {
     metadata,
   } = await readBody(event);
 
-  // const config = useRuntimeConfig();
+  const config = useRuntimeConfig();
   const mollie = createMollieClient({
-    apiKey: 'live_xSqwVrP5FeUNcRjfQ52vfRPFez2W4P',
+    apiKey: config.mollieApiKey,
   });
 
   const payment = await mollie.payments.create({
