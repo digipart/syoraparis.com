@@ -1,4 +1,4 @@
-import { createMollieClient } from '@mollie/api-client';
+import mollieClient from '@mollie/api-client';
 
 export default defineEventHandler(async (event) => {
   const {
@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
   } = await readBody(event);
 
   // const config = useRuntimeConfig();
-  const mollie = createMollieClient({
+  const mollie = mollieClient({
     apiKey: 'live_xSqwVrP5FeUNcRjfQ52vfRPFez2W4P',
   });
 
