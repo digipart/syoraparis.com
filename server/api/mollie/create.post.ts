@@ -2,6 +2,7 @@ import { createMollieClient } from '@mollie/api-client';
 
 export default defineEventHandler(async (event) => {
   try {
+    const body = await readBody(event);
     const {
       method,
       amount,
@@ -12,16 +13,9 @@ export default defineEventHandler(async (event) => {
       metadata,
     } = await readBody(event);
 
-    if (!amount || !amount.currency || !amount.value) {
-      throw new Error('Invalid amount specified for payment.');
-    }
-
-    
-    // const config = useRuntimeConfig();
-    // console.log('config.public.mollieApiKey', config.public.mollieApiKey);
-    
+    const config = useRuntimeConfig();
     const mollie = createMollieClient({
-      apiKey: 'test_8eURGfFAP32nUyDxxQFN64FDUDnVxy',
+      apiKey: config.public.mollieApiKey,
     });
 
     const payment = await mollie.payments.create({
@@ -36,14 +30,7 @@ export default defineEventHandler(async (event) => {
     return {
       paymentUrl: payment.getCheckoutUrl(),
     };
-  } catch (error: any) {
-    console.error('Mollie payment creation failed:', error);
-    return createError({
-      statusCode: 500,
-      statusMessage: 'Server Error',
-      message:
-        error.message ||
-        'An unexpected error occurred while creating the payment.',
-    });
+  } catch (error) {
+    return error
   }
 });
