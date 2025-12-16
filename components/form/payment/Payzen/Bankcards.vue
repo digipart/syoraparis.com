@@ -27,6 +27,8 @@ const { customer } = toRefs(auth);
 const addressStore = useAddressStore();
 const { addressDelivery } = toRefs(addressStore);
 
+const checkoutStore = useCheckoutStore();
+
 const props = defineProps<{
   disabled?: boolean;
   paymentMethod?: PaymentMethodType;
@@ -192,7 +194,34 @@ const initializePayzen = () => {
     // Attachement du formulaire au DOM
     const formElement = document.getElementById('payzen-payment-form');
     if (formElement) {
-      krInstance.value.attachForm('#payzen-payment-form');
+      krInstance.value.attachForm('#payzen-payment-form').then(() => {
+        const button = document.querySelector('#payzen-payment-form .kr-payment-button');
+        if (button) {
+          button.addEventListener('click', async (event) => {
+            event.preventDefault();
+            event.stopPropagation();
+
+            const allValid = await checkoutStore.validateCheckoutBeforePayment();
+            if (!allValid) {
+              const firstError = document.querySelector(
+                '.formShipping .text-red-500, .inputText.error, .v-select.error'
+              );
+              firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+              return;
+            }
+
+            // If validation passes, manually trigger the form submission if the library allows
+            // This part is tricky as we are hijacking the button's default behavior.
+            // We might need to call a method from the KR instance to proceed.
+            // For now, let's assume we can find the form and submit it, or call a KR function.
+            const realSubmitButton = document.querySelector('#payzen-payment-form .kr-payment-button') as HTMLButtonElement;
+            if(realSubmitButton) {
+              realSubmitButton.click();
+            }
+          });
+        }
+      });
+
       paymentFormInitialized.value = true;
     } else {
       error.value = t('Payment form container not found');
