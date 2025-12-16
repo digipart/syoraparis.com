@@ -169,7 +169,7 @@ onMounted(() => {
               <span>
                 {{ $t('tunnel.delivery.relayPoint') }}
               </span>
-              <IconShop :size="2.5" />
+              <IconLocation :size="2.5" />
             </div>
 
             <div
@@ -199,7 +199,7 @@ onMounted(() => {
             <BaseHeadLine size="md" class="uppercase font-medium mt-5">
               {{ $t('label.shippingOption.title') }} :
             </BaseHeadLine>
-            <FormShipping :displayOptions="['Home']" />
+            <FormShipping :displayOptions="'Home'" />
           </div>
 
           <div v-if="checkoutDeliveryOption !== 'home'">
@@ -215,11 +215,9 @@ onMounted(() => {
               {{ $t('label.shippingOption.title') }} :
             </BaseHeadLine>
             <FormShipping
-              :displayOptions="[
-                checkoutDeliveryOption === 'relayPoint'
-                  ? 'RelayPoint'
-                  : 'Store',
-              ]"
+              :displayOptions="
+                checkoutDeliveryOption === 'relayPoint' ? 'RelayPoint' : 'Store'
+              "
             />
           </div>
           <div class="mt-5">

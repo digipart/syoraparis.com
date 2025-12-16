@@ -166,7 +166,7 @@ watch(state.value, () => {
               <span>
                 {{ $t('tunnel.delivery.relayPoint') }}
               </span>
-              <IconShop :size="2.5" />
+              <IconLocation :size="2.5" />
             </div>
             <div
               class="deliveryOptions-item"
@@ -206,7 +206,7 @@ watch(state.value, () => {
             <BaseHeadLine size="md" class="uppercase font-medium">
               {{ $t('label.shippingOption.title') }} :
             </BaseHeadLine>
-            <FormShipping :displayOptions="['Home']" />
+            <FormShipping :displayOptions="'Home'" />
           </div>
 
           <div v-if="checkoutDeliveryOption !== 'home'">
@@ -222,11 +222,9 @@ watch(state.value, () => {
             />
 
             <FormShipping
-              :displayOptions="[
-                checkoutDeliveryOption === 'relayPoint'
-                  ? 'RelayPoint'
-                  : 'Store',
-              ]"
+              :displayOptions="
+                checkoutDeliveryOption === 'relayPoint' ? 'RelayPoint' : 'Store'
+              "
             />
           </div>
 
