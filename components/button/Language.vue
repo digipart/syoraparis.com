@@ -193,7 +193,7 @@ $languageModal: '.languageModal';
 #{$languageModal} {
   @apply text-base flex items-center;
   &-btn {
-    @apply font-light pb-[5px] pt-[12px] px-1 cursor-pointer
+    @apply font-thin pb-[5px] pt-[12px] px-1 cursor-pointer
     uppercase flex items-center gap-1;
   }
 

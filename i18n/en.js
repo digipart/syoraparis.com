@@ -219,6 +219,7 @@ const en = {
     return_voucher: 'Return voucher',
     brands: 'Brands',
     brand: 'Brand',
+    recommended_products: 'Recommended products',
     shippingOption: {
       noCarrier:
         'Enter your shipping address to view available shipping methods.',

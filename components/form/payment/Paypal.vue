@@ -27,6 +27,8 @@ const { cart } = toRefs(cartStore);
 const auth = useAuth();
 const { customer } = toRefs(auth);
 
+const checkoutStore = useCheckoutStore();
+
 // Composables
 const { t, locale } = useI18n();
 const router = useRouter();
@@ -155,6 +157,17 @@ const startPayment = async () => {
           color: 'black',
           shape: 'rect',
           label: 'paypal',
+        },
+        onClick: async (data, actions) => {
+          const allValid = await checkoutStore.validateCheckoutBeforePayment();
+          if (!allValid) {
+            const firstError = document.querySelector(
+              '.formShipping .text-red-500, .inputText.error, .v-select.error'
+            );
+            firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            return actions.reject();
+          }
+          return actions.resolve();
         },
         createOrder: createPaypalOrder,
         onApprove: handlePaypalApproval,

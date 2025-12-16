@@ -3,7 +3,7 @@ const appStore = useAppStore();
 const { miniCartVisible, currencyIsoCode } = toRefs(appStore);
 
 const cartStore = useCartStore();
-const { totalToPay } = toRefs(cartStore);
+const { totalToPay, cart, promoCodes } = toRefs(cartStore);
 
 const localePath = useLocalePath();
 </script>
@@ -49,8 +49,9 @@ const localePath = useLocalePath();
     </div>
 
     <template #footer>
-      <div class="w-full">
+      <div class="w-full flex flex-col gap-2">
         <NuxtLink
+          v-if="cart?.Products?.length || 0 > 0"
           :to="
             localePath({
               name: 'checkout',
@@ -66,6 +67,15 @@ const localePath = useLocalePath();
             {{ $t('button.checkout') }}
           </BaseButton>
         </NuxtLink>
+        <BaseButton
+          type="primary"
+          plain
+          class="w-full"
+          @click="miniCartVisible = false"
+          :title="$t('label.continue_shopping')"
+        >
+          {{ $t('label.continue_shopping') }}
+        </BaseButton>
       </div>
     </template>
   </BaseDrawer>

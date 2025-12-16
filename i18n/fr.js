@@ -220,6 +220,7 @@ const fr = {
     return_voucher: 'Bon de retour',
     brands: 'Marques',
     brand: 'la marque',
+    recommended_products: 'Produits recommandés',
     shippingOption: {
       title: 'Options de livraison',
       noCarrier: "Entrez votre adresse de livraison pour voir les méthodes d'expédition disponibles.",

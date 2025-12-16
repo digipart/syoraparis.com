@@ -17,6 +17,8 @@ const { customer } = toRefs(auth);
 const addressStore = useAddressStore();
 const { addressDelivery, addressInvoice } = toRefs(addressStore);
 
+const checkoutStore = useCheckoutStore();
+
 const localePath = useLocalePath();
 const router = useRouter();
 
@@ -59,6 +61,15 @@ const postData = async () => {
 };
 
 const handleSubmit = async () => {
+  const allValid = await checkoutStore.validateCheckoutBeforePayment();
+  if (!allValid) {
+    const firstError = document.querySelector(
+      '.formShipping .text-red-500, .inputText.error, .v-select.error'
+    );
+    firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
   loading.value = true;
   if (clientSecret.value) {
     if (await postData()) {

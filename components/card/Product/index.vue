@@ -205,22 +205,8 @@ const variantSelected = () => {
     @mouseleave="setDefaultProduct()"
   >
     <div class="cardProduct-top relative aspect-[1080/1610]">
-      <BaseMediaPressAndHold
-        v-if="
-          !loadingProductRealaionShip && imagesLarge && imagesLarge?.[0]?.Src
-        "
-        @click="redirect"
-        :src="imagesLarge?.[0]?.Src"
-      >
-        <CardProductMedia
-          v-if="currentProduct"
-          :product="currentProduct"
-          :imageSize="imageSize"
-          :slider="slider"
-        />
-      </BaseMediaPressAndHold>
+  
       <CardProductMedia
-        v-else
         @click="redirect"
         :product="currentProduct"
         :imageSize="imageSize"

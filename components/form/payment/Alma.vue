@@ -54,6 +54,8 @@ const { customer } = toRefs(auth);
 const addressStore = useAddressStore();
 const { addressDelivery, addressInvoice } = toRefs(addressStore);
 
+const checkoutStore = useCheckoutStore();
+
 const props = defineProps<{
   paymentMethods: PaymentMethodType[];
 }>();
@@ -88,6 +90,15 @@ const toggleLoader = (val: boolean) => {
 
 // Process Alma checkout
 const checkoutAlma = async () => {
+  const allValid = await checkoutStore.validateCheckoutBeforePayment();
+  if (!allValid) {
+    const firstError = document.querySelector(
+      '.formShipping .text-red-500, .inputText.error, .v-select.error'
+    );
+    firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
+
   let installmentsCount = 1;
 
   // Determine installment count based on selected option
