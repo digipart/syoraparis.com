@@ -132,6 +132,20 @@ watch(checkoutCustomer.value.deliveryAddress, () => {
   loadCarriers();
 });
 
+const hasCarrierOfType = computed(() => {
+  if (!carrier.value || Object.keys(carrier.value).length === 0) {
+    return false;
+  }
+  
+  for (const carrierType of displayOptions.split(',').map(t => t.trim())) {
+    if (carrier.value[carrierType as keyof CarrierType]) {
+      return true;
+    }
+  }
+  
+  return false;
+});
+
 onMounted(() => {
   loadCarriers();
   findCarrierLocation();
@@ -156,7 +170,7 @@ onMounted(() => {
         />
       </template>
     </div>
-    <div v-if="!carrier || Object.keys(carrier).length === 0">
+    <div v-if="!hasCarrierOfType">
       <BaseAlert fill type="default" :closeButton="false">
         <span class="text-sm">
           {{ $t('label.shippingOption.noCarrier') }}
