@@ -220,7 +220,8 @@ const en = {
     brands: 'Brands',
     brand: 'Brand',
     shippingOption: {
-      noCarrier: 'Enter your shipping address to view available shipping methods.',
+      noCarrier:
+        'Enter your shipping address to view available shipping methods.',
       title: 'Options of delivery',
       Home: 'Home',
       Store: 'Store',
@@ -263,8 +264,9 @@ const en = {
       order_summary: {
         title: 'Order Summary',
       },
-      shipping: 'Shipping',
-      pickup: 'Pick up',
+      home: 'Home',
+      relayPoint: 'Relay point',
+      store: 'In-store pickup',
     },
     payment: {
       title: 'Payment Method',

@@ -49,6 +49,9 @@ const shippingStore = useShippingStore();
 const { fetchRelayPoints } = shippingStore;
 const { relayPointSelected, relayPoints } = toRefs(shippingStore);
 
+const checkoutStore = useCheckoutStore();
+const { hasAddressDelivery, checkoutCustomer } = toRefs(checkoutStore);
+
 const { carrier, carrierType, active } = defineProps({
   carrier: {
     type: {} as PropType<CarrierGenre>,
@@ -89,7 +92,7 @@ const getCarrierImage = () => {
 };
 
 const onSelectHandler = async () => {
-  if (carrierType === 'RelayPoint') {
+  if (carrierType === 'RelayPoint' || carrierType === 'Store') {
     await loadRelayPoint();
 
     if (relayPoints.value.length) {
@@ -105,15 +108,31 @@ const onSelectHandler = async () => {
     relayPoints: relayPoints.value,
   });
 };
-
+const ip = useIp();
 const loadRelayPoint = async () => {
-  if (carrier?.IdCarrier && addressDelivery.value?.IdAddress) {
+  if (carrier?.IdCarrier) {
+    let options = null;
+    if (hasAddressDelivery.value) {
+      options = {
+        Postcode: checkoutCustomer.value.deliveryAddress.postalCode,
+        City: checkoutCustomer.value.deliveryAddress.city,
+        Address1: checkoutCustomer.value.deliveryAddress.address,
+        Country: checkoutCustomer.value.deliveryAddress.country,
+      };
+    } else {
+      options = {
+        IP: ip.value,
+      };
+    }
+
     try {
-      const data = await fetchRelayPoints({
-        IdAddress: addressDelivery.value?.IdAddress,
-        IdCarrier: carrier?.IdCarrier,
-      });
-      return data;
+      if (options) {
+        const data = await fetchRelayPoints({
+          ...options,
+          IdCarrier: carrier?.IdCarrier,
+        });
+        return data;
+      }
     } catch (error) {
       throw error;
     }

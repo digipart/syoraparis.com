@@ -29,7 +29,7 @@ export const useFormInvoiceStore = defineStore('formInvoiceStore', () => {
     address: {
       required: helpers.withMessage(t('error.address_required'), required),
     },
-   
+
     city: {
       required: helpers.withMessage(t('error.city_required'), required),
     },
@@ -40,10 +40,12 @@ export const useFormInvoiceStore = defineStore('formInvoiceStore', () => {
       required: helpers.withMessage(t('error.email_required'), required),
       email: helpers.withMessage(t('error.email_valide'), email),
     },
+    phone: {
+      required: helpers.withMessage(t('error.phone_required'), required),
+    },
     // prefix: {
     //   required: helpers.withMessage(t('error.prefix_required'), required),
     // },
-    
   };
 
   const v$ = useVuelidate(rules, state);

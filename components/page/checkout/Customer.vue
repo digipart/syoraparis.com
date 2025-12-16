@@ -32,9 +32,7 @@ const setAddresseDelivery = (address: AddressType) => {
   newAddress.IsDelivery = true;
   listAddressVisible.value = false;
 
-  updateAddress(newAddress).then(async (data) => {
-    
-  });
+  updateAddress(newAddress).then(async (data) => {});
 };
 
 const displayForm = () => {
@@ -65,11 +63,26 @@ const setCheckoutCustomer = () => {
   checkoutCustomer.value.deliveryAddress.city =
     addressDelivery.value?.City || '';
   checkoutCustomer.value.deliveryAddress.phone =
-    addressDelivery.value?.Phone || '';
+    addressDelivery.value?.MobilePhone || '';
   checkoutCustomer.value.deliveryAddress.postalCode =
     addressDelivery.value?.Postcode || '';
   checkoutCustomer.value.deliveryAddress.country =
     addressDelivery.value?.CountryIsoCode || '';
+
+  checkoutCustomer.value.invoiceAddress.firstname =
+    addressInvoice.value?.Firstname || '';
+  checkoutCustomer.value.invoiceAddress.lastname =
+    addressInvoice.value?.Lastname || '';
+  checkoutCustomer.value.invoiceAddress.address =
+    addressInvoice.value?.Address1 || '';
+  checkoutCustomer.value.invoiceAddress.city =
+    addressInvoice.value?.City || '';
+  checkoutCustomer.value.invoiceAddress.phone =
+    addressInvoice.value?.MobilePhone || '';
+  checkoutCustomer.value.invoiceAddress.postalCode =
+    addressInvoice.value?.Postcode || '';
+  checkoutCustomer.value.invoiceAddress.country =
+    addressInvoice.value?.CountryIsoCode || '';
 };
 
 onMounted(() => {

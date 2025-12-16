@@ -56,6 +56,7 @@
 <script setup lang="ts">
 import MollieHelper from '~/helpers/payments/MollieHelper';
 import type { PaymentMethodType } from '~/types/PaymentType';
+import { useCheckoutGuest } from '~/composables/useCheckoutGuest';
 
 const props = defineProps<{
   amount?: number;
@@ -73,6 +74,19 @@ const { cart } = toRefs(cartStore);
 
 const addressStore = useAddressStore();
 const { addressDelivery, addressInvoice } = toRefs(addressStore);
+
+const formDeliveryStore = useFormDeliveryStore();
+const { v$: v$FormDelivery } = toRefs(formDeliveryStore);
+
+const formInvoiceStore = useFormInvoiceStore();
+const { v$: v$AddressInvoice } = toRefs(formInvoiceStore);
+
+const { t } = useI18n();
+
+const checkoutStore = useCheckoutStore();
+const { isCheckoutValid, checkoutDeliveryOption, hasSameAddressForShipping, checkoutCarrier } = toRefs(checkoutStore);
+
+const { registerAndPrepareGuestAddress } = useCheckoutGuest();
 
 const config = useRuntimeConfig();
 
@@ -141,15 +155,33 @@ const formatAmount = (amount?: number) => {
 };
 
 const handleGooglePay = async () => {
+  const allValid = await checkoutStore.validateCheckoutBeforePayment();
+
+  if (!allValid) {
+    const firstError = document.querySelector(
+      '.formShipping .text-red-500, .inputText.error, .v-select.error'
+    );
+    firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
   if (isProcessing.value) return;
 
   isProcessing.value = true;
+
+  await registerAndPrepareGuestAddress();
   paymentStatus.value = {
     type: 'info',
     message: 'Redirecting to GooglePay...',
   };
 
   try {
+    if (!props.paymentMethod) {
+      emit('error', 'Payment method is not defined.');
+      isProcessing.value = false;
+      return;
+    }
+    const paymentMethod = props.paymentMethod;
+
     const mollieHelper = new MollieHelper({
       cart: cart.value,
       customer: {},
@@ -157,7 +189,12 @@ const handleGooglePay = async () => {
 
     // Start GooglePay payment without token (GooglePay uses redirect flow)
 
-    const { paymentUrl } = await mollieHelper.startPayementMethod('googlepay');
+    const { paymentUrl } = await mollieHelper.startPayementMethod({
+      paymentName: 'googlepay',
+      paymentMethod: props.paymentMethod,
+      addressDelivery: addressDelivery.value,
+      addressInvoice: addressInvoice.value,
+    });
 
     if (paymentUrl) {
       window.location.href = paymentUrl;

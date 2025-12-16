@@ -1,8 +1,6 @@
 <script setup lang="ts">
-import type { CarrierType } from '~/types/ShippingType';
-
 const checkoutStore = useCheckoutStore();
-const { checkoutCustomer } = toRefs(checkoutStore);
+const { checkoutCustomer, checkoutDeliveryOption } = toRefs(checkoutStore);
 
 const formDeliveryStore = useFormDeliveryStore();
 const { state, v$ } = toRefs(formDeliveryStore);
@@ -16,8 +14,6 @@ const { carrier: allCarriers, toshow } = toRefs(shippingStore);
 const cartStore = useCartStore();
 const { totalToPay, carrier, totalProductQuantity } = toRefs(cartStore);
 const { updateShipping } = cartStore;
-
-const deliveryOption = ref<'ship' | 'pickup'>('ship');
 
 const paymentRefreshing = ref(false);
 
@@ -51,9 +47,11 @@ const refreshCodePromo = () => {
 };
 
 const ip = useIp();
-const setDelivredOption = async (optionType: 'ship' | 'pickup') => {
+const setDelivredOption = async (
+  optionType: 'home' | 'relayPoint' | 'store'
+) => {
   allCarriers.value = {};
-  deliveryOption.value = optionType;
+  checkoutDeliveryOption.value = optionType;
 };
 
 const handalFormGuestChange = (state: any) => {
@@ -72,6 +70,37 @@ const handleSelectPickupAddress = async (e: any) => {
 
 onMounted(() => {
   updateShipping({ idCarrier: 0 });
+});
+
+watch(checkoutCustomer.value.invoiceAddress, () => {
+  if (checkoutDeliveryOption.value !== 'home') {
+    checkoutCustomer.value.deliveryAddress.address =
+      checkoutCustomer.value.invoiceAddress.address;
+
+    checkoutCustomer.value.deliveryAddress.city =
+      checkoutCustomer.value.invoiceAddress.city;
+
+    checkoutCustomer.value.deliveryAddress.postalCode =
+      checkoutCustomer.value.invoiceAddress.postalCode;
+
+    checkoutCustomer.value.deliveryAddress.country =
+      checkoutCustomer.value.invoiceAddress.country;
+
+    checkoutCustomer.value.deliveryAddress.phone =
+      checkoutCustomer.value.invoiceAddress.phone;
+
+    checkoutCustomer.value.deliveryAddress.firstname =
+      checkoutCustomer.value.invoiceAddress.firstname;
+
+    checkoutCustomer.value.deliveryAddress.lastname =
+      checkoutCustomer.value.invoiceAddress.lastname;
+  }
+});
+
+watch(state.value, () => {
+  if (checkoutDeliveryOption.value !== 'home') {
+    checkoutCustomer.value.deliveryAddress.email = state.value.email;
+  }
 });
 </script>
 
@@ -109,33 +138,49 @@ onMounted(() => {
             </BaseHeadLine>
             <div
               class="deliveryOptions-item"
-              :class="{ selected: deliveryOption === 'ship' }"
-              @click="setDelivredOption('ship')"
+              :class="{ selected: checkoutDeliveryOption === 'home' }"
+              @click="setDelivredOption('home')"
             >
               <InputRadio
-                id="do-ship"
-                value="ship"
-                v-model="deliveryOption"
+                id="do-home"
+                value="home"
+                v-model="checkoutDeliveryOption"
                 class="!absolute top-4 left-4"
               />
               <span>
-                {{ $t('tunnel.delivery.shipping') }}
+                {{ $t('tunnel.delivery.home') }}
               </span>
               <IconDeliveryTruckSpeed :size="2.5" />
             </div>
             <div
               class="deliveryOptions-item"
-              :class="{ selected: deliveryOption === 'pickup' }"
-              @click="setDelivredOption('pickup')"
+              :class="{ selected: checkoutDeliveryOption === 'relayPoint' }"
+              @click="setDelivredOption('relayPoint')"
             >
               <InputRadio
-                id="do-pickup"
-                value="pickup"
-                v-model="deliveryOption"
+                id="do-relayPoint"
+                value="relayPoint"
+                v-model="checkoutDeliveryOption"
                 class="!absolute top-4 left-4"
               />
               <span>
-                {{ $t('tunnel.delivery.pickup') }}
+                {{ $t('tunnel.delivery.relayPoint') }}
+              </span>
+              <IconShop :size="2.5" />
+            </div>
+            <div
+              class="deliveryOptions-item"
+              :class="{ selected: checkoutDeliveryOption === 'store' }"
+              @click="setDelivredOption('store')"
+            >
+              <InputRadio
+                id="do-store"
+                value="store"
+                v-model="checkoutDeliveryOption"
+                class="!absolute top-4 left-4"
+              />
+              <span>
+                {{ $t('tunnel.delivery.store') }}
               </span>
               <IconShop :size="2.5" />
             </div>
@@ -148,7 +193,7 @@ onMounted(() => {
             class="mb-5"
           />
 
-          <div v-if="deliveryOption === 'ship'">
+          <div v-if="checkoutDeliveryOption === 'home'">
             <BaseHeadLine size="md" class="uppercase font-medium mb-3">
               {{ $t('label.address_delivery') }} :
             </BaseHeadLine>
@@ -158,32 +203,13 @@ onMounted(() => {
               @onFormChange="handalFormGuestChange($event)"
             />
             <!-- Shipping option -->
-            <div class="flex justify-between gap-5 mb-3">
-              <div>
-                <BaseHeadLine size="md" class="uppercase font-medium">
-                  {{ $t('label.shippingOption.title') }} :
-                </BaseHeadLine>
-              </div>
-              <div v-if="Object.keys(homeCarriers).length">
-                <ul class="flex gap-4 text-sm">
-                  <template v-for="(carrierGroup, groupName) in homeCarriers">
-                    <li
-                      class="cursor-pointer"
-                      :class="{
-                        'underline font-normal': toshow === groupName,
-                      }"
-                      @click="toshow = groupName"
-                    >
-                      {{ $t('label.shippingOption.' + groupName) }}
-                    </li>
-                  </template>
-                </ul>
-              </div>
-            </div>
+            <BaseHeadLine size="md" class="uppercase font-medium">
+              {{ $t('label.shippingOption.title') }} :
+            </BaseHeadLine>
             <FormShipping :displayOptions="['Home']" />
           </div>
 
-          <div v-if="deliveryOption === 'pickup'">
+          <div v-if="checkoutDeliveryOption !== 'home'">
             <BaseHeadLine size="md" class="uppercase font-medium mb-3">
               {{ $t('label.address') }} :
             </BaseHeadLine>
@@ -194,24 +220,14 @@ onMounted(() => {
               @onSelect="handleSelectPickupAddress"
               border
             />
-            <div class="flex justify-end gap-5 mb-2">
-              <div>
-                <ul class="flex gap-4 text-sm">
-                  <template v-for="(carrierGroup, groupName) in pickupCarriers">
-                    <li
-                      class="cursor-pointer"
-                      :class="{
-                        'underline font-normal': toshow === groupName,
-                      }"
-                      @click="toshow = groupName"
-                    >
-                      {{ $t('label.shippingOption.' + groupName) }}
-                    </li>
-                  </template>
-                </ul>
-              </div>
-            </div>
-            <FormShipping :displayOptions="['Store', 'RelayPoint']" />
+
+            <FormShipping
+              :displayOptions="[
+                checkoutDeliveryOption === 'relayPoint'
+                  ? 'RelayPoint'
+                  : 'Store',
+              ]"
+            />
           </div>
 
           <div class="mt-5">

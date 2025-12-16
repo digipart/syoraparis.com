@@ -264,8 +264,9 @@ const fr = {
       order_summary: {
         title: 'Récapitulatif de la commande',
       },
-      shipping: 'Livraison',
-      pickup: 'Point relais',
+      home: 'Domicile',
+      relayPoint: 'Point relais',
+      store: 'Retrait en boutique',
     },
     payment: {
       title: 'Méthode de paiement',

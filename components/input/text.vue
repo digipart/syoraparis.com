@@ -6,7 +6,14 @@ const { locale } = useI18n();
 interface Props {
   id: string;
   modelValue: string;
-  type?: 'text' | 'password' | 'email' | 'tel' | 'date' | 'textarea';
+  type?:
+    | 'text'
+    | 'password'
+    | 'email'
+    | 'tel'
+    | 'date'
+    | 'datepicker'
+    | 'textarea';
   label?: string;
   placeholder?: string;
   disabled?: boolean;
@@ -70,7 +77,7 @@ const onBlur = () => {
   <div
     class="inputText"
     :class="{
-      'inputText--focused': isFocused || modelValue,
+      'inputText--focused': isFocused || modelValue || type === 'date',
       error: errors?.length,
       required: required,
       'inputText--border': border,
@@ -83,7 +90,7 @@ const onBlur = () => {
     <label v-if="label" :for="id" class="inputText-label">{{ label }}</label>
 
     <VueDatePicker
-      v-if="type === 'date'"
+      v-if="type === 'datepicker'"
       v-model="inputDateValue"
       :id="id"
       v-bind="$attrs"

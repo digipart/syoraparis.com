@@ -45,6 +45,12 @@
 
 <script setup lang="ts">
 import MollieHelper from '~/helpers/payments/MollieHelper';
+import type { PaymentMethodType } from '~/types/PaymentType';
+import { useCheckoutGuest } from '~/composables/useCheckoutGuest';
+
+const props = defineProps<{
+  paymentMethod: PaymentMethodType;
+}>();
 
 const emit = defineEmits<{
   paymentStarted: [data: any];
@@ -56,8 +62,24 @@ const { cart } = toRefs(cartStore);
 
 const addressStore = useAddressStore();
 const { addressDelivery, addressInvoice } = toRefs(addressStore);
+
+const formDeliveryStore = useFormDeliveryStore();
+const { v$: v$FormDelivery } = toRefs(formDeliveryStore);
+
+const formInvoiceStore = useFormInvoiceStore();
+const { v$: v$AddressInvoice } = toRefs(formInvoiceStore);
+
+const { t } = useI18n();
+
+const { registerAndPrepareGuestAddress } = useCheckoutGuest();
+
 const checkoutStore = useCheckoutStore();
-const { isCheckoutValid } = toRefs(checkoutStore);
+const {
+  isCheckoutValid,
+  checkoutDeliveryOption,
+  hasSameAddressForShipping,
+  checkoutCarrier,
+} = toRefs(checkoutStore);
 
 const config = useRuntimeConfig();
 const router = useRouter();
@@ -79,11 +101,21 @@ onMounted(async () => {
 });
 
 const handlePayPalPayment = async () => {
-  if (!isCheckoutValid.value) return;
+  const allValid = await checkoutStore.validateCheckoutBeforePayment();
+
+  if (!allValid) {
+    const firstError = document.querySelector(
+      '.formShipping .text-red-500, .inputText.error, .v-select.error'
+    );
+    firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
 
   if (isProcessing.value) return;
 
   isProcessing.value = true;
+
+  await registerAndPrepareGuestAddress();
   paymentStatus.value = {
     type: 'info',
     message: 'Redirecting to PayPal...',
@@ -97,7 +129,12 @@ const handlePayPalPayment = async () => {
 
     // Start PayPal payment without token (PayPal uses redirect flow)
 
-    const { paymentUrl } = await mollieHelper.startPayementMethod('paypal');
+    const { paymentUrl } = await mollieHelper.startPayementMethod({
+      paymentName: 'paypal',
+      paymentMethod: props.paymentMethod,
+      addressDelivery: addressDelivery.value,
+      addressInvoice: addressInvoice.value,
+    });
 
     if (paymentUrl) {
       window.location.href = paymentUrl;

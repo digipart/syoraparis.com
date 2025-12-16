@@ -1,6 +1,6 @@
 import { defineStore } from 'pinia';
-import BrandService from '~/services/BrandService';
-import type { BrandType } from '~/types/BrandType';
+import { useFormDeliveryStore } from '../form-stores/formDeliveryStore';
+import { useFormInvoiceStore } from '../form-stores/formInvoiceStore';
 import type { PaymentMethodType } from '~/types/PaymentType';
 import type { RelayPointType } from '~/types/RelayPointsType';
 import type { CarrierType } from '~/types/ShippingType';
@@ -33,6 +33,9 @@ type CheckoutCarrier = {
 };
 
 export const useCheckoutStore = defineStore('checkoutStore', () => {
+  const checkoutDeliveryOption = ref<'home' | 'relayPoint' | 'store'>('home');
+  const hasSameAddressForShipping = ref(false);
+  const carrierError = ref<string | null>(null);
   const checkoutCustomer = ref<CheckoutCustomer>({
     deliveryAddress: {
       email: '',
@@ -62,8 +65,53 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
   const checkoutErrors = ref<{ field: string; message: string }[]>([]);
   const hasAddressDelivery = ref(false);
 
+  const { t } = useI18n();
+
   const auth = useAuth();
+  const { isLoggedIn } = toRefs(auth);
   const { registerGuest } = auth;
+
+  const validateCheckoutBeforePayment = async (): Promise<boolean> => {
+    const formDeliveryStore = useFormDeliveryStore();
+    const formInvoiceStore = useFormInvoiceStore();
+
+    let allValid = true;
+
+    if (!isLoggedIn.value) {
+      if (
+        checkoutDeliveryOption.value === 'home' &&
+        !checkoutCarrier.value.carrier
+      ) {
+        carrierError.value = t('error.carrier_required');
+        allValid = false;
+      } else {
+        carrierError.value = null;
+      }
+
+      let isFormDeliveryCorrect = true;
+      if (
+        checkoutDeliveryOption.value === 'relayPoint' ||
+        checkoutDeliveryOption.value === 'store'
+      ) {
+        isFormDeliveryCorrect = await formDeliveryStore.v$.email.$validate();
+      } else {
+        isFormDeliveryCorrect = await formDeliveryStore.v$.$validate();
+      }
+      if (!isFormDeliveryCorrect) allValid = false;
+
+      let isAddressInvoiceCorrect = true;
+      if (!hasSameAddressForShipping.value) {
+        isAddressInvoiceCorrect = await formInvoiceStore.v$.$validate();
+      }
+      if (!isAddressInvoiceCorrect) allValid = false;
+
+      if (!isCheckoutValid.value) {
+        allValid = false;
+      }
+    }
+
+    return allValid;
+  };
 
   watch(checkoutCustomer.value.deliveryAddress, () => {
     hasAddressDelivery.value =
@@ -156,7 +204,11 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
     checkoutPaymentMethods,
     isCheckoutValid,
     checkoutErrors,
+    checkoutDeliveryOption,
+    hasSameAddressForShipping,
+    carrierError,
     validateCheckout,
     createClientGuest,
+    validateCheckoutBeforePayment,
   };
 });

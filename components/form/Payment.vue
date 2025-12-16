@@ -6,8 +6,12 @@ const { disabled } = defineProps<{
 }>();
 
 const checkoutStore = useCheckoutStore();
-const { checkoutCarrier, checkoutCustomer, checkoutPaymentMethods } =
-  toRefs(checkoutStore);
+const {
+  checkoutCustomer,
+  checkoutPaymentMethods,
+  checkoutDeliveryOption,
+  hasSameAddressForShipping,
+} = toRefs(checkoutStore);
 
 const addressStore = useAddressStore();
 const { addressDelivery, addressInvoice, addresses } = toRefs(addressStore);
@@ -15,19 +19,15 @@ const { updateAddressType } = addressStore;
 
 const addressFormAdd = ref<HTMLElement | null>(null);
 
-const hasSameAddressForShipping = ref(
+hasSameAddressForShipping.value =
   checkoutCustomer.value.deliveryAddress.city ===
     checkoutCustomer.value.invoiceAddress.city &&
-    checkoutCustomer.value.deliveryAddress.country ===
-      checkoutCustomer.value.invoiceAddress.country &&
-    checkoutCustomer.value.deliveryAddress.postalCode ===
-      checkoutCustomer.value.invoiceAddress.postalCode &&
-    checkoutCustomer.value.deliveryAddress.address ===
-      checkoutCustomer.value.invoiceAddress.address
-);
-
-if (addressInvoice) {
-}
+  checkoutCustomer.value.deliveryAddress.country ===
+    checkoutCustomer.value.invoiceAddress.country &&
+  checkoutCustomer.value.deliveryAddress.postalCode ===
+    checkoutCustomer.value.invoiceAddress.postalCode &&
+  checkoutCustomer.value.deliveryAddress.address ===
+    checkoutCustomer.value.invoiceAddress.address;
 
 const showForm = ref(false);
 const listAddressVisible = ref(false);
@@ -107,16 +107,19 @@ const config = useRuntimeConfig();
 
 <template>
   <div class="formPayment">
-    
     <div>
       <InputCheckBox
+        v-if="checkoutDeliveryOption === 'home'"
         id="same_address_for_shipping"
         v-model="hasSameAddressForShipping"
         @change="setAddresse($event)"
       >
         {{ t('label.same_as_delivery_address') }}
       </InputCheckBox>
-      <div v-if="!hasSameAddressForShipping" class="mb-5">
+      <div
+        v-if="!hasSameAddressForShipping || checkoutDeliveryOption !== 'home'"
+        class="mb-5"
+      >
         <transition name="slide">
           <div v-show="!showForm && !listAddressVisible">
             <div class="mt-3">
@@ -198,24 +201,28 @@ const config = useRuntimeConfig();
                 pm.PaymentProvider?.toLowerCase() === 'mollie' &&
                 pm.PaymentCode?.toLowerCase() === 'creditcard'
               "
+              :paymentMethod="pm"
             />
             <FormPaymentMolliePaypal
               v-if="
                 pm.PaymentProvider?.toLowerCase() === 'mollie' &&
                 pm.PaymentCode?.toLowerCase() === 'paypal'
               "
+              :paymentMethod="pm"
             />
             <FormPaymentMollieApplePay
               v-if="
                 pm.PaymentProvider?.toLowerCase() === 'mollie' &&
                 pm.PaymentCode?.toLowerCase() === 'applepay'
               "
+              :paymentMethod="pm"
             />
             <FormPaymentMollieGooglePay
               v-if="
                 pm.PaymentProvider?.toLowerCase() === 'mollie' &&
                 pm.PaymentCode?.toLowerCase() === 'googlepay'
               "
+              :paymentMethod="pm"
             />
 
             <!-- PAYZEN -->

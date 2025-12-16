@@ -184,6 +184,7 @@ watch(state.value, () => {
                   :errors="v$.phone?.$errors"
                   :label="$t('label.phone')"
                   border
+                  :required="true"
                 />
               </div>
               <!-- <div class="col-span-12">
