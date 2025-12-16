@@ -5,8 +5,8 @@ import type { CarrierGenre, CarrierType } from '~/types/ShippingType';
 
 const { displayOptions } = defineProps({
   displayOptions: {
-    type: Array,
-    default: () => ['Home', 'Store', 'RelayPoint'],
+    type: String as PropType<'Home' | 'Store' | 'RelayPoint'>,
+    default: 'Home',
   },
 });
 
@@ -16,6 +16,7 @@ const {
   checkoutCustomer,
   checkoutPaymentMethods,
   checkoutCarrier,
+  carrierError,
 } = toRefs(checkoutStore);
 
 const shippingStore = useShippingStore();
@@ -28,6 +29,15 @@ const { carrier: carrierSelected, cart } = toRefs(cartStore);
 
 const loading = ref(false);
 const { locale } = useI18n();
+
+watch(
+  () => checkoutCarrier.value.carrier,
+  (newVal) => {
+    if (newVal) {
+      carrierError.value = null;
+    }
+  }
+);
 const { t } = useI18n();
 
 const findCarrierLocation = (): keyof CarrierType | null => {
@@ -98,21 +108,23 @@ const loadPayments = async (options: any) => {
 };
 
 const loadCarriers = async () => {
+  let options = null;
   if (hasAddressDelivery.value) {
-    const options = {
+    options = {
       Postcode: checkoutCustomer.value.deliveryAddress.postalCode,
       City: checkoutCustomer.value.deliveryAddress.city,
       Address1: checkoutCustomer.value.deliveryAddress.address,
       Country: checkoutCustomer.value.deliveryAddress.country,
     };
-    await fetchShipping(options);
-    await loadPayments(options);
   } else {
-    const options = {
+    options = {
       IP: ip.value,
     };
-    // await fetchShipping(options);
-    // await loadPayments(options);
+  }
+
+  if (options) {
+    await fetchShipping(options);
+    await loadPayments(options);
   }
 };
 
@@ -128,6 +140,9 @@ onMounted(() => {
 
 <template>
   <div class="formShipping" v-loading="loading">
+    <BaseAlert v-if="carrierError" type="danger" class="mb-4">
+      {{ carrierError }}
+    </BaseAlert>
     <div v-for="(carrierGroup, groupName) in carrier" class="flex flex-col">
       <template v-if="displayOptions.includes(groupName)">
         <CardShipping

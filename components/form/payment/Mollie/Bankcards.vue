@@ -1,5 +1,9 @@
 <template>
   <div class="mollie-payment-form">
+    <!-- <pre class="text-xs">
+      {{ state }} <br>
+     {{ isCheckoutValid }} {{ checkoutCustomer }}, {{ checkoutCarrier }}
+    </pre> -->
     <form @submit.prevent="handleSubmit">
       <div class="grid grid-cols-2 gap-3">
         <div class="col-span-2 relative">
@@ -36,7 +40,7 @@
         <div class="col-span-2 mt-3">
           <BaseButton
             submit
-            :disabled="isProcessing || !isFormValid || !isCheckoutValid"
+            :disabled="isProcessing || !isFormValid"
             class="w-full"
             type="primary"
           >
@@ -57,17 +61,40 @@
 
 <script setup lang="ts">
 import MollieHelper from '~/helpers/payments/MollieHelper';
+import type { AddressType } from '~/types/AddressType';
+import type { PaymentMethodType } from '~/types/PaymentType';
 
 const emit = defineEmits<{
   tokenCreated: [token: string];
   error: [error: string];
 }>();
 
+const props = defineProps<{
+  paymentMethod: PaymentMethodType;
+}>();
+
 const cartStore = useCartStore();
 const { cart } = toRefs(cartStore);
 
+const { registerAndPrepareGuestAddress } = useCheckoutGuest();
+
+
+const formDeliveryStore = useFormDeliveryStore();
+const { v$: v$FormDelivery } = toRefs(formDeliveryStore);
+
+const formInvoiceStore = useFormInvoiceStore();
+const { state, v$: v$AddressInvoice } = toRefs(formInvoiceStore);
+
+const { t } = useI18n();
+
 const checkoutStore = useCheckoutStore();
-const { isCheckoutValid } = toRefs(checkoutStore);
+const {
+  isCheckoutValid,
+  checkoutCustomer,
+  checkoutCarrier,
+  checkoutDeliveryOption,
+  hasSameAddressForShipping,
+} = toRefs(checkoutStore);
 
 const { mollie, loadMollie } = useMollie();
 const addressStore = useAddressStore();
@@ -189,17 +216,19 @@ const handleTokenCreated = async (token: string) => {
       message: 'Processing payment...',
     };
 
+    await registerAndPrepareGuestAddress();
+
     const mollieHelper = new MollieHelper({ cart: cart.value, customer: {} });
     const response = await mollieHelper.startPayement({
       token,
       paymentMethod: props.paymentMethod,
       addressDelivery: addressDelivery.value,
-      addressInvoice: addressDelivery.value,
+      addressInvoice: addressInvoice.value,
     });
 
     if (response.success) {
       if (response) {
-        // window.location.href = response?.payment?.redirectUrl;
+        window.location.href = response?.payment?.redirectUrl;
       }
     }
   } catch (error: any) {
@@ -218,7 +247,15 @@ const handleError = (error: string) => {
 };
 
 const handleSubmit = async () => {
-  if (!isCheckoutValid.value) return;
+  const allValid = await checkoutStore.validateCheckoutBeforePayment();
+
+  if (!allValid) {
+    const firstError = document.querySelector(
+      '.formShipping .text-red-500, .inputText.error, .v-select.error'
+    );
+    firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
   if (!mollie.value || isProcessing.value || !isFormValid.value) return;
 
   isProcessing.value = true;
@@ -250,36 +287,35 @@ const handleSubmit = async () => {
 
 <style lang="scss">
 .mollie-payment-form {
-}
-
-.form-group {
-  margin-bottom: 20px;
-}
-
-label {
-  margin-bottom: 8px;
-  color: #333;
-  font-size: 12px;
-  @apply font-normal;
-}
-.mollie-component {
-  @apply border  border-gray-888 pr-3 bg-white;
-  &.has-focus {
-    @apply border-black;
+  .form-group {
+    margin-bottom: 20px;
   }
-}
 
-.error {
-  color: #e74c3c;
-  font-size: 10px;
-  margin-top: 0px;
-  display: block;
-  @apply absolute bottom-0 translate-y-full  font-normal;
-}
+  label {
+    margin-bottom: 8px;
+    color: #333;
+    font-size: 12px;
+    @apply font-normal;
+  }
+  .mollie-component {
+    @apply border  border-gray-888 pr-3 bg-white;
+    &.has-focus {
+      @apply border-black;
+    }
+  }
 
-.status-message {
-  color: #e74c3c;
-  font-size: 12px;
-  margin-top: 6px;
+  .error {
+    color: #e74c3c;
+    font-size: 10px;
+    margin-top: 0px;
+    display: block;
+    @apply absolute bottom-0 translate-y-full  font-normal;
+  }
+
+  .status-message {
+    color: #e74c3c;
+    font-size: 12px;
+    margin-top: 6px;
+  }
 }
 </style>

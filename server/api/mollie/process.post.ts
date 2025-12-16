@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
     const response = await $fetch('https://api.mollie.com/v2/payments', {
       method: 'POST',
       headers: {
-        Authorization: `Bearer ${config.public.mollieApiKey}`,
+        Authorization: `Bearer ${config.mollieApiKey}`,
         'Content-Type': 'application/json',
       },
       body: {

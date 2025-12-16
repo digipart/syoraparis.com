@@ -20,9 +20,6 @@ const { countries } = toRefs(countryStore);
 const auth = useAuth();
 const { customer } = toRefs(auth);
 
-const localePath = useLocalePath();
-const router = useRouter();
-
 const addressStore = useAddressStore();
 const { addAddress, updateAddress } = addressStore;
 const { addresses } = toRefs(addressStore);

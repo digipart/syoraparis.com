@@ -61,6 +61,8 @@ export default class MollieHelper extends PaymentHelper {
   }: {
     token: string;
     paymentMethod: PaymentMethodType;
+    addressDelivery: AddressType;
+    addressInvoice: AddressType;
   }) {
     let total = 0;
 
@@ -71,9 +73,8 @@ export default class MollieHelper extends PaymentHelper {
 
       const config = useRuntimeConfig();
       // Send token to your backend with order details
-      const response = await $fetch<MollieResponse>('/api/payment/process', {
+      const response = await $fetch<MollieResponse>('/api/mollie/process', {
         method: 'POST',
-
         body: {
           token,
           amount: {
@@ -84,7 +85,9 @@ export default class MollieHelper extends PaymentHelper {
           redirectUrl: `${config.public.url}/order/accepted?orderid=${this.cart.IdCart}&init=1`,
           webhookUrl: 'https://sy.digipart.fr/api/payment/mollie/ipn',
           description: 'Order #' + this.cart.IdCart,
-          metadata: JSON.stringify(this.custom_data({})),
+          metadata: JSON.stringify(
+            this.custom_data({ })
+          ),
         },
       });
 
@@ -104,7 +107,17 @@ export default class MollieHelper extends PaymentHelper {
     }
   }
 
-  async startPayementMethod(paymentName: string) {
+  async startPayementMethod({
+    paymentName,
+    paymentMethod,
+    addressDelivery,
+    addressInvoice,
+  }: {
+    paymentName: string;
+    paymentMethod: PaymentMethodType;
+    addressDelivery: AddressType;
+    addressInvoice: AddressType;
+  }) {
     let total = 0;
 
     try {
@@ -126,7 +139,9 @@ export default class MollieHelper extends PaymentHelper {
           redirectUrl: `${config.public.url}/order/accepted?orderid=${this.cart.IdCart}&init=1`,
           webhookUrl: 'https://sy.digipart.fr/api/payment/mollie/ipn',
           description: 'Order #' + this.cart.IdCart,
-          metadata: JSON.stringify(this.custom_data({})),
+          metadata: JSON.stringify(
+            this.custom_data({ paymentMethod, addressDelivery, addressInvoice })
+          ),
         },
       });
 

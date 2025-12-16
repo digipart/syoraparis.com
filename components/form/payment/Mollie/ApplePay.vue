@@ -57,6 +57,7 @@
 <script setup lang="ts">
 import MollieHelper from '~/helpers/payments/MollieHelper';
 import type { PaymentMethodType } from '~/types/PaymentType';
+import { useCheckoutGuest } from '~/composables/useCheckoutGuest';
 
 const props = defineProps<{
   amount?: number;
@@ -74,6 +75,24 @@ const { cart } = toRefs(cartStore);
 
 const addressStore = useAddressStore();
 const { addressDelivery, addressInvoice } = toRefs(addressStore);
+
+const formDeliveryStore = useFormDeliveryStore();
+const { v$: v$FormDelivery } = toRefs(formDeliveryStore);
+
+const formInvoiceStore = useFormInvoiceStore();
+const { v$: v$AddressInvoice } = toRefs(formInvoiceStore);
+
+const { t } = useI18n();
+
+const { registerAndPrepareGuestAddress } = useCheckoutGuest();
+
+const checkoutStore = useCheckoutStore();
+const {
+  isCheckoutValid,
+  checkoutDeliveryOption,
+  hasSameAddressForShipping,
+  checkoutCarrier,
+} = toRefs(checkoutStore);
 
 const isProcessing = ref(false);
 const isApplePayAvailable = ref(false);
@@ -96,41 +115,56 @@ const formatAmount = (amount?: number) => {
 };
 
 const handleApplePay = async () => {
+  const allValid = await checkoutStore.validateCheckoutBeforePayment();
+
+  if (!allValid) {
+    const firstError = document.querySelector(
+      '.formShipping .text-red-500, .inputText.error, .v-select.error'
+    );
+    firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    return;
+  }
   if (isProcessing.value) return;
 
   isProcessing.value = true;
+
+  await registerAndPrepareGuestAddress();
   paymentStatus.value = {
     type: 'info',
     message: 'Redirecting to ApplePay...',
   };
 
   try {
+    if (!props.paymentMethod) {
+      emit('error', 'Payment method is not defined.');
+      isProcessing.value = false;
+      return;
+    }
+    const paymentMethod = props.paymentMethod;
+
     const mollieHelper = new MollieHelper({
       cart: cart.value,
       customer: {},
     });
 
-    // Start ApplePay payment without token (ApplePay uses redirect flow)
-
-    const { paymentUrl } = await mollieHelper.startPayementMethod('applepay');
+    const { paymentUrl } = await mollieHelper.startPayementMethod({
+      paymentName: 'applepay',
+      paymentMethod: props.paymentMethod,
+      addressDelivery: addressDelivery.value,
+      addressInvoice: addressInvoice.value,
+    });
 
     if (paymentUrl) {
       window.location.href = paymentUrl;
     } else {
-      throw new Error('Failed to initiate ApplePay payment');
+      emit('error', 'Failed to get payment URL.');
     }
   } catch (error: any) {
-    console.error('ApplePay payment error:', error);
-
     paymentStatus.value = {
       type: 'error',
-      message:
-        error.data?.message ||
-        error.message ||
-        'Payment failed. Please try again.',
+      message: error.data?.message || 'Payment failed. Please try again.',
     };
-
-    emit('error', error.data?.message || error.message || 'Payment failed');
+  } finally {
     isProcessing.value = false;
   }
 };

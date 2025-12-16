@@ -39,12 +39,11 @@ const submitForm = async () => {
   console.log('v$', v$);
 
   if (!v$.value.$invalid) {
-    registerGuest().then(async (data) => {
-      showForm.value = false;
-      console.log(data);
-
-      emit('onAddressCreated', addressDelivery.value?.IdAddress);
-    });
+    // registerGuest().then(async (data) => {
+    //   showForm.value = false;
+    //   console.log(data);
+    //   emit('onAddressCreated', addressDelivery.value?.IdAddress);
+    // });
   } else {
     showFields();
   }
@@ -220,14 +219,6 @@ defineExpose({
                 @onSelect="handleSelectAddress"
                 border
               />
-              <div class="-mt-5 flex justify-end">
-                <span
-                  class="text-xs text-gray-888 underline cursor-pointer"
-                  @click="showFields()"
-                >
-                  {{ $t('label.enter_address_manually') }}
-                </span>
-              </div>
             </div>
             <div class="col-span-12 grid grid-cols-12 gap-x-5">
               <div class="col-span-12">

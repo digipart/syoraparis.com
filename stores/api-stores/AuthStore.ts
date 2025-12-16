@@ -172,7 +172,6 @@ export const useAuth = defineStore('useAuthStore', () => {
 
 
     
-    options.CountryIsoCode = countryIsoCode.value;
     options.CurrencyIsoCode = currencyIsoCode.value;
     options.LanguageIsoCode = languageIsoCode.value;
     options.Guest = true;

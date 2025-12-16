@@ -43,6 +43,9 @@ const isLodingMore = ref(true);
 const hasNextPage = ref(true);
 const loadingMoreBtn = ref<HTMLElement | null>(null);
 
+let intersectionObserver: IntersectionObserver | null = null;
+let scrollListenerAttached = false;
+
 const setTypeView = (event: any) => {
   setCategoryListingView(event.view);
 };
@@ -140,36 +143,126 @@ const loadData = () => {
   }
 };
 
-const handleScroll = () => {
-  if (!isLodingMore.value && hasNextPage.value) {
-    if (loadingMoreBtn.value) {
-      if (
-        loadingMoreBtn.value.offsetTop <=
-        window.scrollY + window.innerHeight
-      ) {
-        loadData();
-      }
-    }
+const handleScrollFallback = () => {
+  if (
+    typeof window === 'undefined' ||
+    isLodingMore.value ||
+    !hasNextPage.value ||
+    !loadingMoreBtn.value
+  ) {
+    return;
   }
+
+  const rect = loadingMoreBtn.value.getBoundingClientRect();
+  if (rect.top <= window.innerHeight + 100) {
+    loadData();
+  }
+};
+
+const attachScrollFallback = () => {
+  if (typeof window === 'undefined' || scrollListenerAttached) {
+    return;
+  }
+
+  window.addEventListener('scroll', handleScrollFallback, { passive: true });
+  scrollListenerAttached = true;
+};
+
+const detachScrollFallback = () => {
+  if (typeof window === 'undefined' || !scrollListenerAttached) {
+    return;
+  }
+
+  window.removeEventListener('scroll', handleScrollFallback);
+  scrollListenerAttached = false;
+};
+
+const setupIntersectionObserver = () => {
+  if (typeof window === 'undefined' || !loadingMoreBtn.value) {
+    return;
+  }
+
+  if (!('IntersectionObserver' in window)) {
+    attachScrollFallback();
+    return;
+  }
+
+  detachScrollFallback();
+
+  if (!intersectionObserver) {
+    intersectionObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting && !isLodingMore.value && hasNextPage.value) {
+            loadData();
+          }
+        });
+      },
+      {
+        root: null,
+        rootMargin: '200px 0px',
+        threshold: 0,
+      }
+    );
+  }
+
+  intersectionObserver.observe(loadingMoreBtn.value);
+};
+
+const cleanupIntersectionObserver = () => {
+  if (intersectionObserver) {
+    if (loadingMoreBtn.value) {
+      intersectionObserver.unobserve(loadingMoreBtn.value);
+    }
+    intersectionObserver.disconnect();
+    intersectionObserver = null;
+  }
+
+  detachScrollFallback();
 };
 
 const startFilter = () => {
   page.value = 0;
   products.value = [];
   loadData();
+  nextTick(() => {
+    setupIntersectionObserver();
+  });
 };
 
 onMounted(() => {
   loadData();
-  if (typeof window !== 'undefined') {
-    window.addEventListener('scroll', handleScroll);
-  }
+  nextTick(() => {
+    setupIntersectionObserver();
+  });
 });
 
-onUnmounted(() => {
-  if (typeof window !== 'undefined') {
-    window.removeEventListener('scroll', handleScroll);
+watch(
+  () => hasNextPage.value,
+  (value) => {
+    if (!value) {
+      cleanupIntersectionObserver();
+    } else {
+      nextTick(() => {
+        setupIntersectionObserver();
+      });
+    }
   }
+);
+
+watch(
+  () => loadingMoreBtn.value,
+  (element) => {
+    if (element && hasNextPage.value) {
+      nextTick(() => {
+        setupIntersectionObserver();
+      });
+    }
+  }
+);
+
+onUnmounted(() => {
+  cleanupIntersectionObserver();
 });
 </script>
 
