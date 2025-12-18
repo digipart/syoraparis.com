@@ -228,7 +228,7 @@ const handleTokenCreated = async (token: string) => {
 
     if (response.success) {
       if (response) {
-        window.location.href = response?.payment?.redirectUrl;
+        // window.location.href = response?.payment?.redirectUrl;
       }
     }
   } catch (error: any) {
