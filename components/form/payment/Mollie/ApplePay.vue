@@ -82,6 +82,9 @@ const { v$: v$FormDelivery } = toRefs(formDeliveryStore);
 const formInvoiceStore = useFormInvoiceStore();
 const { v$: v$AddressInvoice } = toRefs(formInvoiceStore);
 
+const auth = useAuth();
+const { customer } = toRefs(auth);
+
 const { t } = useI18n();
 
 const { registerAndPrepareGuestAddress } = useCheckoutGuest();
@@ -144,7 +147,7 @@ const handleApplePay = async () => {
 
     const mollieHelper = new MollieHelper({
       cart: cart.value,
-      customer: {},
+      customer: customer.value || {},
     });
 
     const { paymentUrl } = await mollieHelper.startPayementMethod({

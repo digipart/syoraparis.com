@@ -73,6 +73,9 @@ const { t } = useI18n();
 
 const { registerAndPrepareGuestAddress } = useCheckoutGuest();
 
+const auth = useAuth();
+const { customer } = toRefs(auth);
+
 const checkoutStore = useCheckoutStore();
 const {
   isCheckoutValid,
@@ -124,7 +127,7 @@ const handlePayPalPayment = async () => {
   try {
     const mollieHelper = new MollieHelper({
       cart: cart.value,
-      customer: {},
+      customer: customer.value || {},
     });
 
     // Start PayPal payment without token (PayPal uses redirect flow)
@@ -134,7 +137,7 @@ const handlePayPalPayment = async () => {
       paymentMethod: props.paymentMethod,
       addressDelivery: addressDelivery.value,
       addressInvoice: addressInvoice.value,
-    });
+    }); 
 
     if (paymentUrl) {
       window.location.href = paymentUrl;

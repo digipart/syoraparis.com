@@ -87,7 +87,7 @@ watch(state.value, () => {
         <div ref="addressFormAdd" class="">
           <form class="formDelivery-form">
             <div class="grid grid-cols-12 gap-x-5">
-              <div class="col-span-12">
+              <!-- <div class="col-span-12">
                 <InputText
                   id="email"
                   v-model="state.email"
@@ -97,7 +97,7 @@ watch(state.value, () => {
                   :label="$t('label.email')"
                   border
                 />
-              </div>
+              </div> -->
               <div class="col-span-12 md:col-span-6">
                 <InputText
                   id="name"
