@@ -75,9 +75,10 @@ const props = defineProps<{
 
 const cartStore = useCartStore();
 const { cart } = toRefs(cartStore);
+const auth = useAuth();
+const { customer } = toRefs(auth);
 
 const { registerAndPrepareGuestAddress } = useCheckoutGuest();
-
 
 const formDeliveryStore = useFormDeliveryStore();
 const { v$: v$FormDelivery } = toRefs(formDeliveryStore);
@@ -218,7 +219,10 @@ const handleTokenCreated = async (token: string) => {
 
     await registerAndPrepareGuestAddress();
 
-    const mollieHelper = new MollieHelper({ cart: cart.value, customer: {} });
+    const mollieHelper = new MollieHelper({
+      cart: cart.value,
+      customer: customer.value || {},
+    });
     const response = await mollieHelper.startPayement({
       token,
       paymentMethod: props.paymentMethod,
@@ -228,7 +232,7 @@ const handleTokenCreated = async (token: string) => {
 
     if (response.success) {
       if (response) {
-        // window.location.href = response?.payment?.redirectUrl;
+        window.location.href = response?.payment?.redirectUrl;
       }
     }
   } catch (error: any) {

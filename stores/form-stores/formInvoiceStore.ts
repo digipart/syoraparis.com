@@ -36,10 +36,10 @@ export const useFormInvoiceStore = defineStore('formInvoiceStore', () => {
     country: {
       required: helpers.withMessage(t('error.country_required'), required),
     },
-    email: {
-      required: helpers.withMessage(t('error.email_required'), required),
-      email: helpers.withMessage(t('error.email_valide'), email),
-    },
+    // email: {
+    //   required: helpers.withMessage(t('error.email_required'), required),
+    //   email: helpers.withMessage(t('error.email_valide'), email),
+    // },
     phone: {
       required: helpers.withMessage(t('error.phone_required'), required),
     },

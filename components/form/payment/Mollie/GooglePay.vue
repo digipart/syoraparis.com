@@ -81,6 +81,8 @@ const { v$: v$FormDelivery } = toRefs(formDeliveryStore);
 const formInvoiceStore = useFormInvoiceStore();
 const { v$: v$AddressInvoice } = toRefs(formInvoiceStore);
 
+const auth = useAuth();
+const { customer } = toRefs(auth);
 const { t } = useI18n();
 
 const checkoutStore = useCheckoutStore();
@@ -183,8 +185,8 @@ const handleGooglePay = async () => {
     const paymentMethod = props.paymentMethod;
 
     const mollieHelper = new MollieHelper({
-      cart: cart.value,
-      customer: {},
+       cart: cart.value,
+      customer: customer.value || {},
     });
 
     // Start GooglePay payment without token (GooglePay uses redirect flow)

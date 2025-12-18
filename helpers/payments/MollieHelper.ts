@@ -72,6 +72,11 @@ export default class MollieHelper extends PaymentHelper {
       }
 
       const config = useRuntimeConfig();
+      console.log(
+        'looo',
+        this.custom_data({ addressDelivery, addressInvoice, paymentMethod })
+      );
+
       // Send token to your backend with order details
       const response = await $fetch<MollieResponse>('/api/mollie/process', {
         method: 'POST',
@@ -86,7 +91,7 @@ export default class MollieHelper extends PaymentHelper {
           webhookUrl: 'https://sy.digipart.fr/api/payment/mollie/ipn',
           description: 'Order #' + this.cart.IdCart,
           metadata: JSON.stringify(
-            this.custom_data({ })
+            this.custom_data({ addressDelivery, addressInvoice, paymentMethod })
           ),
         },
       });
