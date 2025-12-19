@@ -77,6 +77,8 @@ export default class MollieHelper extends PaymentHelper {
         this.custom_data({ addressDelivery, addressInvoice, paymentMethod })
       );
 
+      const auth = useAuth();
+      const customerId = auth?.customer?.Id;
       // Send token to your backend with order details
       const response = await $fetch<MollieResponse>('/api/mollie/process', {
         method: 'POST',
@@ -93,20 +95,26 @@ export default class MollieHelper extends PaymentHelper {
           metadata: JSON.stringify(
             this.custom_data({ addressDelivery, addressInvoice, paymentMethod })
           ),
+          customerId,
         },
       });
 
-      if (response.success) {
-        this.postData({
-          token: response.payment.id,
-          paymentMethod: paymentMethod,
-          addressDelivery: addressDelivery,
-          addressInvoice: addressInvoice,
-        });
-        return response;
-      } else {
-        throw new Error('Payment failed');
-      }
+      console.log('response', response);
+      
+
+      // if (response.success) {
+      //   this.postData({
+      //     token: response.payment.id,
+      //     paymentMethod: paymentMethod,
+      //     addressDelivery: addressDelivery,
+      //     addressInvoice: addressInvoice,
+      //   });
+      //   return response;
+      // } else {
+      //   throw new Error('Payment failed');
+      // }
+
+      return response;
     } catch (error) {
       throw error;
     }
