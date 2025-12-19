@@ -13,7 +13,7 @@
           <span v-if="!isProcessing" class="button-content">
             <IconGooglepay :size="4" />
           </span>
-          <span v-else>Processing...</span>
+          <span v-else>{{ $t('tunnel.payment.googlepay.processing') }}</span>
         </BaseButton>
       </div>
 
@@ -23,7 +23,7 @@
           <IconInfo :size="2.4" />
         </template>
         <div class="text-sm">
-          <p>Google Pay is not available on this device or browser.</p>
+          <p>{{ $t('tunnel.payment.googlepay.not_available') }}</p>
         </div>
       </BaseAlert>
     </div>
@@ -48,7 +48,7 @@
         <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
         <path d="M7 11V7a5 5 0 0110 0v4" />
       </svg>
-      <span>Secure payment with Google Pay</span>
+      <span>{{ $t('tunnel.payment.googlepay.secure') }}</span>
     </div>
   </div>
 </template>
@@ -173,12 +173,12 @@ const handleGooglePay = async () => {
   await registerAndPrepareGuestAddress();
   paymentStatus.value = {
     type: 'info',
-    message: 'Redirecting to GooglePay...',
+    message: t('tunnel.payment.googlepay.redirecting'),
   };
 
   try {
     if (!props.paymentMethod) {
-      emit('error', 'Payment method is not defined.');
+      emit('error', t('tunnel.payment.error.payment_method'));
       isProcessing.value = false;
       return;
     }
@@ -211,10 +211,10 @@ const handleGooglePay = async () => {
       message:
         error.data?.message ||
         error.message ||
-        'Payment failed. Please try again.',
+        t('tunnel.payment.card.failed'),
     };
 
-    emit('error', error.data?.message || error.message || 'Payment failed');
+    emit('error', error.data?.message || error.message || t('tunnel.payment.error.processing'));
     isProcessing.value = false;
   }
 };

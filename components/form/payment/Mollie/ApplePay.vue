@@ -12,9 +12,9 @@
         >
           <span v-if="!isProcessing" class="button-content">
             <IconApplepay :size="4" />
-            <span class="button-text">Pay with Apple Pay</span>
+            <span class="button-text">{{ $t('tunnel.payment.applepay.button') }}</span>
           </span>
-          <span v-else>Processing...</span>
+          <span v-else>{{ $t('tunnel.payment.applepay.processing') }}</span>
         </BaseButton>
       </div>
 
@@ -24,7 +24,7 @@
           <IconInfo :size="2.4" />
         </template>
         <div class="text-sm">
-          <p>Apple Pay is not available on this device or browser.</p>
+          <p>{{ $t('tunnel.payment.applepay.not_available') }}</p>
         </div>
       </BaseAlert>
     </div>
@@ -49,7 +49,7 @@
         <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
         <path d="M7 11V7a5 5 0 0110 0v4" />
       </svg>
-      <span>Secure payment with Touch ID or Face ID</span>
+      <span>{{ $t('tunnel.payment.applepay.secure') }}</span>
     </div>
   </div>
 </template>
@@ -134,12 +134,12 @@ const handleApplePay = async () => {
   await registerAndPrepareGuestAddress();
   paymentStatus.value = {
     type: 'info',
-    message: 'Redirecting to ApplePay...',
+    message: t('tunnel.payment.applepay.redirecting'),
   };
 
   try {
     if (!props.paymentMethod) {
-      emit('error', 'Payment method is not defined.');
+      emit('error', t('tunnel.payment.error.payment_method'));
       isProcessing.value = false;
       return;
     }
@@ -165,7 +165,7 @@ const handleApplePay = async () => {
   } catch (error: any) {
     paymentStatus.value = {
       type: 'error',
-      message: error.data?.message || 'Payment failed. Please try again.',
+      message: error.data?.message || t('tunnel.payment.card.failed'),
     };
   } finally {
     isProcessing.value = false;

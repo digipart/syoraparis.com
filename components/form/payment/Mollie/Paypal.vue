@@ -11,10 +11,10 @@
           v-if="!isProcessing || !isCheckoutValid"
           class="flex items-center justify-center gap-2"
         >
-          {{ $t('tunnel.payment.paypal.name') }}
+          {{ $t('tunnel.payment.paypal.button') }}
           <IconPaypal :size="2" />
         </span>
-        <span v-else>Processing...</span>
+        <span v-else>{{ $t('tunnel.payment.paypal.processing') }}</span>
       </BaseButton>
     </div>
 
@@ -38,7 +38,7 @@
         <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
         <path d="M7 11V7a5 5 0 0110 0v4" />
       </svg>
-      <span>Secure payment powered by PayPal</span>
+      <span>{{ $t('tunnel.payment.paypal.secure') }}</span>
     </div>
   </div>
 </template>
@@ -121,7 +121,7 @@ const handlePayPalPayment = async () => {
   await registerAndPrepareGuestAddress();
   paymentStatus.value = {
     type: 'info',
-    message: 'Redirecting to PayPal...',
+    message: t('tunnel.payment.paypal.redirecting'),
   };
 
   try {
@@ -152,10 +152,10 @@ const handlePayPalPayment = async () => {
       message:
         error.data?.message ||
         error.message ||
-        'Payment failed. Please try again.',
+        t('tunnel.payment.card.failed'),
     };
 
-    emit('error', error.data?.message || error.message || 'Payment failed');
+    emit('error', error.data?.message || error.message || t('tunnel.payment.error.processing'));
     isProcessing.value = false;
   }
 };

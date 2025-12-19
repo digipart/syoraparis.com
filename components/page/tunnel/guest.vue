@@ -5,11 +5,15 @@ const { checkoutCustomer, checkoutDeliveryOption } = toRefs(checkoutStore);
 const formDeliveryStore = useFormDeliveryStore();
 const { state, v$ } = toRefs(formDeliveryStore);
 
+
 const appStore = useAppStore();
 const { currencyIsoCode } = toRefs(appStore);
 
 const shippingStore = useShippingStore();
 const { carrier: allCarriers, toshow } = toRefs(shippingStore);
+
+const formInvoiceStore = useFormInvoiceStore();
+const { state: invoiceState } = toRefs(formInvoiceStore);
 
 const cartStore = useCartStore();
 const { totalToPay, carrier, totalProductQuantity } = toRefs(cartStore);
@@ -66,6 +70,11 @@ const handleSelectPickupAddress = async (e: any) => {
   checkoutCustomer.value.deliveryAddress.city = e.city;
   checkoutCustomer.value.deliveryAddress.postalCode = e.postalCode;
   checkoutCustomer.value.deliveryAddress.country = e.country;
+
+  invoiceState.value.address = e.address;
+  invoiceState.value.city = e.city;
+  invoiceState.value.postcode = e.postalCode;
+  invoiceState.value.country = e.country;
 };
 
 onMounted(() => {
