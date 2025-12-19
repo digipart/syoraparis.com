@@ -274,6 +274,12 @@ const en = {
       card: {
         name: 'Pay with Bank card',
         sname: 'secured by Mollie',
+        button: 'Pay with Card',
+        redirecting: 'Redirecting...',
+        processing: 'Processing...',
+        preparing: 'Preparing payment...',
+        redirect_secure: 'Redirecting to secure payment page...',
+        failed: 'Payment failed. Please try again.',
       },
       card_payzen: {
         name: 'Pay with Bank card',
@@ -282,6 +288,26 @@ const en = {
       paypal: {
         name: 'Pay with PayPal',
         sname: 'in 1 to 4 installments',
+        button: 'Pay with PayPal',
+        redirecting: 'Redirecting to PayPal...',
+        processing: 'Processing...',
+        secure: 'Secure payment powered by PayPal',
+      },
+      applepay: {
+        name: 'Pay with Apple Pay',
+        button: 'Pay with Apple Pay',
+        redirecting: 'Redirecting to Apple Pay...',
+        processing: 'Processing...',
+        not_available: 'Apple Pay is not available on this device or browser.',
+        secure: 'Secure payment with Touch ID or Face ID',
+      },
+      googlepay: {
+        name: 'Pay with Google Pay',
+        button: 'Pay with Google Pay',
+        redirecting: 'Redirecting to Google Pay...',
+        processing: 'Processing...',
+        not_available: 'Google Pay is not available on this device or browser.',
+        secure: 'Secure payment with Google Pay',
       },
       klarna: {
         name: 'Pay with Klarna',
@@ -295,6 +321,8 @@ const en = {
       error: {
         fetch_methods: 'Failed to fetch payment methods',
         processing: 'Error processing payment',
+        payment_url: 'Payment URL not received',
+        payment_method: 'Payment method is not defined.',
       },
     },
   },

@@ -274,6 +274,12 @@ const fr = {
       card: {
         name: 'Payer par carte bancaire',
         sname: 'sécurisé par Mollie',
+        button: 'Payer par carte',
+        redirecting: 'Redirection...',
+        processing: 'Traitement...',
+        preparing: 'Préparation du paiement...',
+        redirect_secure: 'Redirection vers la page de paiement sécurisé...',
+        failed: 'Paiement échoué. Veuillez réessayer.',
       },
       card_payzen: {
         name: 'Payer par carte bancaire',
@@ -282,6 +288,26 @@ const fr = {
       paypal: {
         name: 'Payer avec PayPal',
         sname: 'en 1 à 4 fois',
+        button: 'Payer avec PayPal',
+        redirecting: 'Redirection vers PayPal...',
+        processing: 'Traitement...',
+        secure: 'Paiement sécurisé par PayPal',
+      },
+      applepay: {
+        name: 'Payer avec Apple Pay',
+        button: 'Payer avec Apple Pay',
+        redirecting: 'Redirection vers Apple Pay...',
+        processing: 'Traitement...',
+        not_available: "Apple Pay n'est pas disponible sur cet appareil ou navigateur.",
+        secure: 'Paiement sécurisé avec Touch ID ou Face ID',
+      },
+      googlepay: {
+        name: 'Payer avec Google Pay',
+        button: 'Payer avec Google Pay',
+        redirecting: 'Redirection vers Google Pay...',
+        processing: 'Traitement...',
+        not_available: "Google Pay n'est pas disponible sur cet appareil ou navigateur.",
+        secure: 'Paiement sécurisé avec Google Pay',
       },
       klarna: {
         name: 'Payer avec Klarna',
@@ -295,6 +321,8 @@ const fr = {
       error: {
         fetch_methods: 'Échec de la récupération des méthodes de paiement',
         processing: 'Erreur lors du traitement du paiement',
+        payment_url: 'URL de paiement non reçue',
+        payment_method: "La méthode de paiement n'est pas définie.",
       },
     },
   },
