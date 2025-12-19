@@ -9,6 +9,7 @@ export default defineEventHandler(async (event) => {
     redirectUrl,
     webhookUrl,
     metadata,
+    token,
   } = await readBody(event);
 
   const config = useRuntimeConfig();
@@ -17,6 +18,7 @@ export default defineEventHandler(async (event) => {
   });
 
   const payment = await mollie.payments.create({
+    cardToken: token,
     amount: { currency: amount.currency, value: amount.value },
     description: description,
     method: method,

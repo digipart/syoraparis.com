@@ -32,7 +32,7 @@
       </span>
     </div>
 
-    <!-- <BaseButton @click="pushTestValue">test value</BaseButton> -->
+    <BaseButton @click="pushTestValue">test value</BaseButton>
   </div>
 </template>
 

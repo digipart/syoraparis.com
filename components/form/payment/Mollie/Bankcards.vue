@@ -230,10 +230,51 @@ const handleTokenCreated = async (token: string) => {
       addressInvoice: addressInvoice.value,
     });
 
-    if (response.success) {
-      if (response) {
-        window.location.href = response?.payment?.redirectUrl;
+    console.log('response', response);
+
+    // Validate payment response
+    if (response.success && response.payment) {
+      const paymentStatus_val = response.payment.status;
+      
+      // Check if payment is paid or pending
+      if (paymentStatus_val === 'paid') {
+        paymentStatus.value = {
+          type: 'success',
+          message: 'Payment successful! Redirecting...',
+        };
+        // Redirect to order confirmation
+        setTimeout(() => {
+          router.push(`/order/accepted?orderid=${cart.value.IdCart}&init=1`);
+        }, 1500);
+      } else if (paymentStatus_val === 'pending' || paymentStatus_val === 'open') {
+        const checkoutUrl = response.payment._links?.checkout?.href;
+        
+        if (checkoutUrl) {
+          paymentStatus.value = {
+            type: 'info',
+            message: 'Redirecting to payment page...',
+          };
+          // Redirect to Mollie checkout immediately
+          setTimeout(() => {
+            window.location.href = checkoutUrl;
+          }, 1000);
+        } else {
+          paymentStatus.value = {
+            type: 'error',
+            message: 'Payment created but checkout URL not available. Please contact support.',
+          };
+        }
+      } else if (paymentStatus_val === 'failed' || paymentStatus_val === 'expired' || paymentStatus_val === 'canceled') {
+        paymentStatus.value = {
+          type: 'error',
+          message: `Payment ${paymentStatus_val}. Please try again.`,
+        };
       }
+    } else {
+      paymentStatus.value = {
+        type: 'error',
+        message: 'Payment processing failed. Please try again.',
+      };
     }
   } catch (error: any) {
     paymentStatus.value = {
@@ -317,9 +358,25 @@ const handleSubmit = async () => {
   }
 
   .status-message {
-    color: #e74c3c;
     font-size: 12px;
     margin-top: 6px;
+    padding: 8px 12px;
+    border-radius: 4px;
+    
+    &.error {
+      color: #e74c3c;
+      background-color: #fadbd8;
+    }
+    
+    &.success {
+      color: #27ae60;
+      background-color: #d5f4e6;
+    }
+    
+    &.info {
+      color: #3498db;
+      background-color: #d6eaf8;
+    }
   }
 }
 </style>
