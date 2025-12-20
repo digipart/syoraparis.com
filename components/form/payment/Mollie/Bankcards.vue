@@ -3,27 +3,27 @@
     <div class="wrapper-mollie-components">
       <div class="form-group">
         <label class="label">{{ $t('tunnel.payment.card.holder') }}</label>
-        <div id="card-holder" class="input-container"></div>
-        <div id="card-holder-error" class="error-text" role="alert"></div>
+        <div :id="`card-holder-${uid}`" class="input-container"></div>
+        <div :id="`card-holder-error-${uid}`" class="error-text" role="alert"></div>
       </div>
       
       <div class="form-group">
         <label class="label">{{ $t('tunnel.payment.card.number') }}</label>
-        <div id="card-number" class="input-container"></div>
-        <div id="card-number-error" class="error-text" role="alert"></div>
+        <div :id="`card-number-${uid}`" class="input-container"></div>
+        <div :id="`card-number-error-${uid}`" class="error-text" role="alert"></div>
       </div>
 
       <div class="flex-row">
         <div class="form-group half">
           <label class="label">{{ $t('tunnel.payment.card.expiry') }}</label>
-          <div id="expiry-date" class="input-container"></div>
-          <div id="expiry-date-error" class="error-text" role="alert"></div>
+          <div :id="`expiry-date-${uid}`" class="input-container"></div>
+          <div :id="`expiry-date-error-${uid}`" class="error-text" role="alert"></div>
         </div>
 
         <div class="form-group half">
           <label class="label">{{ $t('tunnel.payment.card.cvc') }}</label>
-          <div id="verification-code" class="input-container"></div>
-          <div id="verification-code-error" class="error-text" role="alert"></div>
+          <div :id="`verification-code-${uid}`" class="input-container"></div>
+          <div :id="`verification-code-error-${uid}`" class="error-text" role="alert"></div>
         </div>
       </div>
     </div>
@@ -86,6 +86,7 @@ let cardNumber: any = null;
 let expiryDate: any = null;
 let verificationCode: any = null;
 const isMollieInitialized = ref(false);
+const uid = Math.random().toString(36).substring(7);
 
 useHead({
   script: [
@@ -141,17 +142,28 @@ const initializeMollie = () => {
         },
       };
 
+      const cardHolderId = `card-holder-${uid}`;
+      const cardNumberId = `card-number-${uid}`;
+      const expiryDateId = `expiry-date-${uid}`;
+      const verificationCodeId = `verification-code-${uid}`;
+
+      // Ensure elements exist before mounting
+      if (!document.getElementById(cardHolderId)) {
+          console.warn('Mollie mount points not found in DOM');
+          return;
+      }
+
       cardHolder = mollie.createComponent('cardHolder', options);
-      cardHolder.mount('#card-holder');
+      cardHolder.mount('#' + cardHolderId);
 
       cardNumber = mollie.createComponent('cardNumber', options);
-      cardNumber.mount('#card-number');
+      cardNumber.mount('#' + cardNumberId);
 
       expiryDate = mollie.createComponent('expiryDate', options);
-      expiryDate.mount('#expiry-date');
+      expiryDate.mount('#' + expiryDateId);
 
       verificationCode = mollie.createComponent('verificationCode', options);
-      verificationCode.mount('#verification-code');
+      verificationCode.mount('#' + verificationCodeId);
       
       isMollieInitialized.value = true;
       
@@ -170,10 +182,10 @@ const initializeMollie = () => {
         });
       };
 
-      addErrorListener(cardHolder, 'card-holder-error');
-      addErrorListener(cardNumber, 'card-number-error');
-      addErrorListener(expiryDate, 'expiry-date-error');
-      addErrorListener(verificationCode, 'verification-code-error');
+      addErrorListener(cardHolder, 'card-holder-error-' + uid);
+      addErrorListener(cardNumber, 'card-number-error-' + uid);
+      addErrorListener(expiryDate, 'expiry-date-error-' + uid);
+      addErrorListener(verificationCode, 'verification-code-error-' + uid);
       
       console.log('Mollie components initialized successfully');
   } catch (e) {
