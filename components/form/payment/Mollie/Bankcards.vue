@@ -80,8 +80,10 @@ const isProcessing = ref(false);
 const paymentStatus = ref<{ type: string; message: string } | null>(null);
 
 // Mollie references
-// Mollie references
-let mollie: any = null;
+// We use a global variable on window to ensure singleton across component re-mounts
+const getMollieInstance = () => (window as any).mollieInstance;
+const setMollieInstance = (instance: any) => ((window as any).mollieInstance = instance);
+
 let cardHolder: any = null;
 let cardNumber: any = null;
 let expiryDate: any = null;
@@ -134,13 +136,19 @@ const initializeMollie = async () => {
   console.log('Initializing Mollie with profile:', profileId);
 
   try {
+      let mollie = getMollieInstance();
+
       // Initialize Mollie if not already done
       if (!mollie) {
+        console.log('Creating new Mollie instance');
         // @ts-ignore
         mollie = (window as any).Mollie(profileId, {
             locale: 'fr_FR', // Or dynamic based on locale
             testmode: config.public.mollieTestMode === 'true' || config.public.mollieTestMode === true || config.public.mollieTestMode === 'enabled'
         });
+        setMollieInstance(mollie);
+      } else {
+        console.log('Using existing Mollie instance');
       }
 
       const options = {
@@ -240,6 +248,7 @@ const handleSubmit = async () => {
     return;
   }
   
+  const mollie = getMollieInstance();
   if (!mollie) {
      console.error('Mollie instance is missing');
      paymentStatus.value = {
