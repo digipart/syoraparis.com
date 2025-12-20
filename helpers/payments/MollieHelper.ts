@@ -89,17 +89,18 @@ export default class MollieHelper extends PaymentHelper {
             value: total.toFixed(2),
           },
           orderId: this.cart.IdCart,
-          webhookUrl: 'https://sy.digipart.fr/api/payment/mollie/ipn',
+          webhookUrl: `${config.public.apiUrl}/payment/mollie/ipn`,
           description: 'Order #' + this.cart.IdCart,
-          metadata: JSON.stringify(
-            this.custom_data({ addressDelivery, addressInvoice, paymentMethod })
-          ),
+          metadata: JSON.stringify({
+            IdCart: this.cart.IdCart,
+            IdCustomer: customerId,
+          }),
           customerId,
         },
       });
 
       console.log('response', response);
-      
+
 
       // if (response.success) {
       //   this.postData({
@@ -149,11 +150,12 @@ export default class MollieHelper extends PaymentHelper {
           },
           orderId: this.cart.IdCart,
           redirectUrl: `${config.public.url}/order/accepted?orderid=${this.cart.IdCart}&init=1`,
-          webhookUrl: 'https://sy.digipart.fr/api/payment/mollie/ipn',
+          webhookUrl: `${config.public.apiUrl}/payment/mollie/ipn`,
           description: 'Order #' + this.cart.IdCart,
-          metadata: JSON.stringify(
-            this.custom_data({ paymentMethod, addressDelivery, addressInvoice })
-          ),
+          metadata: JSON.stringify({
+            IdCart: this.cart.IdCart,
+            IdCustomer: this.customer?.Id,
+          }),
         },
       });
 
