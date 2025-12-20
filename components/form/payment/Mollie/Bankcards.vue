@@ -80,7 +80,10 @@ const isProcessing = ref(false);
 const paymentStatus = ref<{ type: string; message: string } | null>(null);
 
 // Mollie references
-let mollie: any = null;
+// We use a global variable on window to ensure singleton across component re-mounts
+const getMollieInstance = () => (window as any).mollieInstance;
+const setMollieInstance = (instance: any) => ((window as any).mollieInstance = instance);
+
 let cardHolder: any = null;
 let cardNumber: any = null;
 let expiryDate: any = null;
@@ -100,9 +103,25 @@ useHead({
   ]
 });
 
-const initializeMollie = () => {
-  if (isMollieInitialized.value) return;
+const cleanUpMollieComponents = () => {
+    try {
+        if (cardHolder) { cardHolder.unmount(); cardHolder = null; }
+        if (cardNumber) { cardNumber.unmount(); cardNumber = null; }
+        if (expiryDate) { expiryDate.unmount(); expiryDate = null; }
+        if (verificationCode) { verificationCode.unmount(); verificationCode = null; }
+        isMollieInitialized.value = false;
+        console.log('Mollie components cleaned up');
+    } catch (e) {
+        console.warn('Error during Mollie cleanup', e);
+    }
+};
+
+const initializeMollie = async () => {
+  // Always clean up potential previous instances first
+  cleanUpMollieComponents();
   
+  await nextTick();
+
   if (typeof (window as any).Mollie === 'undefined') {
     console.error('Mollie JS not loaded');
     return;
@@ -117,12 +136,20 @@ const initializeMollie = () => {
   console.log('Initializing Mollie with profile:', profileId);
 
   try {
-      // Initialize Mollie
-      // @ts-ignore
-      mollie = (window as any).Mollie(profileId, {
-        locale: 'fr_FR', // Or dynamic based on locale
-        testmode: config.public.mollieTestMode === 'true' || config.public.mollieTestMode === true || config.public.mollieTestMode === 'enabled'
-      });
+      let mollie = getMollieInstance();
+
+      // Initialize Mollie if not already done
+      if (!mollie) {
+        console.log('Creating new Mollie instance');
+        // @ts-ignore
+        mollie = (window as any).Mollie(profileId, {
+            locale: 'fr_FR', // Or dynamic based on locale
+            testmode: config.public.mollieTestMode === 'true' || config.public.mollieTestMode === true || config.public.mollieTestMode === 'enabled'
+        });
+        setMollieInstance(mollie);
+      } else {
+        console.log('Using existing Mollie instance');
+      }
 
       const options = {
         styles: {
@@ -148,8 +175,10 @@ const initializeMollie = () => {
       const verificationCodeId = `verification-code-${uid}`;
 
       // Ensure elements exist before mounting
-      if (!document.getElementById(cardHolderId)) {
-          console.warn('Mollie mount points not found in DOM');
+      const holderEl = document.getElementById(cardHolderId);
+      if (!holderEl) {
+          console.warn('Mollie mount points not found in DOM, retrying in 100ms...');
+          setTimeout(initializeMollie, 100);
           return;
       }
 
@@ -201,14 +230,7 @@ onMounted(() => {
 });
 
 onUnmounted(() => {
-    try {
-        if (cardHolder) cardHolder.unmount();
-        if (cardNumber) cardNumber.unmount();
-        if (expiryDate) expiryDate.unmount();
-        if (verificationCode) verificationCode.unmount();
-    } catch (e) {
-        console.warn('Error cleanup Mollie components', e);
-    }
+    cleanUpMollieComponents();
 });
 
 const handleSubmit = async () => {
@@ -226,6 +248,7 @@ const handleSubmit = async () => {
     return;
   }
   
+  const mollie = getMollieInstance();
   if (!mollie) {
      console.error('Mollie instance is missing');
      paymentStatus.value = {
