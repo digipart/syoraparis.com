@@ -89,7 +89,7 @@ export default class MollieHelper extends PaymentHelper {
             value: total.toFixed(2),
           },
           orderId: this.cart.IdCart,
-          webhookUrl: 'https://sy.digipart.fr/api/payment/mollie/ipn',
+          webhookUrl: `${config.public.apiUrl}/payment/mollie/ipn`,
           description: 'Order #' + this.cart.IdCart,
           metadata: JSON.stringify({
             IdCart: this.cart.IdCart,
