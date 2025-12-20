@@ -28,6 +28,8 @@ export default defineEventHandler(async (event) => {
     // redirectUrl is required by Mollie even for direct card payments (for 3DS fallback)
     paymentBody.redirectUrl = redirectUrl || `${process.env.NUXT_PUBLIC_URL || 'https://syoraparis.com'}/order/accepted?orderid=${orderId}`;
 
+    console.log('Sending payload to Mollie:', JSON.stringify(paymentBody, null, 2));
+
     const response = await $fetch<any>('https://api.mollie.com/v2/payments', {
       method: 'POST',
       headers: {
@@ -37,16 +39,21 @@ export default defineEventHandler(async (event) => {
       body: paymentBody,
     });
 
-    return { 
-      success: true, 
+    return {
+      success: true,
       payment: response,
       paymentId: response?.id,
       status: response?.status,
     };
   } catch (error: any) {
+    console.error('Mollie API Error:', error);
+    if (error.data) {
+      console.error('Mollie Error Data:', JSON.stringify(error.data, null, 2));
+    }
     throw createError({
       statusCode: 400,
-      message: error.data?.message || error.message || 'Payment processing failed',
+      message: error.data?.detail || error.message || 'Payment processing failed',
+      data: error.data // Pass details to frontend
     });
   }
 });
