@@ -19,12 +19,10 @@ const submitForm = async () => {
   }
 };
 
-
 const countryStore = useCountryStore();
 const { countries } = toRefs(countryStore);
 
-const showFields = () => {
-};
+const showFields = () => {};
 
 const countriesOptions = computed(() => {
   return countries.value.map((country) => ({
@@ -98,9 +96,8 @@ defineExpose({
             :required="true"
             @onSelect="handleSelectAddress"
           />
-        
         </div>
-        <div >
+        <div>
           <div>
             <InputText
               id="postcode"
@@ -132,6 +129,7 @@ defineExpose({
               :selectOptions="countriesOptions"
               :required="true"
               :key="state.country"
+              searchable
             />
           </div>
         </div>

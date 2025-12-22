@@ -12,7 +12,9 @@
         >
           <span v-if="!isProcessing" class="button-content">
             <IconApplepay :size="4" />
-            <span class="button-text">{{ $t('tunnel.payment.applepay.button') }}</span>
+            <span class="button-text">{{
+              $t('tunnel.payment.applepay.button')
+            }}</span>
           </span>
           <span v-else>{{ $t('tunnel.payment.applepay.processing') }}</span>
         </BaseButton>
@@ -280,18 +282,9 @@ const handleApplePay = async () => {
   font-size: 14px;
   margin-top: 16px;
   text-align: center;
-
-  &.info {
-    background: #e3f2fd;
-    color: #1976d2;
-    border: 1px solid #90caf9;
-  }
-
-  &.success {
-    background: #e8f5e9;
-    color: #388e3c;
-    border: 1px solid #81c784;
-  }
+  color: #000000;
+  background-color: #fcfcfc;
+  border: 1px solid #d1d5db;
 
   &.error {
     background: #ffebee;

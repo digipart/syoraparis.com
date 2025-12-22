@@ -664,6 +664,7 @@ const fr = {
     prefix_required: 'Requis.',
     codepromo_invalid:
       "Désolé, ce code promo n'est pas valide. Veuillez vérifier et réessayer.",
+    recaptcha_required: 'Veuillez valider le reCAPTCHA.',
   },
 
   html: {

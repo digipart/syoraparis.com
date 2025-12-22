@@ -70,6 +70,7 @@ export default class ShopService extends Service {
     Email: string;
     Subject: string;
     Message: string;
+    RecaptchaToken: string;
   }) {
     try {
       const data = await this.$post<any>(`ticket/contact`, { options });
