@@ -70,58 +70,34 @@
 <script setup lang="ts">
 import MollieHelper from '~/helpers/payments/MollieHelper';
 import type { PaymentMethodType } from '~/types/PaymentType';
-
 const { t } = useI18n();
 const config = useRuntimeConfig();
-
 const emit = defineEmits<{
   error: [error: string];
 }>();
-
 const props = defineProps<{
   paymentMethod: PaymentMethodType;
 }>();
-
 const cartStore = useCartStore();
 const { cart } = toRefs(cartStore);
 const auth = useAuth();
 const { customer } = toRefs(auth);
-
 const { registerAndPrepareGuestAddress } = useCheckoutGuest();
-
 const checkoutStore = useCheckoutStore();
-
 const addressStore = useAddressStore();
 const { addressDelivery, addressInvoice } = toRefs(addressStore);
-
 const isProcessing = ref(false);
 const paymentStatus = ref<{ type: string; message: string } | null>(null);
-
 // Mollie references
 // We use a global variable on window to ensure singleton across component re-mounts
-const getMollieInstance = () => (window as any).mollieInstance;
-const setMollieInstance = (instance: any) =>
-  ((window as any).mollieInstance = instance);
-
+const getMollieInstance = () => mollie.value; // Use composable value
 let cardHolder: any = null;
 let cardNumber: any = null;
 let expiryDate: any = null;
 let verificationCode: any = null;
 const isMollieInitialized = ref(false);
 const uid = Math.random().toString(36).substring(7);
-
-useHead({
-  script: [
-    {
-      src: 'https://js.mollie.com/v1/mollie.js',
-      defer: true,
-      onload: () => {
-        initializeMollie();
-      },
-    },
-  ],
-});
-
+const { mollie, loadMollie } = useMollie();
 const cleanUpMollieComponents = () => {
   try {
     if (cardHolder) {
@@ -146,45 +122,17 @@ const cleanUpMollieComponents = () => {
     console.warn('Error during Mollie cleanup', e);
   }
 };
-
-const initializeMollie = async () => {
+const mountMollieComponents = async () => {
   // Always clean up potential previous instances first
   cleanUpMollieComponents();
 
   await nextTick();
-
-  if (typeof (window as any).Mollie === 'undefined') {
-    console.error('Mollie JS not loaded');
+  const mollieInst = mollie.value;
+  if (!mollieInst) {
+    console.error('Mollie instance not loaded when trying to mount components');
     return;
   }
-
-  const profileId = config.public.mollieProfileId;
-  if (!profileId) {
-    console.error('Mollie Profile ID is missing in config');
-    return;
-  }
-
-  console.log('Initializing Mollie with profile:', profileId);
-
   try {
-    let mollie = getMollieInstance();
-
-    // Initialize Mollie if not already done
-    if (!mollie) {
-      console.log('Creating new Mollie instance');
-      // @ts-ignore
-      mollie = (window as any).Mollie(profileId, {
-        locale: 'fr_FR', // Or dynamic based on locale
-        testmode:
-          config.public.mollieTestMode === 'true' ||
-          config.public.mollieTestMode === true ||
-          config.public.mollieTestMode === 'enabled',
-      });
-      setMollieInstance(mollie);
-    } else {
-      console.log('Using existing Mollie instance');
-    }
-
     const options = {
       styles: {
         base: {
@@ -202,32 +150,26 @@ const initializeMollie = async () => {
         },
       },
     };
-
     const cardHolderId = `card-holder-${uid}`;
     const cardNumberId = `card-number-${uid}`;
     const expiryDateId = `expiry-date-${uid}`;
     const verificationCodeId = `verification-code-${uid}`;
-
     // Ensure elements exist before mounting
     const holderEl = document.getElementById(cardHolderId);
     if (!holderEl) {
       console.warn(
         'Mollie mount points not found in DOM, retrying in 100ms...'
       );
-      setTimeout(initializeMollie, 100);
+      setTimeout(mountMollieComponents, 100);
       return;
     }
-
-    cardHolder = mollie.createComponent('cardHolder', options);
+    cardHolder = mollieInst.createComponent('cardHolder', options);
     cardHolder.mount('#' + cardHolderId);
-
-    cardNumber = mollie.createComponent('cardNumber', options);
+    cardNumber = mollieInst.createComponent('cardNumber', options);
     cardNumber.mount('#' + cardNumberId);
-
-    expiryDate = mollie.createComponent('expiryDate', options);
+    expiryDate = mollieInst.createComponent('expiryDate', options);
     expiryDate.mount('#' + expiryDateId);
-
-    verificationCode = mollie.createComponent('verificationCode', options);
+    verificationCode = mollieInst.createComponent('verificationCode', options);
     verificationCode.mount('#' + verificationCodeId);
 
     isMollieInitialized.value = true;
@@ -246,7 +188,6 @@ const initializeMollie = async () => {
         }
       });
     };
-
     addErrorListener(cardHolder, 'card-holder-error-' + uid);
     addErrorListener(cardNumber, 'card-number-error-' + uid);
     addErrorListener(expiryDate, 'expiry-date-error-' + uid);
@@ -254,59 +195,102 @@ const initializeMollie = async () => {
 
     console.log('Mollie components initialized successfully');
   } catch (e) {
-    console.error('Error initializing Mollie:', e);
+    console.error('Error initializing Mollie components:', e);
   }
 };
+onMounted(async () => {
+  try {
+    const profileId = config.public.mollieProfileId;
+    const isTestMode =
+      config.public.mollieTestMode === 'true' ||
+      config.public.mollieTestMode === true ||
+      config.public.mollieTestMode === 'enabled';
 
-onMounted(() => {
-  // If script is already loaded (e.g. navigation back)
-  if (typeof (window as any).Mollie !== 'undefined') {
-    initializeMollie();
+    console.log('Loading Mollie via singleton...');
+    await loadMollie(profileId, isTestMode);
+    console.log('Mollie loaded, mounting components...');
+    mountMollieComponents();
+  } catch (e) {
+    console.error('Failed to load Mollie', e);
   }
 });
-
 onUnmounted(() => {
   cleanUpMollieComponents();
 });
-
 const handleSubmit = async () => {
-  console.log('handleSubmit called');
-
-  const allValid = await checkoutStore.validateCheckoutBeforePayment();
-  console.log('Validation result:', allValid);
-
-  if (!allValid) {
-    const firstError = document.querySelector(
-      '.formShipping .text-red-500, .inputText.error, .v-select.error'
-    );
-    console.log('Validation error found:', firstError);
-    firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    return;
-  }
-
-  const mollie = getMollieInstance();
-  if (!mollie) {
-    console.error('Mollie instance is missing');
-    paymentStatus.value = {
-      type: 'error',
-      message: 'Payment system not initialized. Please refresh the page.',
-    };
-    return;
-  }
-
-  if (isProcessing.value) {
-    console.log('Already processing');
-    return;
-  }
-
-  isProcessing.value = true;
-  paymentStatus.value = null;
+  console.log('handleSubmit called - starting payment flow');
 
   try {
-    console.log('Creating Mollie token...');
-    // Create token
-    const { token, error } = await mollie.createToken();
-    console.log('Token created:', token);
+    const allValid = await checkoutStore.validateCheckoutBeforePayment();
+    console.log('Validation result (validateCheckoutBeforePayment):', allValid);
+    console.log('Checkout errors:', checkoutStore.checkoutErrors);
+    if (!allValid) {
+      console.warn('Validation failed. Searching for error elements...');
+      await nextTick(); // Wait for DOM updates
+      const firstError = document.querySelector(
+        '.formShipping .text-red-500, .inputText.error, .v-select.error'
+      );
+      console.log('Validation error DOM element found:', firstError);
+
+      if (firstError) {
+        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      } else {
+        // Fallback if no visual error is found but validation failed
+        console.error('Validation failed but no error element found in DOM.');
+        alert(
+          t('tunnel.payment.error.check_form') ||
+            'Please check your information.'
+        );
+      }
+      return;
+    }
+
+    const mollie = getMollieInstance();
+    // Check initialization status first
+    if (!isMollieInitialized.value || !mollie) {
+      console.error('Mollie instance not fully initialized', {
+        initialized: isMollieInitialized.value,
+        hasInstance: !!mollie,
+      });
+      paymentStatus.value = {
+        type: 'error',
+        message:
+          t('tunnel.payment.error.init') ||
+          'Payment system not ready. Please refresh.',
+      };
+      return;
+    }
+    if (isProcessing.value) {
+      console.log('Already processing payment, ignoring click.');
+      return;
+    }
+    isProcessing.value = true;
+    paymentStatus.value = null;
+    console.log('Creating Mollie token from components...');
+    // Create token with timeout to prevent hanging
+    const createTokenPromise = mollie.createToken();
+    const timeoutPromise = new Promise((_, reject) =>
+      setTimeout(
+        () => reject(new Error('Mollie createToken timed out after 10s')),
+        10000
+      )
+    );
+    let tokenResult;
+    try {
+      tokenResult = await Promise.race([createTokenPromise, timeoutPromise]);
+    } catch (err: any) {
+      console.error('Token creation race error:', err);
+      paymentStatus.value = {
+        type: 'error',
+        message:
+          t('tunnel.payment.error.timeout') ||
+          'Payment system did not respond in time. Please try again.',
+      };
+      isProcessing.value = false;
+      return;
+    }
+    const { token, error } = tokenResult;
+    console.log('Mollie createToken result:', { token, error });
 
     if (error) {
       console.error('Token creation error:', error);
@@ -317,21 +301,31 @@ const handleSubmit = async () => {
       isProcessing.value = false;
       return;
     }
-
+    if (!token) {
+      console.error(
+        'No token received from Mollie but no error object returned.'
+      );
+      paymentStatus.value = {
+        type: 'error',
+        message: 'Payment authorization failed.',
+      };
+      isProcessing.value = false;
+      return;
+    }
     paymentStatus.value = {
       type: 'info',
       message: t('tunnel.payment.card.preparing'),
     };
-
+    console.log('Registering/Preparing guest address...');
     await registerAndPrepareGuestAddress();
-
+    console.log('Guest address prepared.');
     const mollieHelper = new MollieHelper({
       cart: cart.value,
       customer: customer.value || {},
     });
 
     // Use startPayement which handles the token
-    console.log('Starting payment via helper...');
+    console.log('Starting payment via helper (API call)...');
     const response = await mollieHelper.startPayement({
       token: token,
       paymentMethod: props.paymentMethod,
@@ -339,19 +333,17 @@ const handleSubmit = async () => {
       addressInvoice: addressInvoice.value,
     });
 
-    console.log('Payment response:', response);
-
+    console.log('Payment API response:', response);
     // Check if payment object exists
     const payment = response?.payment || response;
     const links = payment?._links;
 
-    console.log('Redirecting check:', {
+    console.log('Redirecting logic check:', {
       hasPayment: !!payment,
       hasLinks: !!links,
       checkoutHref: links?.checkout?.href,
       status: payment?.status,
     });
-
     // Redirect to Mollie checkout if needed (mostly for 3DS)
     if (links?.checkout?.href) {
       console.log('Redirecting to 3DS/Checkout:', links.checkout.href);
@@ -375,13 +367,16 @@ const handleSubmit = async () => {
         const orderId = cart.value.IdCart;
         window.location.href = `${config.public.url}/order/accepted?orderid=${orderId}&init=1`;
       } else {
-        console.error('No redirect URL found', payment);
-        throw new Error(t('tunnel.payment.error.payment_url'));
+        console.error('No redirect URL found in response', payment);
+        throw new Error(
+          t('tunnel.payment.error.payment_url') ||
+            'No redirection URL provided by payment gateway.'
+        );
       }
     }
   } catch (error: any) {
     isProcessing.value = false;
-    console.error('Payment failed', error);
+    console.error('Payment failed (exception caught):', error);
     paymentStatus.value = {
       type: 'error',
       message:

@@ -5,9 +5,12 @@ const { checkoutCustomer, checkoutDeliveryOption } = toRefs(checkoutStore);
 const formDeliveryStore = useFormDeliveryStore();
 const { state, v$ } = toRefs(formDeliveryStore);
 
-
 const appStore = useAppStore();
 const { currencyIsoCode } = toRefs(appStore);
+
+const addressStore = useAddressStore();
+const { addressDelivery, addressInvoice } = toRefs(addressStore);
+
 
 const shippingStore = useShippingStore();
 const { carrier: allCarriers, toshow } = toRefs(shippingStore);
@@ -17,7 +20,7 @@ const { state: invoiceState } = toRefs(formInvoiceStore);
 
 const cartStore = useCartStore();
 const { totalToPay, carrier, totalProductQuantity } = toRefs(cartStore);
-const { updateShipping } = cartStore;
+const { updateShipping,removeCarrier } = cartStore;
 
 const paymentRefreshing = ref(false);
 
@@ -27,22 +30,6 @@ const valide = computed(() => {
   return totalProductQuantity.value && carrier.value;
 });
 
-const homeCarriers = computed(() => {
-  if (allCarriers.value && allCarriers.value.Home) {
-    return { Home: allCarriers.value.Home };
-  }
-  return {};
-});
-
-const pickupCarriers = computed(() => {
-  if (!allCarriers.value) {
-    return {};
-  }
-  const carriers = { ...allCarriers.value };
-  delete carriers.Home;
-  return carriers;
-});
-
 const refreshCodePromo = () => {
   paymentRefreshing.value = true;
   setTimeout(() => {
@@ -50,7 +37,6 @@ const refreshCodePromo = () => {
   }, 100);
 };
 
-const ip = useIp();
 const setDelivredOption = async (
   optionType: 'home' | 'relayPoint' | 'store'
 ) => {
@@ -77,8 +63,51 @@ const handleSelectPickupAddress = async (e: any) => {
   invoiceState.value.country = e.country;
 };
 
+const setCheckouCustomer = () => {
+  if (checkoutDeliveryOption.value === 'home') {
+    if (addressDelivery.value) {
+      checkoutCustomer.value.deliveryAddress.address =
+        addressDelivery.value.Address1 || '';
+      checkoutCustomer.value.deliveryAddress.city =
+        addressDelivery.value.City || '';
+      checkoutCustomer.value.deliveryAddress.postalCode =
+        addressDelivery.value.Postcode || '';
+      checkoutCustomer.value.deliveryAddress.country =
+        addressDelivery.value.CountryIsoCode || '';
+      checkoutCustomer.value.deliveryAddress.firstname =
+        addressDelivery.value.Firstname || '';
+      checkoutCustomer.value.deliveryAddress.lastname =
+        addressDelivery.value.Lastname || '';
+      checkoutCustomer.value.deliveryAddress.phone =
+        addressDelivery.value.MobilePhone || '';
+    }
+
+    if (addressInvoice.value) {
+      checkoutCustomer.value.invoiceAddress.address =
+        addressInvoice.value.Address1 || '';
+      checkoutCustomer.value.invoiceAddress.city =
+        addressInvoice.value.City || '';
+      checkoutCustomer.value.invoiceAddress.postalCode =
+        addressInvoice.value.Postcode || '';
+      checkoutCustomer.value.invoiceAddress.country =
+        addressInvoice.value.CountryIsoCode || '';
+      checkoutCustomer.value.invoiceAddress.firstname =
+        addressInvoice.value.Firstname || '';
+      checkoutCustomer.value.invoiceAddress.lastname =
+        addressInvoice.value.Lastname || '';
+      checkoutCustomer.value.invoiceAddress.phone =
+        addressInvoice.value.MobilePhone || '';
+    }
+
+
+  }
+};
+
 onMounted(() => {
-  updateShipping({ idCarrier: 0 });
+  setCheckouCustomer();
+  updateShipping({ idCarrier: 0 }).then(() => {
+    removeCarrier();
+  });
 });
 
 watch(checkoutCustomer.value.invoiceAddress, () => {

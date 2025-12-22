@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import ShippingService from '~/services/ShippingService';
-import type { CarrierType } from '~/types/ShippingType';
 
-const { t } = useI18n();
-const localePath = useLocalePath();
 
 const appStore = useAppStore();
 const { currencyIsoCode } = toRefs(appStore);
@@ -29,22 +25,6 @@ const pickupAddress = ref('');
 
 const valide = computed(() => {
   return totalProductQuantity.value && addressDelivery.value && carrier.value;
-});
-
-const homeCarriers = computed(() => {
-  if (allCarriers.value && allCarriers.value.Home) {
-    return { Home: allCarriers.value.Home };
-  }
-  return {};
-});
-
-const pickupCarriers = computed(() => {
-  if (!allCarriers.value) {
-    return {};
-  }
-  const carriers = { ...allCarriers.value };
-  delete carriers.Home;
-  return carriers;
 });
 
 const refreshCodePromo = () => {
@@ -123,6 +103,7 @@ onMounted(() => {
 
 <template>
   <div class="">
+    {{ }}
     <!-- <NuxtLink
       to="/"
       class="hidden lg:inline-flex items-center cursor-pointer text-sm mb-2"

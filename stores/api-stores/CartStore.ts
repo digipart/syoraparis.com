@@ -251,6 +251,10 @@ export const useCartStore = defineStore('cartStore', () => {
     });
   };
 
+  const removeCarrier = () => {
+    carrier.value = null;
+  };
+
   return {
     cart,
     cartId,
@@ -272,5 +276,6 @@ export const useCartStore = defineStore('cartStore', () => {
     removeFromCart,
     updateShipping,
     newIdCart,
+    removeCarrier,
   };
 });
