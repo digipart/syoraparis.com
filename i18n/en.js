@@ -659,6 +659,7 @@ const en = {
     prefix_required: 'Required.',
     codepromo_invalid:
       'Sorry, this promo code is not valid. Please check and try again.',
+    recaptcha_required: 'Please complete the reCAPTCHA verification.',
   },
 
   html: {

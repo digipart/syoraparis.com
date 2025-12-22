@@ -205,6 +205,7 @@ defineExpose({
             :selectOptions="countriesOptions"
             :key="state.country"
             :border="inputBorder"
+            searchable
           />
         </div>
 

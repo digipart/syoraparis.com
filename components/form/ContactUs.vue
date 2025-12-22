@@ -5,6 +5,64 @@ import ShopService from '~/services/ShopService';
 
 const { t } = useI18n();
 const localePath = useLocalePath();
+const config = useRuntimeConfig();
+
+const recaptchaContainer = ref<HTMLElement | null>(null);
+const recaptchaToken = ref<string>('');
+const recaptchaError = ref<string>('');
+const recaptchaWidgetId = ref<number | null>(null);
+
+declare global {
+  interface Window {
+    grecaptcha: any;
+    onRecaptchaLoad: () => void;
+  }
+}
+
+const loadRecaptchaScript = () => {
+  if (typeof window !== 'undefined' && !window.grecaptcha) {
+    const script = document.createElement('script');
+    script.src = 'https://www.google.com/recaptcha/api.js?onload=onRecaptchaLoad&render=explicit';
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+  } else if (window.grecaptcha?.render) {
+    renderRecaptcha();
+  }
+};
+
+const renderRecaptcha = () => {
+  if (recaptchaContainer.value && window.grecaptcha?.render && recaptchaWidgetId.value === null) {
+    recaptchaWidgetId.value = window.grecaptcha.render(recaptchaContainer.value, {
+      sitekey: config.public.recaptchaSiteKey,
+      callback: (response: string) => {
+        recaptchaToken.value = response;
+        recaptchaError.value = '';
+      },
+      'expired-callback': () => {
+        recaptchaToken.value = '';
+      },
+    });
+  }
+};
+
+const resetRecaptcha = () => {
+  if (window.grecaptcha && recaptchaWidgetId.value !== null) {
+    window.grecaptcha.reset(recaptchaWidgetId.value);
+    recaptchaToken.value = '';
+  }
+};
+
+onMounted(() => {
+  window.onRecaptchaLoad = renderRecaptcha;
+  loadRecaptchaScript();
+});
+
+onBeforeUnmount(() => {
+  if (typeof window !== 'undefined' && window.onRecaptchaLoad) {
+    window.onRecaptchaLoad = undefined as any;
+  }
+});
 
 const state = reactive({
   firstname: '',
@@ -41,8 +99,13 @@ const loading = ref(false);
 const success = ref(false);
 
 const submitForm = async () => {
-
   const isFormCorrect = await v$.value.$validate();
+  
+  if (!recaptchaToken.value) {
+    recaptchaError.value = t('error.recaptcha_required');
+    return;
+  }
+
   if (isFormCorrect) {
     loading.value = true;
 
@@ -55,6 +118,7 @@ const submitForm = async () => {
         Email: state.email,
         Subject: state.subject,
         Message: state.message,
+        RecaptchaToken: recaptchaToken.value,
       })
       .then((data) => {
         success.value = true;
@@ -64,6 +128,7 @@ const submitForm = async () => {
         state.email = '';
         state.subject = '';
         state.message = '';
+        resetRecaptcha();
       })
       .catch()
       .finally(() => {
@@ -118,6 +183,12 @@ const submitForm = async () => {
             :errors="v$.message?.$errors"
             :label="$t('label.message')"
           />
+        </div>
+        <div class="col-span-12 mb-4">
+          <div ref="recaptchaContainer"></div>
+          <p v-if="recaptchaError" class="text-red-500 text-sm mt-1">
+            {{ recaptchaError }}
+          </p>
         </div>
         <div class="col-span-12">
           <BaseButton

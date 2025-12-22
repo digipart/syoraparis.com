@@ -155,7 +155,7 @@ const scrollToElement = (index: number) => {
               @click="showZoomMedia(media.key)"
             />
             <CardProductVideo
-              v-else-if="group.length"
+              v-else-if="media.type === 'video' && group.length"
               :imagePlaceHolder="
                 chunkedMedias[1][0] ? chunkedMedias[1][0].src : undefined
               "
