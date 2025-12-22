@@ -28,7 +28,7 @@ const { videoUrl, subTitle } = defineProps({
       allow="autoplay; fullscreen"
       allowfullscreen
       :title="subTitle"
-      class="h-full w-full relative z-10"
+      class="h-full w-full relative z-10 bg-white pointer-events-none"
     ></iframe>
   </div>
 </template>
@@ -37,6 +37,6 @@ const { videoUrl, subTitle } = defineProps({
 $cardProductVideo: '.cardProductVideo';
 
 #{$cardProductVideo} {
-  @apply pointer-events-none aspect-[1500/2250];
+  @apply relative aspect-[480/660];
 }
 </style>

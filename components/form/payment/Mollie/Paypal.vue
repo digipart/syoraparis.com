@@ -137,7 +137,7 @@ const handlePayPalPayment = async () => {
       paymentMethod: props.paymentMethod,
       addressDelivery: addressDelivery.value,
       addressInvoice: addressInvoice.value,
-    }); 
+    });
 
     if (paymentUrl) {
       window.location.href = paymentUrl;
@@ -150,12 +150,15 @@ const handlePayPalPayment = async () => {
     paymentStatus.value = {
       type: 'error',
       message:
-        error.data?.message ||
-        error.message ||
-        t('tunnel.payment.card.failed'),
+        error.data?.message || error.message || t('tunnel.payment.card.failed'),
     };
 
-    emit('error', error.data?.message || error.message || t('tunnel.payment.error.processing'));
+    emit(
+      'error',
+      error.data?.message ||
+        error.message ||
+        t('tunnel.payment.error.processing')
+    );
     isProcessing.value = false;
   }
 };
@@ -224,18 +227,9 @@ const handlePayPalPayment = async () => {
   font-size: 14px;
   margin-top: 16px;
   text-align: center;
-
-  &.info {
-    background: #e3f2fd;
-    color: #1976d2;
-    border: 1px solid #90caf9;
-  }
-
-  &.success {
-    background: #e8f5e9;
-    color: #388e3c;
-    border: 1px solid #81c784;
-  }
+  color: #000000;
+  background-color: #fcfcfc;
+  border: 1px solid #d1d5db;
 
   &.error {
     background: #ffebee;

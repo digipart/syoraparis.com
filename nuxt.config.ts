@@ -33,6 +33,7 @@ export default defineNuxtConfig({
       almaClientId: process.env.ALMA_CLIENT_ID,
       almaToken: process.env.ALMA_TOKEN,
       gtmId: process.env.GTM_ID,
+      recaptchaSiteKey: process.env.RECAPTCHA_SITE_KEY,
       mollieProfileId: process.env.MOLLIE_PROFILE_ID,
       mollieTestMode: process.env.MOLLIE_TEST_MODE,
 

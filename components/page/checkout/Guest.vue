@@ -232,6 +232,7 @@ defineExpose({
                   :required="true"
                   :key="state.country"
                   border
+                  searchable
                 />
               </div>
               <div class="col-span-12 md:col-span-6">
