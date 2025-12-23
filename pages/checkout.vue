@@ -14,15 +14,21 @@ const auth = useAuth();
 const { isLoggedIn, isGuest } = toRefs(auth);
 
 const cartStore = useCartStore();
-const { totalProductQuantity, loaded } = toRefs(cartStore);
-
-const addressStore = useAddressStore();
-const { fetchAddresses } = addressStore;
+const { totalProductQuantity, loaded, cart } = toRefs(cartStore);
 
 const step = ref(1);
 const loading = ref(true);
 
 const route = useRoute();
+const router = useRouter();
+const localepath = useLocalePath();
+if (cart.value.Total?.Product?.Quantity === 0) {
+  router.replace(localepath('/'));
+}
+
+const addressStore = useAddressStore();
+const { fetchAddresses } = addressStore;
+
 if (route.query.step) {
   step.value = Number(route.query.step);
 }
