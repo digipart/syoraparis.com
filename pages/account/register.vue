@@ -1,6 +1,5 @@
 <script setup lang="ts">
 definePageMeta({
-  layout: 'empty',
   guestOnly: true,
   keepalive: false
 });
