@@ -11,7 +11,6 @@ const { currencyIsoCode } = toRefs(appStore);
 const addressStore = useAddressStore();
 const { addressDelivery, addressInvoice } = toRefs(addressStore);
 
-
 const shippingStore = useShippingStore();
 const { carrier: allCarriers, toshow } = toRefs(shippingStore);
 
@@ -20,7 +19,7 @@ const { state: invoiceState } = toRefs(formInvoiceStore);
 
 const cartStore = useCartStore();
 const { totalToPay, carrier, totalProductQuantity } = toRefs(cartStore);
-const { updateShipping,removeCarrier } = cartStore;
+const { updateShipping, removeCarrier } = cartStore;
 
 const paymentRefreshing = ref(false);
 
@@ -98,8 +97,6 @@ const setCheckouCustomer = () => {
       checkoutCustomer.value.invoiceAddress.phone =
         addressInvoice.value.MobilePhone || '';
     }
-
-
   }
 };
 
@@ -295,10 +292,11 @@ watch(state.value, () => {
             checkout
           />
           <PageCheckoutMyRewards @onCodePromoApplied="refreshCodePromo" />
-          <div>
+          <div class="mt-4">
             <FormCodePromo @onCodePromoApplied="refreshCodePromo" />
           </div>
-          <PageTunnelOrderSummary class="mt-5" />
+          <hr class="mb-5" />
+          <PageTunnelOrderSummary />
         </div>
       </div>
     </div>

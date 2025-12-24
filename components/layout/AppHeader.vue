@@ -190,5 +190,16 @@ const topBannerClose = () => {
     img {
     }
   }
+
+  .baseButton.baseButton--icon {
+    @screen smMax {
+      @apply h-8 w-8;
+    }
+  }
+  .baseButton .textOnTop {
+    @screen smMax {
+      @apply top-0.5 right-0.5;
+    }
+  }
 }
 </style>

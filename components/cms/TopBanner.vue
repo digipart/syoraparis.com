@@ -18,11 +18,11 @@
         :speed="1000"
       >
         <swiper-slide v-for="banner in topBanner" :key="banner.id">
-          <LayoutContainer class="text-center text-sm lg:text-base">
+          <LayoutContainer class="text-center text-xs lg:text-base">
             <NuxtLink
               v-if="banner.link"
               :to="localePath(banner.link)"
-              class="block py-2 h-10"
+              class="py-2 h-10 flex items-center justify-center"
             >
               {{ banner.text }}
             </NuxtLink>

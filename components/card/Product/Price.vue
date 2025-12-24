@@ -40,11 +40,11 @@ const promotionalPrice = computed(() => {
         {{ promotionalPrice?.PriceTaxIncl?.toFixed(2) }}{{ currencySign }}
       </b>
 
-      <span class="line-through font-light">
+      <span class="line-through font-light text-[90%]">
         {{ regularPrice?.PriceTaxIncl?.toFixed(2) }}{{ currencySign }}
       </span>
 
-      <span class="inline-block font-light">
+      <span class="inline-block font-light bg-black text-white px-1 text-[90%] translate-y-[-1px]">
         {{ promotionalPrice?.PriceRuleName }}
       </span>
     </template>
@@ -71,7 +71,7 @@ const promotionalPrice = computed(() => {
   //   }
   // }
   &.medium {
-    @apply text-xs;
+    @apply text-sm;
     @screen lg {
       @apply text-base;
     }
