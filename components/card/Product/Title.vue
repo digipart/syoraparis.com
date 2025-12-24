@@ -33,7 +33,7 @@ const title = computed(() => {
   <BaseHeadLine
     :name="tag"
     :size="size"
-    class="font-normal uppercase"
+    class="font-medium uppercase"
     :lines="lines"
   >
     {{ title }}

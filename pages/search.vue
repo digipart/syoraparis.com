@@ -8,6 +8,9 @@ useHead(() => ({
   description: () => t('pages.search.description'),
 }));
 
+const formSearchStore = useFormSearchStore();
+const { state, v$ } = toRefs(formSearchStore);
+
 // Store and router setup
 const searchStore = useSearchStore();
 const { searchData, searchProducts } = toRefs(searchStore);
@@ -17,7 +20,7 @@ const router = useRouter();
 const localePath = useLocalePath();
 
 // Search state management
-const term = ref(route.query.term as string);
+state.value.search = route.query.term as string;
 const page = ref(0);
 const numberProductToShow = ref(32);
 
@@ -31,7 +34,7 @@ const loadingMoreBtn = ref<HTMLElement | null>(null);
  * Resets pagination and updates URL query params
  */
 const submitForm = async (text: string) => {
-  term.value = text;
+  state.value.search = text;
   page.value = 0;
   searchProducts.value = [];
   loadData().then(() => {
@@ -39,7 +42,7 @@ const submitForm = async (text: string) => {
       localePath({
         name: 'search',
         query: {
-          term: term.value,
+          term: state.value.search,
         },
       })
     );
@@ -54,9 +57,9 @@ const loadData = () => {
   isLoadingMore.value = true;
   page.value++;
   const offset = (page.value - 1) * numberProductToShow.value;
-  
+
   return fetchSearch({
-    Term: term.value,
+    Term: state.value.search,
     Offset: offset,
     Limit: numberProductToShow.value,
   })
@@ -88,8 +91,9 @@ const handleScroll = () => {
 // Lifecycle hooks
 onMounted(() => {
   // Initial search if term exists in URL
-  if (term.value) {
-    submitForm(term.value);
+  if (route.query.term) {
+    state.value.search = route.query.term as string;
+    submitForm(state.value.search);
   }
 
   // Setup infinite scroll
@@ -104,6 +108,7 @@ onUnmounted(() => {
     window.removeEventListener('scroll', handleScroll);
   }
 });
+
 </script>
 
 <template>

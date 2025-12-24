@@ -37,6 +37,6 @@ const { videoUrl, subTitle } = defineProps({
 $cardProductVideo: '.cardProductVideo';
 
 #{$cardProductVideo} {
-  @apply relative aspect-[480/660];
+  @apply relative aspect-[1509/2250];
 }
 </style>

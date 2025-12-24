@@ -30,7 +30,6 @@ const refreshCodePromo = async () => {
       :key="product.IdProductAttribute"
     >
       <CardCartItem :product="product" :editable="editable" :checkout="checkout" />
-      <hr class="my-4" />
     </div>
     <div class="flex flex-col gap-3">
       <CardCartPromoCode
@@ -47,7 +46,7 @@ const refreshCodePromo = async () => {
 <style lang="scss">
 $cartItems: '.cartItems';
 #{$cartItems} {
-  @apply flex flex-col;
+  @apply flex flex-col gap-4;
 
   &-item {
     &:last-child {

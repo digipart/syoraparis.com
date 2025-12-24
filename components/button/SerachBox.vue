@@ -23,13 +23,15 @@ const localePath = useLocalePath();
 
 const isVisible = ref(false);
 const loading = ref(false);
-const term = ref('');
+
+const formSearchStore = useFormSearchStore();
+const { state, v$ } = toRefs(formSearchStore);
 
 const searchProducts = ref<ProductType[]>([]);
 
 const search = async () => {
   fetchSearch({
-    Term: term.value,
+    Term: state.value.search,
     Offset: 0,
     Limit: 20,
   })
@@ -57,7 +59,7 @@ const submitSearch = () => {
     localePath({
       name: 'search',
       query: {
-        term: term.value,
+        term: state.value.search,
       },
     })
   );
@@ -94,7 +96,7 @@ const submitSearch = () => {
                 id="searchBoxInputModal"
                 border
                 :placeholder="$t('label.looking_for')"
-                v-model="term"
+                v-model="state.search"
                 @input="handleChange"
               >
                 <template #icon>
@@ -179,7 +181,7 @@ $searchModal: '.searchModal';
       }
       input {
         // @screen mdMax {
-        @apply h-14 !border-black border-t-0 border-b !border-r-0 !border-l-0;
+        @apply h-14 !border-black border-t-0 border-b !border-r-0 !border-l-0 pt-1.5;
         // }
       }
     }
