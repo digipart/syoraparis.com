@@ -1,7 +1,6 @@
 <script setup lang="ts">
-const formValidate = useFormValidateStore();
-const { state, v$, fields } = toRefs(formValidate);
-fields.value = ['search'];
+const formSearchStore = useFormSearchStore();
+const { state, v$ } = toRefs(formSearchStore);
 
 const emit = defineEmits(['onSubmit']);
 
@@ -47,6 +46,7 @@ const submitForm = async () => {
 input {
   &#searchBoxInput {
     padding-right: 7.5rem;
+    @apply py-3.5;
   }
 }
 </style>

@@ -85,7 +85,7 @@ onUnmounted(() => {
         <LayoutBreadCrumb :items="breadcrumbItems" />
       </div>
       <div class="relative mb-3 pr-8">
-        <CardProductTitle :product="product" size="lg" tag="h1" class="mb-0" />
+        <CardProductTitle :product="product" size="lg" tag="h1" class="mb-2" :lines="3" />
         <div class="block text-xs mb-1 font-normal">
           <span class="text-gray-888 font-light">
             {{ $t('label.ref') }} :
@@ -94,7 +94,7 @@ onUnmounted(() => {
             {{ product.Reference }}
           </span>
         </div>
-        <div class="text-xs mb-1 lg:mb-4 font-normal">
+        <div class="text-xs mb-4 lg:mb-4 font-normal">
           <span class="text-gray-888 font-light">
             {{ $t('label.brand') }} :
           </span>

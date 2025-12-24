@@ -237,7 +237,7 @@ const variantSelected = () => {
         }"
       >
         <div class="flex-1">
-          <CardProductTitle @click="redirect" :product="currentProduct" />
+          <CardProductTitle @click="redirect" :product="currentProduct"/>
           <CardProductPrice :product="currentProduct" :size="size" />
           <div
             v-if="btnRemoveFromCart && productInCart()"
@@ -310,7 +310,7 @@ $cardProduct: '.cardProduct';
     // };
   }
   &-price {
-    @apply flex items-center gap-x-1 flex-wrap;
+    @apply flex items-baseline gap-x-2 flex-wrap;
   }
   &-showbody {
     @apply absolute bottom-2 right-2 z-10;

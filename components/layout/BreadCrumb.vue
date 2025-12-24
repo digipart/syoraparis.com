@@ -1,5 +1,4 @@
 <script setup lang="ts">
-
 export type BreadCrumbType = {
   link?: string;
   text: string;
@@ -57,6 +56,13 @@ const bc = computed((): BreadCrump[] => {
   text-xs;
   &-item {
     @apply pr-5 relative;
+    &:last-child {
+      overflow: hidden;
+      display: -webkit-box;
+      -webkit-line-clamp: 1;
+      line-clamp: 1;
+      -webkit-box-orient: vertical;
+    }
   }
   &-icon {
     @apply absolute right-0 top-1/2 -translate-y-1/2;
