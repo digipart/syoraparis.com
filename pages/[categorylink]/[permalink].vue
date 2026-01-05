@@ -83,77 +83,185 @@ const videos = computed(() => {
 const mediasXS = computed((): MediaType[] => {
   const media: MediaType[] = [];
   let key = 0;
+  
+  // Find video with cover=true
+  const coverVideo = videos.value?.find(video => video.Cover === true);
+  // Find image with cover=true
+  const coverImage = imagesXSmall.value?.find(image => image.Cover === true);
+  
+  // First priority: video with cover=true
+  if (coverVideo) {
+    media.push({
+      src: coverVideo.Src,
+      type: 'video',
+      key: key++,
+    });
+  }
+  
+  // Add all images, skipping the cover image as it's already added
   if (imagesXSmall.value) {
-    imagesXSmall.value.map((image, index) => {
-      media.push({
-        src: image.Src,
-        type: 'image',
-        key: key++,
-      });
-      if (index === 0) {
-        if (videos.value) {
-          videos.value.map((video) => {
-            media.push({
-              src: video.Src,
-              type: 'video',
-              key: key++,
-            });
-          });
-        }
+    imagesXSmall.value.forEach(image => {
+      // Skip the cover image if we already added it
+      if (coverImage && image.Src === coverImage.Src && coverVideo) {
+        return;
+      }
+      
+      // If this is a cover image and no cover video exists, put it first
+      if (image.Cover === true && !coverVideo && media.length === 0) {
+        media.unshift({
+          src: image.Src,
+          type: 'image',
+          key: key++,
+        });
+      } else {
+        media.push({
+          src: image.Src,
+          type: 'image',
+          key: key++,
+        });
       }
     });
   }
+  
+  // Add remaining videos that aren't the cover video
+  if (videos.value) {
+    videos.value.forEach(video => {
+      // Skip the cover video as it's already added
+      if (coverVideo && video.Src === coverVideo.Src) {
+        return;
+      }
+      
+      media.push({
+        src: video.Src,
+        type: 'video',
+        key: key++,
+      });
+    });
+  }
+  
   return media;
 });
 const medias = computed((): MediaType[] => {
   const media: MediaType[] = [];
   let key = 0;
+  
+  // Find video with cover=true
+  const coverVideo = videos.value?.find(video => video.Cover === true);
+  // Find image with cover=true
+  const coverImage = imagesLarge.value?.find(image => image.Cover === true);
+  
+  // First priority: video with cover=true
+  if (coverVideo) {
+    media.push({
+      src: coverVideo.Src,
+      type: 'video',
+      key: key++,
+    });
+  }
+  
+  // Add all images, skipping the cover image as it's already added
   if (imagesLarge.value) {
-    imagesLarge.value.map((image, index) => {
-      if (index === 0) {
-        if (videos.value) {
-          videos.value.map((video) => {
-            media.push({
-              src: video.Src,
-              type: 'video',
-              key: key++,
-            });
-          });
-        }
+    imagesLarge.value.forEach(image => {
+      // Skip the cover image if we already added it
+      if (coverImage && image.Src === coverImage.Src && coverVideo) {
+        return;
       }
+      
+      // If this is a cover image and no cover video exists, put it first
+      if (image.Cover === true && !coverVideo && media.length === 0) {
+        media.unshift({
+          src: image.Src,
+          type: 'image',
+          key: key++,
+        });
+      } else {
+        media.push({
+          src: image.Src,
+          type: 'image',
+          key: key++,
+        });
+      }
+    });
+  }
+  
+  // Add remaining videos that aren't the cover video
+  if (videos.value) {
+    videos.value.forEach(video => {
+      // Skip the cover video as it's already added
+      if (coverVideo && video.Src === coverVideo.Src) {
+        return;
+      }
+      
       media.push({
-        src: image.Src,
-        type: 'image',
+        src: video.Src,
+        type: 'video',
         key: key++,
       });
     });
   }
+  
   return media;
 });
 
 const mediasXl = computed((): MediaType[] => {
   const media: MediaType[] = [];
   let key = 0;
+  
+  // Find video with cover=true
+  const coverVideo = videos.value?.find(video => video.Cover === true);
+  // Find image with cover=true
+  const coverImage = imagesXLarge.value?.find(image => image.Cover === true);
+  
+  // First priority: video with cover=true
+  if (coverVideo) {
+    media.push({
+      src: coverVideo.Src,
+      type: 'video',
+      key: key++,
+    });
+  }
+  
+  // Add all images, skipping the cover image as it's already added
   if (imagesXLarge.value) {
-    imagesXLarge.value.map((image, index) => {
-      if (index === 0) {
-        if (videos.value) {
-          videos.value.map((video) => {
-            media.push({
-              src: video.Src,
-              type: 'video',
-              key: key++,
-            });
-          });
-        }
+    imagesXLarge.value.forEach(image => {
+      // Skip the cover image if we already added it
+      if (coverImage && image.Src === coverImage.Src && coverVideo) {
+        return;
       }
+      
+      // If this is a cover image and no cover video exists, put it first
+      if (image.Cover === true && !coverVideo && media.length === 0) {
+        media.unshift({
+          src: image.Src,
+          type: 'image',
+          key: key++,
+        });
+      } else {
+        media.push({
+          src: image.Src,
+          type: 'image',
+          key: key++,
+        });
+      }
+    });
+  }
+  
+  // Add remaining videos that aren't the cover video
+  if (videos.value) {
+    videos.value.forEach(video => {
+      // Skip the cover video as it's already added
+      if (coverVideo && video.Src === coverVideo.Src) {
+        return;
+      }
+      
       media.push({
-        src: image.Src,
-        type: 'image',
+        src: video.Src,
+        type: 'video',
         key: key++,
       });
     });
   }
+  
   return media;
 });
 const title = computed(() => {
