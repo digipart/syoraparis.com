@@ -165,11 +165,14 @@ onUnmounted(() => {
       <div class="mb-3 lg:mb-5">
         <LayoutFaqInfo @click="scrollToElement(pageProductInformations, 100)" />
       </div>
-      <div>
+      <div class="mb-3 lg:mb-5">
         <LayoutReservationInStore
           :product="product"
           @click="scrollToElement(pageProductInformations, 100)"
         />
+      </div>
+      <div>
+        <LayoutProductReasurance />
       </div>
     </div>
     <div
