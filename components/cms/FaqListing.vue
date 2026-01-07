@@ -14,7 +14,18 @@
         <div class="px-5 py-3">
           <ul class="text-sm flex flex-col gap-2">
             <li v-for="faq in faqCat.faqs">
-              {{ faq.question }}
+              <NuxtLink
+                :to="
+                  localePath({
+                    name: 'faq-documentId',
+                    params: {
+                      documentId: faq.documentId,
+                    },
+                  })
+                "
+              >
+                {{ faq.question }}
+              </NuxtLink>
             </li>
           </ul>
         </div>
@@ -27,6 +38,7 @@
 const appStore = useAppStore();
 const { setLoadingPage } = appStore;
 const { locale } = useI18n();
+const localePath = useLocalePath();
 const faqStore = useFaqStore();
 const { fetchFaqPage } = faqStore;
 const { faqCategories, termToSearch } = toRefs(faqStore);
