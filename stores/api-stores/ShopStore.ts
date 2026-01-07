@@ -103,7 +103,7 @@ export const useShopStore = defineStore('shopStore', () => {
         throw error;
       });
   };
-  const ftechStores = (options?: { latitude: number; longitude: number }) => {
+  const ftechStores = (options?: { latitude: number; longitude: number; radius?: number }) => {
     const appStore = useAppStore();
     const { languageIsoCode } = toRefs(appStore);
 
@@ -113,12 +113,14 @@ export const useShopStore = defineStore('shopStore', () => {
       Latitude?: number;
       Longitude?: number;
       LanguageIsoCode?: string;
+      Radius?: number;
     } = {
       LanguageIsoCode: languageIsoCode.value,
     };
     if (options) {
       params.Latitude = options.latitude;
       params.Longitude = options.longitude;
+      params.Radius = options.radius;
     }
 
     return shopService

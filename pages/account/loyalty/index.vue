@@ -1,7 +1,6 @@
 <script setup lang="ts">
 // #i18n#
 definePageMeta({
-  
   middleware: ['loyalty'],
   requireAuth: true,
 });

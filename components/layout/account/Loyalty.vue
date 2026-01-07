@@ -39,7 +39,9 @@ try {
   setLoadingPage(true);
   await fetshLoyaltyCustomer();
   await fetshLoyaltyTier();
-} catch (error) {}
+} catch (error) {
+  console.log('loyalty error', error);
+}
 setLoadingPage(false);
 </script>
 <template>

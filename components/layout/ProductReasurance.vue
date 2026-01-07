@@ -4,7 +4,7 @@ import Shipping from '~/components/icon/shipping.vue';
 import Payment from '~/components/icon/payment.vue';
 const fr = [
   {
-    title: 'Livraison offerte dès 130€',
+    title: 'Livraison offerte dès 99€',
     subtitle: '2-3 jours',
     icon: Shipping,
   },
@@ -22,7 +22,7 @@ const fr = [
 
 const en = [
   {
-    title: 'Free shipping from 130€',
+    title: 'Free shipping from 99€',
     subtitle: '2-3 days',
     icon: Shipping,
   },
