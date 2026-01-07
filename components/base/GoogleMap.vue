@@ -1,5 +1,5 @@
 <template>
-  <div class="h-full w-full">
+  <div class="h-full w-full aspect-square md:aspect-video">
     <div ref="mapContainer" class="h-full w-full"></div>
   </div>
 </template>

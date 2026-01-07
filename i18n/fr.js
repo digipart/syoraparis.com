@@ -223,17 +223,20 @@ const fr = {
     recommended_products: 'Produits recommandés',
     shippingOption: {
       title: 'Options de livraison',
-      noCarrier: "Entrez votre adresse de livraison pour voir les méthodes d'expédition disponibles.",
+      noCarrier:
+        "Entrez votre adresse de livraison pour voir les méthodes d'expédition disponibles.",
       Home: 'Domicile',
       Store: 'Point de dépôt',
       RelayPoint: 'Point relais',
     },
     payment: {
-      noPayment: 'Sélectionnez une méthode de livraison pour voir les méthodes de paiement disponibles.',
+      noPayment:
+        'Sélectionnez une méthode de livraison pour voir les méthodes de paiement disponibles.',
     },
     faq: {
       back_to_faq: 'Retour à la FAQ',
-    }
+    },
+    payment_in_x_free: 'Ou 3x {0} avec le paiement en 3x gratuit',
   },
   component: {
     faq: {
@@ -305,7 +308,8 @@ const fr = {
         button: 'Payer avec Apple Pay',
         redirecting: 'Redirection vers Apple Pay...',
         processing: 'Traitement...',
-        not_available: "Apple Pay n'est pas disponible sur cet appareil ou navigateur.",
+        not_available:
+          "Apple Pay n'est pas disponible sur cet appareil ou navigateur.",
         secure: 'Paiement sécurisé avec Touch ID ou Face ID',
       },
       googlepay: {
@@ -313,7 +317,8 @@ const fr = {
         button: 'Payer avec Google Pay',
         redirecting: 'Redirection vers Google Pay...',
         processing: 'Traitement...',
-        not_available: "Google Pay n'est pas disponible sur cet appareil ou navigateur.",
+        not_available:
+          "Google Pay n'est pas disponible sur cet appareil ou navigateur.",
         secure: 'Paiement sécurisé avec Google Pay',
       },
       klarna: {

@@ -233,7 +233,8 @@ const en = {
     },
     faq: {
       back_to_faq: 'Back to FAQ',
-    }
+    },
+    payment_in_x_free: 'Or 3x {0} with free 3x payment',
   },
   component: {
     faq: {

@@ -2,7 +2,6 @@
 import ShopService from '~/services/ShopService';
 import type { StockInStoreType } from '~/types/StoreReservationProductType';
 
-
 const { t } = useI18n();
 useHead(() => ({
   title: () => t('pages.stores.title'),
@@ -107,7 +106,11 @@ const scrollToRef = (storeId?: number) => {
 };
 
 try {
-  await ftechStores();
+  await ftechStores({
+    latitude: 48.8606104,
+    longitude: 2.3391758,
+    radius: 1000,
+  });
   storeSelected.value = stores.value[0];
 } catch (error) {}
 </script>
@@ -135,12 +138,9 @@ try {
               v-model="term"
               id="autocomplete"
               @onSelect="selectAddress"
-              :placeholder="$t('label.search_address')"
+              :label="$t('label.search_address')"
               border
             >
-              <template #icon>
-                <IconSearch color="#888888" />
-              </template>
             </InputGoogoleAutoComplete>
           </div>
           <PerfectScrollbar
