@@ -1,29 +1,36 @@
 <template>
-  <BaseButton
-    type="primary"
-    plain
-    size="medium"
-    :title="$t('button.facebook_login')"
-    @click="loginWithFacebook"
-    :disabled="isLoading"
-  >
-    <span v-if="!isLoading">
-      {{ $t('button.facebook_login') }}
-    </span>
-    <span v-else>
-      {{ $t('button.loading') }}
-    </span>
+  <div>
+    <BaseButton
+      type="primary"
+      plain
+      size="medium"
+      :title="$t('button.facebook_login')"
+      @click="loginWithFacebook"
+      :disabled="isLoading"
+      class="w-full"
+    >
+      <span v-if="!isLoading">
+        {{ $t('button.facebook_login') }}
+      </span>
+      <span v-else>
+        {{ $t('button.loading') }}
+      </span>
 
-    <img
-      v-if="!isLoading"
-      class="h-6 w-6 ml-2 cursor-pointer"
-      src="/assets/images/facebook-logo.svg"
-      alt=""
-    />
-    <span v-else class="ml-2">
-      <i class="fas fa-spinner fa-spin"></i>
-    </span>
-  </BaseButton>
+      <img
+        v-if="!isLoading"
+        class="h-6 w-6 ml-2 cursor-pointer"
+        src="/assets/images/facebook-logo.svg"
+        alt=""
+      />
+      <span v-else class="ml-2">
+        <i class="fas fa-spinner fa-spin"></i>
+      </span>
+    </BaseButton>
+
+    <div v-if="error" class="text-red-500 text-xs mt-1">
+      {{ error }}
+    </div>
+  </div>
 </template>
 
 <script setup>
@@ -34,6 +41,8 @@ import { useRouter } from 'vue-router';
 const authStore = useAuth();
 const isLoading = ref(false);
 const isSDKLoaded = ref(false);
+const error = ref(null);
+const { t } = useI18n();
 // const { MyNotification } = useNotification();
 const router = useRouter();
 
@@ -73,6 +82,7 @@ const initFacebookSDK = () => {
 // Facebook login handler
 const loginWithFacebook = async () => {
   try {
+    error.value = null; // Reset error state
     isLoading.value = true;
 
     // Make sure SDK is loaded
@@ -115,17 +125,14 @@ const loginWithFacebook = async () => {
       picture: userData.picture?.data?.url,
     });
 
-
     emit('onSuccess');
-  } catch (error) {
-    console.error('Facebook login error:', error);
-
- 
+  } catch (err) {
+    console.error('Facebook login error:', err);
+    error.value = err?.data?.message || t('error.facebook_login_failed');
   } finally {
     isLoading.value = false;
   }
 };
-
 
 onMounted(() => {
   // Initialize Facebook SDK when component is mounted

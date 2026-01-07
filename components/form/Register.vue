@@ -13,6 +13,8 @@ const route = useRoute();
 const auth = useAuth();
 const { register } = auth;
 const loading = ref(false);
+const error = ref<string | null>(null);
+const { t } = useI18n();
 
 const emit = defineEmits(['onSuccess']);
 const { showSocialMedia, onSuccess } = defineProps({
@@ -37,6 +39,7 @@ const redirectTo = () => {
 };
 
 const submitForm = async () => {
+  error.value = null; // Reset error state
   const isFormCorrect = await v$.value.$validate();
 
   if (isFormCorrect) {
@@ -54,22 +57,26 @@ const submitForm = async () => {
         redirectTo();
       })
       .catch((err) => {
-        console.log(err);
+        console.log(err.data);
+        error.value = err?.data?.message || t('error.registration_failed');
       })
       .finally(() => {
         loading.value = false;
       });
   } else {
+    error.value = t('error.form_validation_failed');
   }
 };
 
 const startRegister = async () => {
+  error.value = null; // Reset error state
   const isFormCorrect = await v$.value.$validate();
 
   if (isFormCorrect) {
     fields.value = ['email', 'firstname', 'lastname', 'password'];
     showAllFileds.value = true;
   } else {
+    error.value = t('error.invalid_email');
   }
 };
 const googleSubmit = () => {
@@ -81,12 +88,22 @@ const googleSubmit = () => {
   <div class="formRegister">
     <div class="formRegister-form">
       <BaseHeadLine
-        name="h1"
+        name="h2"
         size="sm"
         class="text-center uppercase font-normal mb-8"
       >
         {{ $t('titles.formRegister_title') }}
       </BaseHeadLine>
+      
+      <BaseAlert
+        v-if="error"
+        type="danger"
+        class="mb-5 mx-5 md:mx-10"
+        @onCloseClick="error = null"
+        size="small"
+      >
+        {{ error }}
+      </BaseAlert>
 
       <form v-if="!showAllFileds" @submit.prevent="startRegister">
         <div class="w-full px-5 md:px-10 mb-16 md:mb-5">

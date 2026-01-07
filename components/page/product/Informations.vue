@@ -112,7 +112,7 @@ onUnmounted(() => {
             {{ product.Brand?.Name }}
           </NuxtLink>
         </div>
-        <CardProductPrice :product="product" size="medium" />
+        <CardProductPrice displayPaymentX :product="product" size="medium" />
         <div class="absolute -top-2 right-0">
           <CardProductAddToFavorite :product="product" />
         </div>
@@ -128,7 +128,7 @@ onUnmounted(() => {
           link
         />
       </div>
-      <div class="mb-5">
+      <div class="mb-3">
         <div class="justify-between gap-x-4 mb-2 hidden lg:flex">
           <label class="font-normal text-sm inline-block">
             {{ $t('label.size') }} :
@@ -144,6 +144,8 @@ onUnmounted(() => {
           </div>
         </div>
       </div>
+      <LayoutProductLoyalty class="mb-3 lg:mb-5" :product="product" />
+
       <div class="mb-3 lg:mb-5">
         <div
           class="flex cursor-pointer"

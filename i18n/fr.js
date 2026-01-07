@@ -69,6 +69,7 @@ const fr = {
     read_more: 'Lire plus',
     read_less: 'Lire moins',
     select: 'Sélectionner',
+    learnMore: 'en savoir plus',
   },
   link: {
     contact_us: 'Contactez-nous',
@@ -236,7 +237,7 @@ const fr = {
     faq: {
       back_to_faq: 'Retour à la FAQ',
     },
-    payment_in_x_free: 'Ou 3x {0} avec le paiement en 3x gratuit',
+    payment_in_x_free: 'Ou 3x {0} avec le paiement en 3x sans frais',
   },
   component: {
     faq: {
@@ -427,6 +428,27 @@ const fr = {
       points_remaining:
         'Il vous reste plus que {points} points pour atteindre le',
     },
+  },
+  ProductLoyalty: {
+    program_title: 'Programme de Fidélité',
+    earn: 'Gagnez',
+    pts: 'pts',
+    with_purchase: 'avec cet achat',
+    discover_community: 'Découvrez notre communauté de fidélité',
+    simple_points:
+      'Gagnez des points à chaque achat et échangez-les contre des récompenses exclusives.',
+    points_earned: 'points gagnés avec cet achat',
+    how_it_works: 'Comment ça marche ?',
+    step1_title: '1. Achetez : ',
+    step1_desc:
+      'Gagnez des points à chaque achat sur notre site ou en boutique.',
+    step2_title: '2. Cumulez : ',
+    step2_desc: 'Suivez vos points dans votre espace membre.',
+    step3_title: '3. Échangez : ',
+    step3_desc:
+      'Utilisez vos points contre des réductions, cadeaux et expériences exclusives.',
+    footer:
+      'Rejoignez notre programme de fidélité dès maintenant pour profiter de tous ces avantages !',
   },
   membership: {
     message:
