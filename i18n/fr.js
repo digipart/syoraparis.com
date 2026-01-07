@@ -231,6 +231,9 @@ const fr = {
     payment: {
       noPayment: 'Sélectionnez une méthode de livraison pour voir les méthodes de paiement disponibles.',
     },
+    faq: {
+      back_to_faq: 'Retour à la FAQ',
+    }
   },
   component: {
     faq: {

@@ -231,6 +231,9 @@ const en = {
     payment: {
       noPayment: 'Select a shipping method to view available payment methods.',
     },
+    faq: {
+      back_to_faq: 'Back to FAQ',
+    }
   },
   component: {
     faq: {
