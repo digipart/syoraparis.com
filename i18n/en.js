@@ -69,6 +69,7 @@ const en = {
     read_more: 'Read More',
     read_less: 'Read Less',
     select: 'Select',
+    learnMore: 'Learn more',
   },
   link: {
     contact_us: 'Contact-us',
@@ -420,6 +421,23 @@ const en = {
       your_status_is: 'your status is',
       points_remaining: 'You only need {points} points to reach the',
     },
+  },
+  ProductLoyalty: {
+    program_title: 'Loyalty Program',
+    earn: 'Earn',
+    pts: 'pts',
+    with_purchase: 'with this purchase',
+    discover_community: 'Discover our loyalty community',
+    simple_points: 'Earn points with every purchase and redeem them for exclusive rewards.',
+    points_earned: 'points earned with this purchase',
+    how_it_works: 'How it works',
+    step1_title: '1. Shop: ',
+    step1_desc: 'Earn points with every purchase on our website or in-store.',
+    step2_title: '2. Collect: ',
+    step2_desc: 'Track your points in your member area.',
+    step3_title: '3. Redeem: ',
+    step3_desc: 'Use your points for discounts, gifts, and exclusive experiences.',
+    footer: 'Join our loyalty program now to enjoy all these benefits!',
   },
   membership: {
     message:

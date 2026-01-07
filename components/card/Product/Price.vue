@@ -11,6 +11,10 @@ const { product } = defineProps({
     type: String as () => 'small' | 'medium' | 'large',
     default: 'small',
   },
+  displayPaymentX: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const currencySign = currencyIsoCode.value;
@@ -60,8 +64,9 @@ const promotionalPrice = computed(() => {
     <div
       class="block text-xs mt-1 font-normal"
       v-if="
+        displayPaymentX &&
         (promotionalPrice?.PriceTaxIncl || regularPrice?.PriceTaxIncl || 0) >=
-        40
+          40
       "
       v-html="
         $t('label.payment_in_x_free', [
