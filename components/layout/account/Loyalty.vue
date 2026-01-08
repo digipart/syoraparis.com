@@ -35,13 +35,19 @@ const tabItems = ref([
 //   setLoadingPage(false);
 // });
 
+setLoadingPage(true);
 try {
-  setLoadingPage(true);
   await fetshLoyaltyCustomer();
+} catch (error) {
+  console.log('loyalty error', error);
+}
+
+try {
   await fetshLoyaltyTier();
 } catch (error) {
   console.log('loyalty error', error);
 }
+
 setLoadingPage(false);
 </script>
 <template>

@@ -51,7 +51,7 @@ const submitForm = async () => {
         v-loading="loading"
         submit
         size="medium"
-        :title="$t('button.login')"
+        :title="$t('button.subscribe')"
       >
         {{ $t('button.subscribe') }}
       </BaseButton>

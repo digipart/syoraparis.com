@@ -1,6 +1,4 @@
 <script setup lang="ts">
-
-
 const appStore = useAppStore();
 const { currencyIsoCode } = toRefs(appStore);
 
@@ -103,7 +101,7 @@ onMounted(() => {
 
 <template>
   <div class="">
-    {{ }}
+    {{}}
     <!-- <NuxtLink
       to="/"
       class="hidden lg:inline-flex items-center cursor-pointer text-sm mb-2"
@@ -240,7 +238,10 @@ onMounted(() => {
             @onCodePromoRemoved="refreshCodePromo"
             checkout
           />
-          <PageCheckoutMyRewards @onCodePromoApplied="refreshCodePromo" />
+          <PageCheckoutMyRewards
+            @onCodePromoApplied="refreshCodePromo"
+            class="mt-4"
+          />
           <div>
             <FormCodePromo @onCodePromoApplied="refreshCodePromo" />
           </div>

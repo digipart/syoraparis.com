@@ -29,13 +29,13 @@ const submitForm = async () => {
       error.value = false;
       codepromoService
         .apply({
-          PromoCode: state.codepromo,
+          PromoCode: state.value.codepromo,
           IdCart: cart.value.IdCart,
           LanguageIsoCode: languageIsoCode.value,
         })
         .then(async () => {
           v$.value.$reset();
-          state.codepromo = '';
+          state.value.codepromo = '';
           await fetchCart();
           emit('onCodePromoApplied');
         })

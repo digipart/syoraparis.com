@@ -291,7 +291,10 @@ watch(state.value, () => {
             @onCodePromoRemoved="refreshCodePromo"
             checkout
           />
-          <PageCheckoutMyRewards @onCodePromoApplied="refreshCodePromo" />
+          <PageCheckoutMyRewards
+            @onCodePromoApplied="refreshCodePromo"
+            class="mt-4"
+          />
           <div class="mt-4">
             <FormCodePromo @onCodePromoApplied="refreshCodePromo" />
           </div>
