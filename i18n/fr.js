@@ -113,6 +113,7 @@ const fr = {
     our_stores: 'Nos boutiques',
     our_stores_near_you: 'Trouver un magasin près de vous',
     discover_our_brands: 'Découvrez nos marques',
+    completeYourLook: 'COMPLÉTEZ VOTRE LOOK',
   },
   label: {
     ref: 'RÉF',
