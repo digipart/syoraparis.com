@@ -74,7 +74,7 @@ const localePath = useLocalePath();
             >
               <PageTunnelOrderSummary />
             </BasePanel>
-            <PageCheckoutMyRewards />
+            <PageCheckoutMyRewards class="mt-4" />
             <BasePanel class="hidden lg:block mb-5">
               <template #header>
                 <div class="flex gap-3 justify-between items-center">
