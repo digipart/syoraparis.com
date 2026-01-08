@@ -67,7 +67,7 @@ const open = () => {
         </span>
       </template>
       <div>
-        <CardProduct
+        <!-- <CardProduct
           :product="product"
           image-size="small"
           direction="horizontal"
@@ -75,10 +75,10 @@ const open = () => {
           :btnRemoveFromCart="true"
           :openCartAfterAddProduct="false"
         />
-        <hr class="my-4" />
+        <hr class="my-4" /> -->
         <div
           class="shopthelook-item"
-          v-for="product in productsAssociation"
+          v-for="product, index in productsAssociation"
           :key="product.IdProductAttribute"
         >
           <CardProduct
@@ -89,7 +89,7 @@ const open = () => {
             :btnRemoveFromCart="true"
             :openCartAfterAddProduct="false"
           />
-          <hr class="my-4" />
+          <hr class="my-4" v-if="index < productsAssociation.length - 1" />
         </div>
       </div>
     </BaseDrawer>
