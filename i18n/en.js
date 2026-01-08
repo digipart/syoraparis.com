@@ -113,6 +113,7 @@ const en = {
     our_stores: 'Our stores',
     our_stores_near_you: 'Find a store near you',
     discover_our_brands: 'Discover our brands',
+    completeYourLook: 'COMPLETE YOUR LOOK',
   },
   label: {
     ref: 'REF',
