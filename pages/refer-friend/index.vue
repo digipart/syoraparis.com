@@ -147,7 +147,7 @@ useHead(() => ({
           </div>
         </div>
         <div
-          v-if="step === 'connexion' && !auth.isLoggedIn"
+          v-show="step === 'connexion' && !auth.isLoggedIn"
           class="grid grid-cols-12 gap-5"
         >
           <div class="col-span-6">

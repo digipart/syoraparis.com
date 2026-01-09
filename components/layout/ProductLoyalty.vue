@@ -11,9 +11,9 @@
           class="inline-block bg-green-100 text-green-700 px-[4px] py-[3px] rounded ml-[2px]"
         >
           {{
-            hasPromtion
+            (hasPromtion
               ? promotionalPrice?.PriceTaxIncl
-              : regularPrice?.PriceTaxIncl
+              : regularPrice?.PriceTaxIncl)?.toFixed(0)
           }}
           {{ $t('ProductLoyalty.pts') }}
         </b>
@@ -49,9 +49,9 @@
                 class="inline-block bg-green-100 text-green-700 px-[8px] py-[3px] rounded ml-[2px]"
               >
                 {{
-                  hasPromtion
+                  (hasPromtion
                     ? promotionalPrice?.PriceTaxIncl
-                    : regularPrice?.PriceTaxIncl
+                    : regularPrice?.PriceTaxIncl)?.toFixed(0)
                 }}
                 {{ $t('ProductLoyalty.pts') }}
               </b>

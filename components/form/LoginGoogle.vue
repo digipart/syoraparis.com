@@ -49,6 +49,7 @@ const signIn = async () => {
       Lastname: profile.family_name,
     };
 
+    console.log('test');
     await login('google', gUser);
     emit('onSuccess', { user: gUser });
   } catch (err: any) {
