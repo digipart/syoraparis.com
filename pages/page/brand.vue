@@ -26,7 +26,7 @@
     <section class="brandPage-story">
       <LayoutContainer>
         <div class="grid grid-cols-12 gap-8 items-center">
-          <div class="col-span-12 lg:col-span-6 space-y-6">
+          <div class="col-span-12 lg:col-span-6 space-y-6 order-2 lg:order-1">
             <BaseHeadLine name="h2" size="xl" class="font-normal uppercase">
               {{ content.story.title }}
             </BaseHeadLine>
@@ -48,7 +48,7 @@
               </article>
             </div>
           </div>
-          <div class="col-span-12 lg:col-span-6">
+          <div class="col-span-12 lg:col-span-6 order-1 lg:order-2">
             <div class="brandPage-storyMedia">
               <NuxtImg
                 :src="content.story.image.src"
@@ -63,7 +63,7 @@
     <section class="brandPage-story">
       <LayoutContainer>
         <div class="grid grid-cols-12 gap-8 items-center">
-          <div class="col-span-12 lg:col-span-6">
+          <div class="col-span-12 lg:col-span-6 order-1 lg:order-1">
             <div class="brandPage-storyMedia">
               <NuxtImg
                 :src="content.craft.image.src"
@@ -71,7 +71,7 @@
               />
             </div>
           </div>
-          <div class="col-span-12 lg:col-span-6 space-y-6">
+          <div class="col-span-12 lg:col-span-6 space-y-6 order-2 lg:order-2">
             <BaseHeadLine name="h2" size="xl" class="font-normal uppercase">
               {{ content.craft.title }}
             </BaseHeadLine>
