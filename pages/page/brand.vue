@@ -224,7 +224,7 @@ const frContent = {
       "La création chez SYORA repose sur un équilibre exigeant entre intuition stylistique et rigueur technique. Chaque collection est développée avec une attention particulière portée aux coupés, aux matières et aux finitions. Le travail de mécénat, la mise au point technique et le prototypage occupent une place centrale dans le processus créatif, avec une capacité de développement allant jusqu'à soixante échantillons par semaine. Les modèles sont ensuite pensés pour une industrialisation fluide et maîtrisée, afin de garantir une production fidèle à l'intention initiale, sans compromis sur la qualité ou le confort.",
     ],
     image: {
-      src: '/images/brand-2.jpg',
+      src: '/images/brand-3.jpg',
       alt: 'Développement technique SYORA',
     },
   },
@@ -303,7 +303,7 @@ const enContent = {
       'Creation at SYORA balances instinctive style with technical rigor. Each collection is developed with meticulous attention to cuts, materials, and finishes. Patronage, technical refinements, and prototyping play a central role in the process, with an in-house capacity of up to sixty samples per week. The pieces are then designed for smooth, controlled industrialization to deliver production faithful to the original intent, without compromising on quality or comfort.',
     ],
     image: {
-      src: '/images/brand-2.jpg',
+      src: '/images/brand-3.jpg',
       alt: 'SYORA technical development',
     },
   },
