@@ -131,6 +131,10 @@ const fr = {
     name: 'Nom',
     firstname: 'Prénom',
     lastname: 'Nom de famille',
+    recipient_email: 'Email du destinataire',
+    recipient_name: 'Nom du destinataire',
+    message: 'Message',
+    send_on: 'Envoyer le',
     birthdate: 'Date de naissance',
     address: 'Adresse',
     postcode: 'Code postal',
@@ -239,6 +243,9 @@ const fr = {
       back_to_faq: 'Retour à la FAQ',
     },
     payment_in_x_free: 'Ou 3x {0} avec le paiement en 3x sans frais',
+    gift_card: {
+      custom: 'Je veux envoyer ceci en cadeau.',
+    },
   },
   component: {
     faq: {

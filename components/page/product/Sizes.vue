@@ -1,6 +1,7 @@
 <script lang="ts" setup>
 import type { ProductType, Variant } from '~/types/ProductType';
 import Drawer from '~/components/base/Drawer.vue';
+import type { GiftCardPayload } from '~/types/CartType';
 
 const windowStore = useWindowStore();
 const { windowWidth } = toRefs(windowStore);
@@ -9,7 +10,7 @@ const cartStore = useCartStore();
 const { addToCart } = cartStore;
 
 const appStore = useAppStore();
-const { miniCartVisible } = toRefs(appStore);
+const { miniCartVisible, languageIsoCode } = toRefs(appStore);
 
 const { product, choseSizeBtn } = defineProps({
   product: {
@@ -43,6 +44,10 @@ const isDrawer = computed(() => {
   return windowWidth.value < 992;
 });
 
+const isGiftCard = computed(() => {
+  return true;
+});
+
 const selectVariant = (index: number, variant: Variant) => {
   variantSelected.value = variant;
   indexActive.value = index;
@@ -59,16 +64,23 @@ const selectVariant = (index: number, variant: Variant) => {
     backInStockVisible.value = true;
   }
 };
-const addToCartHandler = () => {
+const addToCartHandler = (giftCardPayload?: GiftCardPayload) => {
   noSizeSelectedError.value = false;
   if (variantSelected.value) {
     const idProductAttributeSelected =
       variantSelected.value?.Combination?.IdProductAttribute;
     if (product?.IdProduct && idProductAttributeSelected) {
-      addToCart({
+      let params = {
         idProduct: product?.IdProduct,
         idProductAttribute: idProductAttributeSelected,
-      }).then(() => {
+      };
+      if (giftCardPayload) {
+        params = {
+          ...params,
+          ...giftCardPayload,
+        };
+      }
+      addToCart(params).then(() => {
         miniCartVisible.value = true;
       });
     }
@@ -82,6 +94,21 @@ const addToCartClickHandler = () => {
   } else {
     isVisible.value = true;
   }
+};
+
+const AddToCartGiftCard = (payload: GiftCardPayload) => {
+  // this.addToCart(payload);
+  console.log('payload', {
+    ...payload,
+    productType: 'e-giftcard',
+    languageIsoCode: languageIsoCode.value,
+  });
+
+  addToCartHandler({
+    ...payload,
+    productType: 'e-giftcard',
+    languageIsoCode: languageIsoCode.value,
+  });
 };
 
 onMounted(() => {
@@ -169,11 +196,10 @@ onMounted(() => {
       >
         {{ $t('button.choose_your_size') }}
       </BaseButton> -->
-      <div class="flex gap-3">
+      <div v-if="!isGiftCard" class="flex gap-3">
         <BaseButton
           v-if="!backInStockVisible"
           type="primary"
-          plain
           class="w-full"
           @click="addToCartClickHandler"
           :size="'medium'"
@@ -199,6 +225,7 @@ onMounted(() => {
           plain
         />
       </div>
+      <FormGiftCard v-else @onSuccess="AddToCartGiftCard($event)" />
     </div>
   </div>
 </template>
