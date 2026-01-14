@@ -131,6 +131,10 @@ const en = {
     name: 'Name',
     firstname: 'First name',
     lastname: 'Last name',
+    recipient_email: 'Recipient email',
+    recipient_name: 'Recipient name',
+    message: 'Message',
+    send_on: 'Send on',
     birthdate: 'Date of birth',
     address: 'Address',
     postcode: 'Postcode',
@@ -237,6 +241,9 @@ const en = {
       back_to_faq: 'Back to FAQ',
     },
     payment_in_x_free: 'Or 3x {0} with free 3x payment',
+    gift_card: {
+      custom: 'I want to send this as a gift',
+    },
   },
   component: {
     faq: {
@@ -429,7 +436,8 @@ const en = {
     pts: 'pts',
     with_purchase: 'with this purchase',
     discover_community: 'Discover our loyalty community',
-    simple_points: 'Earn points with every purchase and redeem them for exclusive rewards.',
+    simple_points:
+      'Earn points with every purchase and redeem them for exclusive rewards.',
     points_earned: 'points earned with this purchase',
     how_it_works: 'How it works',
     step1_title: '1. Shop: ',
@@ -437,7 +445,8 @@ const en = {
     step2_title: '2. Collect: ',
     step2_desc: 'Track your points in your member area.',
     step3_title: '3. Redeem: ',
-    step3_desc: 'Use your points for discounts, gifts, and exclusive experiences.',
+    step3_desc:
+      'Use your points for discounts, gifts, and exclusive experiences.',
     footer: 'Join our loyalty program now to enjoy all these benefits!',
   },
   membership: {
