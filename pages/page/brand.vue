@@ -6,26 +6,37 @@
         :src="content.hero.image"
         :alt="content.hero.alt"
       />
-      <div class="brandPage-heroOverlay">
-        <LayoutContainer>
-          <div class="brandPage-heroContent">
-            <BaseHeadLine name="h1" size="_3xl" class="text-white font-normal">
-              {{ content.hero.title }}
-            </BaseHeadLine>
-            <p class="brandPage-heroSubtitle">
-              {{ content.hero.subtitle }}
-            </p>
-            <!-- <BaseButton type="primary" size="large" class="mt-6 min-w-48">
-              Découvrir nos collections
-            </BaseButton> -->
+      <div class="brandPage-heroOverlay px-5 py-5 lg:py-10">
+        <div class="sticky top-0 z-10 h-full max-h-screen">
+          <div class="flex items-center h-full">
+            <div class="sticky top-[calc(50%_-_0.5em_*_1.02)] z-30 max-w-xl">
+              <BaseHeadLine name="h1" size="_3xl" class="text-white font-normal">
+                {{ content.hero.title }}
+              </BaseHeadLine>
+              <p class="brandPage-heroSubtitle">
+                {{ content.hero.subtitle }}
+              </p>
+              <BaseButton 
+                type="primary" 
+                size="large" 
+                class="mt-6 min-w-48"
+                @click="scrollToNextSection"
+              >
+                {{ content.hero.buttonText || 'Découvrir' }}
+              </BaseButton>
+            </div>
           </div>
-        </LayoutContainer>
+        </div>
+        <div class="brandPage-scrollIndicator">
+          <div class="brandPage-scrollArrow"></div>
+          <div class="brandPage-scrollText">{{ content.hero.scrollText || 'Défiler' }}</div>
+        </div>
       </div>
     </section>
 
     <section class="brandPage-story">
       <LayoutContainer>
-        <div class="grid grid-cols-12 gap-8 items-center">
+        <div class="grid grid-cols-12 gap-5 lg:gap-28 items-center">
           <div class="col-span-12 lg:col-span-6 space-y-6 order-2 lg:order-1">
             <BaseHeadLine name="h2" size="xl" class="font-normal uppercase">
               {{ content.story.title }}
@@ -62,7 +73,7 @@
 
     <section class="brandPage-story">
       <LayoutContainer>
-        <div class="grid grid-cols-12 gap-8 items-center">
+        <div class="grid grid-cols-12 gap-5 lg:gap-28 items-center">
           <div class="col-span-12 lg:col-span-6 order-1 lg:order-1">
             <div class="brandPage-storyMedia">
               <NuxtImg
@@ -189,6 +200,8 @@ const frContent = {
     alt: 'Univers de Syoraparis',
     title: 'Syoraparis',
     subtitle: 'L’élégance parisienne, consciente et intemporelle',
+    buttonText: 'Découvrir',
+    scrollText: 'Défiler',
   },
   story: {
     title: 'Notre Histoire',
@@ -268,6 +281,8 @@ const enContent = {
     alt: 'World of Syoraparis',
     title: 'Syoraparis',
     subtitle: 'Parisian elegance, conscious and timeless',
+    buttonText: 'Discover',
+    scrollText: 'Scroll',
   },
   story: {
     title: 'Our Story',
@@ -344,6 +359,13 @@ const enContent = {
 const { locale } = useI18n();
 
 const content = computed(() => (locale.value === 'fr' ? frContent : enContent));
+
+function scrollToNextSection() {
+  const firstSection = document.querySelector('.brandPage-story');
+  if (firstSection) {
+    firstSection.scrollIntoView({ behavior: 'smooth' });
+  }
+}
 
 useHead(() => ({
   title: content.value.seo.title,
@@ -455,5 +477,34 @@ $brandPage: '.brandPage';
     @apply w-full h-72 md:h-96 object-cover shadow-lg;
   }
 
+}
+</style>
+
+<style lang="scss" scoped>
+.brandPage {
+  &-scrollIndicator {
+    @apply absolute bottom-8 left-1/2 transform -translate-x-1/2 flex flex-col items-center;
+    animation: bounce 2s infinite;
+  }
+
+  &-scrollArrow {
+    @apply w-6 h-6 border-b-2 border-r-2 border-white transform rotate-45 mb-2;
+  }
+
+  &-scrollText {
+    @apply text-white text-xs uppercase tracking-widest;
+  }
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateY(0) translateX(-50%);
+  }
+  40% {
+    transform: translateY(-10px) translateX(-50%);
+  }
+  60% {
+    transform: translateY(-5px) translateX(-50%);
+  }
 }
 </style>
