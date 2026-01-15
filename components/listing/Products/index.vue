@@ -21,6 +21,26 @@ const { filterValues } = toRefs(categoryStore);
 const { initFilterAttrs } = categoryStore;
 initFilterAttrs();
 
+// Initialize size attributes from URL if present
+const initSizeFromUrl = () => {
+  const sizeQuery = route.query.sizes;
+  if (sizeQuery) {
+    const sizeValues = Array.isArray(sizeQuery) 
+      ? sizeQuery.map(val => String(val)) 
+      : [String(sizeQuery)];
+      
+    // Add size values to filterValues.attrs if they're not already there
+    sizeValues.forEach(size => {
+      if (!filterValues.value.attrs.includes(size)) {
+        filterValues.value.attrs.push(size);
+      }
+    });
+  }
+};
+
+// Call initialization function
+initSizeFromUrl();
+
 const categoryService = new CategoryService();
 const products = ref<ProductType[]>([]);
 const page = ref(0);
@@ -70,25 +90,37 @@ const getFilter = () => {
   if (FilterBrands != '') {
     options.FilterBrand = FilterBrands;
   }
-
-  const FilterAttribute = [...filterValues.value.attrs].join(',');
+  
+  // Handle size attributes separately if they exist in the URL
+  const sizeQuery = route.query.sizes;
+  let sizeValues: string[] = [];
+  
+  if (sizeQuery) {
+    // Convert to array if it's a string or use as is if it's already an array
+    sizeValues = Array.isArray(sizeQuery) 
+      ? sizeQuery.map(val => String(val)) 
+      : [String(sizeQuery)];
+  }
+  
+  // Combine size values with other attribute values
+  const allAttributes = [...filterValues.value.attrs, ...sizeValues];
+  const FilterAttribute = [...new Set(allAttributes)].join(',');
 
   if (FilterAttribute != '') {
     options.FilterAttribute = FilterAttribute;
   }
 
-  if (
-    filterValues.value.sort === 'newest_asc' ||
-    filterValues.value.sort === 'newest_desc'
-  ) {
-    options.SortByNewest =
-      filterValues.value.sort === 'newest_asc' ? 'ASC' : 'DESC';
-  } else if (
-    filterValues.value.sort === 'price_asc' ||
-    filterValues.value.sort === 'price_desc'
-  ) {
-    options.SortByPrice =
-      filterValues.value.sort === 'price_asc' ? 'ASC' : 'DESC';
+  // Always include sort parameter in API payload
+  // Get sort value directly from filterValues to ensure we use the latest value
+  const sortValue = filterValues.value.sort;
+  
+  // Log for debugging
+  console.log('Sort value in API payload:', sortValue);
+  
+  if (sortValue === 'newest_asc' || sortValue === 'newest_desc') {
+    options.SortByNewest = sortValue === 'newest_asc' ? 'ASC' : 'DESC';
+  } else if (sortValue === 'price_asc' || sortValue === 'price_desc') {
+    options.SortByPrice = sortValue === 'price_asc' ? 'ASC' : 'DESC';
   }
 
   return options;
