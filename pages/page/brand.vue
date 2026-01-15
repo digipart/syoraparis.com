@@ -10,7 +10,7 @@
         <div class="sticky top-0 z-10 h-full max-h-screen">
           <div class="flex items-center h-full">
             <div class="sticky top-[calc(50%_-_0.5em_*_1.02)] z-30 max-w-xl">
-              <BaseHeadLine name="h1" size="_3xl" class="text-white font-normal">
+              <BaseHeadLine name="h1" class="brandPage-heroTitle">
                 {{ content.hero.title }}
               </BaseHeadLine>
               <p class="brandPage-heroSubtitle">
@@ -400,8 +400,24 @@ $brandPage: '.brandPage';
     @apply relative z-10 max-w-xl py-24 lg:py-32 space-y-5;
   }
 
+  &-heroTitle {
+    @apply text-3xl leading-[1] font-semibold uppercase text-white;
+    
+    @screen lg {
+      @apply text-6xl leading-[0.8];
+    }
+    
+    i {
+      @apply font-[100] not-italic;
+    }
+  }
+
   &-heroSubtitle {
-    @apply text-base lg:text-lg text-white/80;
+    @apply text-base font-light leading-none uppercase text-white;
+    
+    @screen lg {
+      @apply text-base;
+    }
   }
 
   &-story {
