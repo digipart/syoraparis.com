@@ -67,7 +67,19 @@ const filterAttrsColors = computed(() => {
   return {} as FilterAttributeGroup;
 });
 
-// Price initialization removed from horizontal filter
+// Ensure price values are properly initialized
+const ensurePriceValues = () => {
+  if (!filterValues.value.price || !Array.isArray(filterValues.value.price) || filterValues.value.price.length !== 2) {
+    if (filterAttributes.value?.FilterPrice?.RegularPrice) {
+      filterValues.value.price = [
+        filterAttributes.value.FilterPrice.RegularPrice.MinPriceTaxIncl || 0,
+        filterAttributes.value.FilterPrice.RegularPrice.MaxPriceTaxIncl || 1000
+      ];
+    } else {
+      filterValues.value.price = [0, 1000];
+    }
+  }
+};
 
 // Initialize size attributes from URL if present
 const initSizeFromUrl = () => {
@@ -84,10 +96,14 @@ const initSizeFromUrl = () => {
 
 // Call this when component is mounted
 onMounted(() => {
+  ensurePriceValues();
   initSizeFromUrl();
 });
 
-// Watch for changes in filterAttributes removed (was for price initialization)
+// Also watch for changes in filterAttributes
+watch(() => filterAttributes.value, () => {
+  ensurePriceValues();
+}, { deep: true });
 
 // Watch for route changes to update size values
 watch(() => route.query, () => {
@@ -125,6 +141,12 @@ const getOptions = (attr: AttributeType[]) => {
 };
 
 const startFilter = () => {
+  const isFilterPrice =
+    filterValues.value.price[0] !==
+      filterAttributes.value?.FilterPrice?.RegularPrice?.MinPriceTaxIncl ||
+    filterValues.value.price[1] !==
+      filterAttributes.value?.FilterPrice?.RegularPrice?.MaxPriceTaxIncl;
+      
   // Get size attribute IDs from the filterAttrsSizes
   const sizeAttributeIds = filterAttrsSizes.value?.Attribute?.map(attr => attr.IdAttribute || '0') || [];
   
@@ -146,7 +168,9 @@ const startFilter = () => {
       // Include sizes as a separate parameter
       ...(sizeValues.length > 0 ? { sizes: sizeValues } : {}),
 
-      // Price and promotion removed from horizontal filter
+      ...(isFilterPrice ? { price: filterValues.value.price } : {}),
+
+      ...(filterValues.value.promotion ? { promotion: 1 } : {}),
 
       brands: filterValues.value.brands,
     },
@@ -161,12 +185,18 @@ const resetFilter = () => {
   filterValues.value.sort = '';
   filterValues.value.attrs = [];
   filterValues.value.brands = [];
+  filterValues.value.promotion = false;
   
   // Also reset the separate attribute arrays
   sizeAttrs.value = [];
   colorAttrs.value = [];
   
-  // Price reset removed from horizontal filter
+  if (filterAttributes.value?.FilterPrice) {
+    filterValues.value.price = [
+      filterAttributes.value.FilterPrice.RegularPrice?.MinPriceTaxIncl || 0,
+      filterAttributes.value.FilterPrice.RegularPrice?.MaxPriceTaxIncl || 1000
+    ];
+  }
   
   // Clear URL query parameters - explicitly remove sizes parameter
   router.replace({ 
@@ -177,19 +207,13 @@ const resetFilter = () => {
   emit('onFilterClick');
 };
 
-const handleChange = (value: any) => {
-  // Now the component passes just the value for single select
-  // For sort options, we receive the direct value string
-  if (typeof value === 'string' && (value.startsWith('price_') || value.startsWith('newest_'))) {
-    // Update filterValues.sort with the selected value
-    filterValues.value.sort = value;
-  }
-  
-  // Call startFilter immediately
+const handleChange = (items: any) => {
   startFilter();
 };
 
-// Price change handler removed from horizontal filter
+const handlePriceChange = () => {
+  startFilter();
+};
 </script>
 
 <template>
@@ -235,9 +259,37 @@ const handleChange = (value: any) => {
       />
     </div>
 
-    <!-- Price and promotion filters removed from horizontal filter -->
+    <div class="col-span-2 flex items-center" v-if="filterAttributes?.FilterPrice">
+      <InputCheckBox
+        id="filterPromotionHorizontal"
+        v-model="filterValues.promotion"
+        switch
+        @change="handleChange"
+      >
+        <span class="uppercase text-xs">
+          {{ $t('label.promotion') }}
+        </span>
+      </InputCheckBox>
+    </div>
     
-    <!-- <div class="col-span-10 mt-3 flex justify-end">
+    <div class="col-span-10 mt-3" v-if="filterAttributes?.FilterPrice">
+      <div class="flex justify-between items-center mb-1">
+        <span class="text-xs uppercase">{{ $t('label.prices') }}</span>
+        <span class="text-xs">
+          {{ currencySign }}{{ (filterValues.price[0] || 0).toFixed(2) }} - {{ currencySign }}{{ (filterValues.price[1] || 0).toFixed(2) }}
+        </span>
+      </div>
+      <InputRange
+        v-model="filterValues.price"
+        :format="{ suffix: currencySign, decimals: 2 }"
+        :tooltips="true"
+        :min="filterAttributes.FilterPrice.RegularPrice?.MinPriceTaxIncl"
+        :max="filterAttributes.FilterPrice.RegularPrice?.MaxPriceTaxIncl"
+        @change="handlePriceChange"
+      />
+    </div>
+    
+    <div class="col-span-10 mt-3 flex justify-end">
       <BaseButton
         type="primary"
         plain
@@ -247,7 +299,7 @@ const handleChange = (value: any) => {
       >
         {{ $t('button.reset') }}
       </BaseButton>
-    </div> -->
+    </div>
   </div>
 </template>
 <style lang="scss">
