@@ -11,6 +11,10 @@ const { product } = defineProps({
     type: String as () => 'small' | 'medium' | 'large',
     default: 'small',
   },
+  displayPaymentX: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 const currencySign = currencyIsoCode.value;
@@ -34,25 +38,46 @@ const promotionalPrice = computed(() => {
 </script>
 
 <template>
-  <div class="cardProduct-price" :class="[size]">
-    <template v-if="hasPromtion">
-      <b class="font-normal">
-        {{ promotionalPrice?.PriceTaxIncl?.toFixed(2) }}{{ currencySign }}
-      </b>
+  <div>
+    <div class="cardProduct-price" :class="[size]">
+      <template v-if="hasPromtion">
+        <b class="font-normal">
+          {{ promotionalPrice?.PriceTaxIncl?.toFixed(2) }}{{ currencySign }}
+        </b>
 
-      <span class="line-through font-light text-[90%]">
-        {{ regularPrice?.PriceTaxIncl?.toFixed(2) }}{{ currencySign }}
-      </span>
+        <span class="line-through font-light text-[90%]">
+          {{ regularPrice?.PriceTaxIncl?.toFixed(2) }}{{ currencySign }}
+        </span>
 
-      <span class="inline-block font-light bg-black text-white px-1 text-[90%] translate-y-[-1px]">
-        {{ promotionalPrice?.PriceRuleName }}
-      </span>
-    </template>
-    <template v-else>
-      <b class="font-normal"
-        >{{ regularPrice?.PriceTaxIncl?.toFixed(2) }}{{ currencySign }}</b
-      >
-    </template>
+        <span
+          class="inline-block font-light bg-black text-white h-auto pt-1 px-1 text-[80%] translate-y-[-1px] leading-none"
+        >
+          {{ promotionalPrice?.PriceRuleName }}
+        </span>
+      </template>
+      <template v-else>
+        <b class="font-normal"
+          >{{ regularPrice?.PriceTaxIncl?.toFixed(2) }}{{ currencySign }}</b
+        >
+      </template>
+    </div>
+    <div
+      class="block text-xs mt-1 font-normal"
+      v-if="
+        displayPaymentX &&
+        (promotionalPrice?.PriceTaxIncl || regularPrice?.PriceTaxIncl || 0) >=
+          40
+      "
+      v-html="
+        $t('label.payment_in_x_free', [
+          Number(
+            (promotionalPrice?.PriceTaxIncl ||
+              regularPrice?.PriceTaxIncl ||
+              0) / 3
+          ).toFixed(2) + currencySign,
+        ])
+      "
+    ></div>
   </div>
 </template>
 <style lang="scss">
@@ -71,9 +96,9 @@ const promotionalPrice = computed(() => {
   //   }
   // }
   &.medium {
-    @apply text-sm;
+    @apply text-base;
     @screen lg {
-      @apply text-base;
+      @apply text-lg;
     }
   }
 }

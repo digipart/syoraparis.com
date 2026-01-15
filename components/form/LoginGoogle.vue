@@ -1,30 +1,35 @@
 <template>
-  <!-- <button type="button">Sign In with Google</button>
-    <button @click="signOut" type="button">Sign Out</button> -->
+  <div>
+    <BaseButton
+      type="primary"
+      plain
+      size="medium"
+      v-loading="loading"
+      @click="signIn"
+      :title="$t('button.google_login')"
+      class="w-full"
+    >
+      <span>
+        {{ $t('button.google_login') }}
+      </span>
 
-  <BaseButton
-    type="primary"
-    plain
-    size="medium"
-    v-loading="loading"
-    @click="signIn"
-    :title="$t('button.google_login')"
-  >
-    <span>
-      {{ $t('button.google_login') }}
-    </span>
-
-    <img
-      class="h-6 w-6 cursor-pointer ml-2"
-      src="/assets/images/google-logo.svg"
-      alt=""
-    />
-  </BaseButton>
+      <img
+        class="h-6 w-6 cursor-pointer ml-2"
+        src="/assets/images/google-logo.svg"
+        alt=""
+      />
+    </BaseButton>
+    <div v-if="error" class="text-red-500 text-xs mt-1">
+      {{ error }}
+    </div>
+  </div>
 </template>
 
 <script setup lang="ts">
 const { $googleAuth } = useNuxtApp();
+const { t } = useI18n();
 const loading = ref(false);
+const error = ref<string | null>(null);
 const auth = useAuth();
 const { login } = auth;
 
@@ -32,74 +37,42 @@ const emit = defineEmits(['onSuccess']);
 
 const signIn = async () => {
   try {
-    const user = await $googleAuth.signIn();
-    if (user) {
-      const googleCustomerId = user.getId();
-      const profile = user.getBasicProfile();
-      const email = profile.getEmail();
-      const firstName = profile.getGivenName();
-      const lastName = profile.getFamilyName();
-
-      loading.value = true;
-      const gUser = {
-        GoogleCustomerId: googleCustomerId,
-        Email: email,
-        Firstname: firstName,
-        Lastname: lastName,
-      };
-      login('google', gUser)
-        .then(() => {
-          emit('onSuccess', { user: gUser });
-        })
-        .catch((err) => {
-          console.log(err);
-        })
-        .finally(() => {
-          loading.value = false;
-        });
-    }
-  } catch (error) {
-    console.error('Sign-in error:', error);
-  }
-};
-
-const signInStatic = async () => {
-  try {
-    // const user = await $googleAuth.signIn();
-    // if (user) {
-    const googleCustomerId = '10255597904598555';
-    // const profile = '';
-    const email = 'kazadiabondance50@gmail.com';
-    const firstName = 'Abondance';
-    const lastName = 'Kazadi';
-
+    error.value = null; // Reset error state
     loading.value = true;
+
+    const { profile } = await $googleAuth.signIn();
+
     const gUser = {
-      GoogleCustomerId: googleCustomerId,
-      Email: email,
-      Firstname: firstName,
-      Lastname: lastName,
+      GoogleCustomerId: profile.sub,
+      Email: profile.email,
+      Firstname: profile.given_name,
+      Lastname: profile.family_name,
     };
-    login('google', gUser)
-      .then(() => {
-        emit('onSuccess', { user: gUser });
-      })
-      .catch((err) => {
-        console.log(err);
-      })
-      .finally(() => {
-        loading.value = false;
-      });
-    // }
-  } catch (error) {
-    console.error('Sign-in error:', error);
+
+    console.log('test');
+    await login('google', gUser);
+    emit('onSuccess', { user: gUser });
+  } catch (err: any) {
+    console.error('Sign-in error:', err);
+    // User closed the popup or an auth error occurred
+    const message = err?.response?.data?.message || err?.message;
+    if (message) {
+      error.value = message;
+    } else {
+      error.value = t('error.google_sign_in_failed');
+    }
+  } finally {
+    loading.value = false;
   }
 };
 
 const signOut = async () => {
   try {
     await $googleAuth.signOut();
-  } catch (error) {}
+  } catch (err: any) {
+    console.error('Sign-out error:', err);
+    error.value = err?.message || t('error.google_sign_out_failed');
+  }
 };
 </script>
 

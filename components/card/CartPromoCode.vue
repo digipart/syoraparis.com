@@ -49,7 +49,7 @@ const removeCodePromo = () => {
 
 <template>
   <div class="cartCodePromo" :class="size">
-    <div>
+    <div class="flex-1">
       <BaseHeadLine class="cartCodePromo-title">
         {{ promocode.Title }}
         <small class="block font-light">{{ promocode.Description }}</small>

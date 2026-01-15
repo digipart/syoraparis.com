@@ -11,7 +11,7 @@
   @apply py-16;
 
   h1 {
-    @apply text-2xl font-normal uppercase mb-6 pb-2 border-b border-primary;
+    @apply text-3xl font-normal uppercase mb-6 pb-2;
   }
 
   h2 {

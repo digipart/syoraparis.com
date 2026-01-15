@@ -21,7 +21,7 @@ initProductViewedStore();
 
 const productStore = useProductStore();
 const { fetchProduct } = productStore;
-// const { product, error, loading } = toRefs(productStore);
+const { productsAssociation } = toRefs(productStore);
 
 const loading = ref(false);
 const error = ref(false);
@@ -83,12 +83,12 @@ const videos = computed(() => {
 const mediasXS = computed((): MediaType[] => {
   const media: MediaType[] = [];
   let key = 0;
-  
+
   // Find video with cover=true
-  const coverVideo = videos.value?.find(video => video.Cover === true);
+  const coverVideo = videos.value?.find((video) => video.Cover === true);
   // Find image with cover=true
-  const coverImage = imagesXSmall.value?.find(image => image.Cover === true);
-  
+  const coverImage = imagesXSmall.value?.find((image) => image.Cover === true);
+
   // First priority: video with cover=true
   if (coverVideo) {
     media.push({
@@ -97,15 +97,15 @@ const mediasXS = computed((): MediaType[] => {
       key: key++,
     });
   }
-  
+
   // Add all images, skipping the cover image as it's already added
   if (imagesXSmall.value) {
-    imagesXSmall.value.forEach(image => {
+    imagesXSmall.value.forEach((image) => {
       // Skip the cover image if we already added it
       if (coverImage && image.Src === coverImage.Src && coverVideo) {
         return;
       }
-      
+
       // If this is a cover image and no cover video exists, put it first
       if (image.Cover === true && !coverVideo && media.length === 0) {
         media.unshift({
@@ -122,15 +122,15 @@ const mediasXS = computed((): MediaType[] => {
       }
     });
   }
-  
+
   // Add remaining videos that aren't the cover video
   if (videos.value) {
-    videos.value.forEach(video => {
+    videos.value.forEach((video) => {
       // Skip the cover video as it's already added
       if (coverVideo && video.Src === coverVideo.Src) {
         return;
       }
-      
+
       media.push({
         src: video.Src,
         type: 'video',
@@ -138,18 +138,18 @@ const mediasXS = computed((): MediaType[] => {
       });
     });
   }
-  
+
   return media;
 });
 const medias = computed((): MediaType[] => {
   const media: MediaType[] = [];
   let key = 0;
-  
+
   // Find video with cover=true
-  const coverVideo = videos.value?.find(video => video.Cover === true);
+  const coverVideo = videos.value?.find((video) => video.Cover === true);
   // Find image with cover=true
-  const coverImage = imagesLarge.value?.find(image => image.Cover === true);
-  
+  const coverImage = imagesLarge.value?.find((image) => image.Cover === true);
+
   // First priority: video with cover=true
   if (coverVideo) {
     media.push({
@@ -158,15 +158,15 @@ const medias = computed((): MediaType[] => {
       key: key++,
     });
   }
-  
+
   // Add all images, skipping the cover image as it's already added
   if (imagesLarge.value) {
-    imagesLarge.value.forEach(image => {
+    imagesLarge.value.forEach((image) => {
       // Skip the cover image if we already added it
       if (coverImage && image.Src === coverImage.Src && coverVideo) {
         return;
       }
-      
+
       // If this is a cover image and no cover video exists, put it first
       if (image.Cover === true && !coverVideo && media.length === 0) {
         media.unshift({
@@ -183,15 +183,15 @@ const medias = computed((): MediaType[] => {
       }
     });
   }
-  
+
   // Add remaining videos that aren't the cover video
   if (videos.value) {
-    videos.value.forEach(video => {
+    videos.value.forEach((video) => {
       // Skip the cover video as it's already added
       if (coverVideo && video.Src === coverVideo.Src) {
         return;
       }
-      
+
       media.push({
         src: video.Src,
         type: 'video',
@@ -199,19 +199,19 @@ const medias = computed((): MediaType[] => {
       });
     });
   }
-  
+
   return media;
 });
 
 const mediasXl = computed((): MediaType[] => {
   const media: MediaType[] = [];
   let key = 0;
-  
+
   // Find video with cover=true
-  const coverVideo = videos.value?.find(video => video.Cover === true);
+  const coverVideo = videos.value?.find((video) => video.Cover === true);
   // Find image with cover=true
-  const coverImage = imagesXLarge.value?.find(image => image.Cover === true);
-  
+  const coverImage = imagesXLarge.value?.find((image) => image.Cover === true);
+
   // First priority: video with cover=true
   if (coverVideo) {
     media.push({
@@ -220,15 +220,15 @@ const mediasXl = computed((): MediaType[] => {
       key: key++,
     });
   }
-  
+
   // Add all images, skipping the cover image as it's already added
   if (imagesXLarge.value) {
-    imagesXLarge.value.forEach(image => {
+    imagesXLarge.value.forEach((image) => {
       // Skip the cover image if we already added it
       if (coverImage && image.Src === coverImage.Src && coverVideo) {
         return;
       }
-      
+
       // If this is a cover image and no cover video exists, put it first
       if (image.Cover === true && !coverVideo && media.length === 0) {
         media.unshift({
@@ -245,15 +245,15 @@ const mediasXl = computed((): MediaType[] => {
       }
     });
   }
-  
+
   // Add remaining videos that aren't the cover video
   if (videos.value) {
-    videos.value.forEach(video => {
+    videos.value.forEach((video) => {
       // Skip the cover video as it's already added
       if (coverVideo && video.Src === coverVideo.Src) {
         return;
       }
-      
+
       media.push({
         src: video.Src,
         type: 'video',
@@ -261,7 +261,7 @@ const mediasXl = computed((): MediaType[] => {
       });
     });
   }
-  
+
   return media;
 });
 const title = computed(() => {
@@ -449,6 +449,20 @@ onDeactivated(() => cleanupObserver());
           </div>
         </LayoutContainer>
       </template>
+      <ListingCarouselProducts
+        v-if="productsAssociation.length"
+        :products="productsAssociation"
+        class="mt-6 lg:mt-24"
+        name="sameStyle"
+      >
+        <template #top>
+          <BaseHeadLine size="md" class="font-medium ml-5 lg:ml-10 uppercase">
+            {{ $t('titles.completeYourLook') }}
+          </BaseHeadLine>
+        </template>
+      </ListingCarouselProducts>
+
+      
       <ListingCarouselProducts
         v-if="productsSameStyle.length"
         :products="productsSameStyle"

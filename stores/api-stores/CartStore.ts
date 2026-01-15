@@ -12,6 +12,13 @@ type RequestQuery = {
   IdProductAttribute?: number;
   Quantity?: number;
   NewIdProductAttribute?: number;
+
+  FullName?: string;
+  Email?: string;
+  Message?: string;
+  DateSend?: string;
+  LanguageIsoCode?: string;
+  ProductType?: string;
 };
 
 export const useCartStore = defineStore('cartStore', () => {
@@ -117,10 +124,23 @@ export const useCartStore = defineStore('cartStore', () => {
     idProduct,
     idProductAttribute,
     quantity = 1,
+    fullName,
+    email,
+    message,
+    dateSend,
+    languageIsoCode,
+    productType,
   }: {
     idProduct: number;
     idProductAttribute: number;
     quantity?: number;
+
+    fullName?: string;
+    email?: string;
+    message?: string;
+    dateSend?: string;
+    languageIsoCode?: string;
+    productType?: 'e-giftcard' | '';
   }) => {
     const auth = useAuth();
     const { isLoggedIn } = auth;
@@ -132,6 +152,16 @@ export const useCartStore = defineStore('cartStore', () => {
       IdProductAttribute: idProductAttribute,
       Quantity: quantity,
     };
+
+    if (productType === 'e-giftcard') {
+      // Only add defined values to the request
+      if (fullName !== undefined) options.FullName = fullName;
+      if (email !== undefined) options.Email = email;
+      if (message !== undefined) options.Message = message;
+      if (dateSend !== undefined) options.DateSend = dateSend;
+      if (languageIsoCode !== undefined) options.LanguageIsoCode = languageIsoCode;
+      options.ProductType = productType; // Always include product type
+    }
 
     if (cartId.value) {
       options.IdCart = cartId.value;

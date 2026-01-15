@@ -44,6 +44,10 @@ const routesI18N = {
     fr: '/marques/index',
     en: '/brands',
   },
+  'page/brand': {
+    fr: '/page/marque',
+    en: '/page/brand',
+  },
 } as const;
 
 export default routesI18N;

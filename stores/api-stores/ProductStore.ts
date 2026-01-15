@@ -1,34 +1,62 @@
 // stores/productStore.ts
 import { defineStore } from 'pinia';
+import { ref } from 'vue';
 
 import ProductService from '~/services/ProductService';
 import type { ProductType } from '~/types/ProductType';
+import { useAppStore } from '~/stores/ui-stores/AppStore';
 
-export const useProductStore = defineStore('productStore', {
-  state: () => ({
-    product: {} as ProductType,
-    error: false,
-    loading: false,
-  }),
-  actions: {
-    async fetchProduct(idProduct: number, options?: any): Promise<ProductType> {
-      const productService = new ProductService();
-      this.error = false;
-      this.loading = true;
+export const useProductStore = defineStore('productStore', () => {
+  const product = ref<ProductType>({} as ProductType);
+  const error = ref(false);
+  const loading = ref(false);
+  const productsAssociation = ref<ProductType[]>([]);
+  const isVisisble = ref(false);
 
-      return productService
-        .fetch(idProduct, options)
-        .then((data) => {
-          this.product = data;
-          return data;
-        })
-        .catch((error) => {
-          this.error = true;
-          throw error;
-        })
-        .finally(() => {
-          this.loading = false;
-        });
-    },
-  },
+  async function fetchProduct(
+    idProduct: number,
+    options?: any
+  ): Promise<ProductType> {
+    const productService = new ProductService();
+    loading.value = true;
+    error.value = false;
+    try {
+      const data = await productService.fetch(idProduct, options);
+      product.value = data;
+      return data;
+    } catch (e) {
+      error.value = true;
+      throw e;
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  async function fetchShopTheLook(idProduct: number) {
+    const productService = new ProductService();
+    const { currencyIsoCode, languageIsoCode } = useAppStore();
+    loading.value = true;
+    try {
+      const data = await productService.fetchShopTheLook(idProduct, {
+        CurrencyIsoCode: currencyIsoCode,
+        LanguageIsoCode: languageIsoCode,
+      });
+      isVisisble.value = true;
+      productsAssociation.value = data;
+    } catch (error) {
+      // Handle error appropriately
+    } finally {
+      loading.value = false;
+    }
+  }
+
+  return {
+    product,
+    error,
+    loading,
+    productsAssociation,
+    isVisisble,
+    fetchProduct,
+    fetchShopTheLook,
+  };
 });

@@ -1,9 +1,11 @@
 <script setup lang="ts">
-import ProductService from '~/services/ProductService';
 import type { ProductType } from '~/types/ProductType';
 
 const appStore = useAppStore();
-const { currencyIsoCode, languageIsoCode } = toRefs(appStore);
+
+const productStore = useProductStore();
+const { fetchShopTheLook } = productStore;
+const { productsAssociation } = toRefs(productStore);
 
 const { product } = defineProps({
   product: {
@@ -11,39 +13,29 @@ const { product } = defineProps({
   },
 });
 
-const products = ref<ProductType[]>([]);
-
 const loading = ref(false);
 
 const isVisisble = ref(false);
 
-const productService = new ProductService();
-
 const getLooks = () => {
   if (product?.IdProduct) {
-    if (!products.value.length) {
+    if (!productsAssociation.value.length) {
       loading.value = true;
-      productService
-        .fetchShopTheLook(product?.IdProduct, {
-          CurrencyIsoCode: currencyIsoCode.value,
-          LanguageIsoCode: languageIsoCode.value,
-        })
-        .then((data) => {
-          isVisisble.value = true;
-          products.value = data;
-        })
+      fetchShopTheLook(product?.IdProduct)
+        .then((data) => {})
         .catch((error) => {})
         .finally(() => {
           loading.value = false;
         });
-    } else {
-      isVisisble.value = true;
-    }
+    } 
   }
 };
 
-const open = () => {
+onMounted(() => {
   getLooks();
+});
+const open = () => {
+  isVisisble.value = true;
 };
 </script>
 
@@ -75,7 +67,7 @@ const open = () => {
         </span>
       </template>
       <div>
-        <CardProduct
+        <!-- <CardProduct
           :product="product"
           image-size="small"
           direction="horizontal"
@@ -83,10 +75,10 @@ const open = () => {
           :btnRemoveFromCart="true"
           :openCartAfterAddProduct="false"
         />
-        <hr class="my-4" />
+        <hr class="my-4" /> -->
         <div
           class="shopthelook-item"
-          v-for="product in products"
+          v-for="product, index in productsAssociation"
           :key="product.IdProductAttribute"
         >
           <CardProduct
@@ -97,7 +89,7 @@ const open = () => {
             :btnRemoveFromCart="true"
             :openCartAfterAddProduct="false"
           />
-          <hr class="my-4" />
+          <hr class="my-4" v-if="index < productsAssociation.length - 1" />
         </div>
       </div>
     </BaseDrawer>

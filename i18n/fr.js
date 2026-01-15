@@ -69,6 +69,7 @@ const fr = {
     read_more: 'Lire plus',
     read_less: 'Lire moins',
     select: 'Sélectionner',
+    learnMore: 'en savoir plus',
   },
   link: {
     contact_us: 'Contactez-nous',
@@ -112,6 +113,7 @@ const fr = {
     our_stores: 'Nos boutiques',
     our_stores_near_you: 'Trouver un magasin près de vous',
     discover_our_brands: 'Découvrez nos marques',
+    completeYourLook: 'COMPLÉTEZ VOTRE LOOK',
   },
   label: {
     ref: 'RÉF',
@@ -129,6 +131,10 @@ const fr = {
     name: 'Nom',
     firstname: 'Prénom',
     lastname: 'Nom de famille',
+    recipient_email: 'Email du destinataire',
+    recipient_name: 'Nom du destinataire',
+    message: 'Message',
+    send_on: 'Envoyer le',
     birthdate: 'Date de naissance',
     address: 'Adresse',
     postcode: 'Code postal',
@@ -223,13 +229,22 @@ const fr = {
     recommended_products: 'Produits recommandés',
     shippingOption: {
       title: 'Options de livraison',
-      noCarrier: "Entrez votre adresse de livraison pour voir les méthodes d'expédition disponibles.",
+      noCarrier:
+        "Entrez votre adresse de livraison pour voir les méthodes d'expédition disponibles.",
       Home: 'Domicile',
       Store: 'Point de dépôt',
       RelayPoint: 'Point relais',
     },
     payment: {
-      noPayment: 'Sélectionnez une méthode de livraison pour voir les méthodes de paiement disponibles.',
+      noPayment:
+        'Sélectionnez une méthode de livraison pour voir les méthodes de paiement disponibles.',
+    },
+    faq: {
+      back_to_faq: 'Retour à la FAQ',
+    },
+    payment_in_x_free: 'Ou 3x {0} avec le paiement en 3x sans frais',
+    gift_card: {
+      custom: 'Je veux envoyer ceci en cadeau.',
     },
   },
   component: {
@@ -302,7 +317,8 @@ const fr = {
         button: 'Payer avec Apple Pay',
         redirecting: 'Redirection vers Apple Pay...',
         processing: 'Traitement...',
-        not_available: "Apple Pay n'est pas disponible sur cet appareil ou navigateur.",
+        not_available:
+          "Apple Pay n'est pas disponible sur cet appareil ou navigateur.",
         secure: 'Paiement sécurisé avec Touch ID ou Face ID',
       },
       googlepay: {
@@ -310,7 +326,8 @@ const fr = {
         button: 'Payer avec Google Pay',
         redirecting: 'Redirection vers Google Pay...',
         processing: 'Traitement...',
-        not_available: "Google Pay n'est pas disponible sur cet appareil ou navigateur.",
+        not_available:
+          "Google Pay n'est pas disponible sur cet appareil ou navigateur.",
         secure: 'Paiement sécurisé avec Google Pay',
       },
       klarna: {
@@ -419,6 +436,27 @@ const fr = {
       points_remaining:
         'Il vous reste plus que {points} points pour atteindre le',
     },
+  },
+  ProductLoyalty: {
+    program_title: 'Programme de Fidélité',
+    earn: 'Gagnez',
+    pts: 'pts',
+    with_purchase: 'avec cet achat',
+    discover_community: 'Découvrez notre communauté de fidélité',
+    simple_points:
+      'Gagnez des points à chaque achat et échangez-les contre des récompenses exclusives.',
+    points_earned: 'points gagnés avec cet achat',
+    how_it_works: 'Comment ça marche ?',
+    step1_title: '1. Achetez : ',
+    step1_desc:
+      'Gagnez des points à chaque achat sur notre site ou en boutique.',
+    step2_title: '2. Cumulez : ',
+    step2_desc: 'Suivez vos points dans votre espace membre.',
+    step3_title: '3. Échangez : ',
+    step3_desc:
+      'Utilisez vos points contre des réductions, cadeaux et expériences exclusives.',
+    footer:
+      'Rejoignez notre programme de fidélité dès maintenant pour profiter de tous ces avantages !',
   },
   membership: {
     message:

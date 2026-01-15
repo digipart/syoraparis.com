@@ -65,3 +65,12 @@ export type Value = {
 export type CartRules = {
   Code?: string;
 };
+
+export type GiftCardPayload = {
+  email: string;
+  fullName: string;
+  message: string;
+  dateSend: string;
+  productType?: string;
+  languageIsoCode?: string;
+};

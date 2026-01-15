@@ -20,6 +20,7 @@ const { onSuccess } = defineProps({
 
 const redirectTo = () => {
   if (onSuccess) {
+    console.log('onSuccess login');
     onSuccess();
   } else {
     if (redirect) {
@@ -164,3 +165,4 @@ $formLogin: '.formLogin';
   }
 }
 </style>
+
