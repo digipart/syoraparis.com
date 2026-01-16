@@ -22,7 +22,7 @@ const codePromoRefreshing = ref(false);
 const pickupAddress = ref('');
 
 const valide = computed(() => {
-  return totalProductQuantity.value && addressDelivery.value && carrier.value;
+  return totalProductQuantity.value && carrier.value;
 });
 
 const refreshCodePromo = () => {
@@ -49,6 +49,14 @@ const handleSelectPickupAddress = async (e: any) => {
   checkoutCustomer.value.deliveryAddress.city = e.city;
   checkoutCustomer.value.deliveryAddress.postalCode = e.postalCode;
   checkoutCustomer.value.deliveryAddress.country = e.countryIso;
+};
+
+const paymentRefreshing = ref(false);
+const handalFormGuestChange = (state: any) => {
+  paymentRefreshing.value = true;
+  setTimeout(() => {
+    paymentRefreshing.value = false;
+  }, 100);
 };
 
 const setCheckouCustomer = () => {
@@ -101,7 +109,6 @@ onMounted(() => {
 
 <template>
   <div class="">
-    {{}}
     <!-- <NuxtLink
       to="/"
       class="hidden lg:inline-flex items-center cursor-pointer text-sm mb-2"
@@ -173,7 +180,7 @@ onMounted(() => {
             {{ $t('label.address_delivery') }} :
           </BaseHeadLine>
           <div v-if="checkoutDeliveryOption === 'home'">
-            <PageCheckoutCustomer />
+            <PageCheckoutCustomer  />
             <!-- Shipping option -->
             <BaseHeadLine size="md" class="uppercase font-medium mt-5">
               {{ $t('label.shippingOption.title') }} :

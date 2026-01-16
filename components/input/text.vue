@@ -20,6 +20,8 @@ interface Props {
   required?: boolean;
   errors?: ErrorObject[];
   border?: boolean;
+  minLength?: number;
+  maxLength?: number;
 }
 
 const props = defineProps<Props>();
@@ -112,6 +114,8 @@ const onBlur = () => {
       :placeholder="isFocused || modelValue ? '' : placeholder"
       :disabled="disabled"
       rows="5"
+      :minlength="minLength"
+      :maxlength="maxLength"
     ></textarea>
     <input
       v-else
@@ -123,6 +127,8 @@ const onBlur = () => {
       @blur="onBlur"
       :placeholder="isFocused || modelValue ? '' : placeholder"
       :disabled="disabled"
+      :minlength="minLength"
+      :maxlength="maxLength"
     />
     <div class="inputText-error" v-if="errors">
       <span v-for="error in errors" :key="error.$uid">
