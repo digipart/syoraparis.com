@@ -12,6 +12,10 @@ const categoryStore = useCategoryStore();
 const { fetchFilterAttrs, initFilterAttrs } = categoryStore;
 const { filterAttributes, filterValues } = toRefs(categoryStore);
 
+// Create separate arrays for size and color attributes to avoid conflicts
+const sizeAttrs = ref<string[]>([]);
+const colorAttrs = ref<string[]>([]);
+
 const { t } = useI18n();
 const router = useRouter();
 const route = useRoute();
@@ -71,12 +75,64 @@ const getOptions = (attr: AttributeType[]) => {
   });
 };
 
+// Ensure price values are properly initialized
+const ensurePriceValues = () => {
+  if (!filterValues.value.price || !Array.isArray(filterValues.value.price) || filterValues.value.price.length !== 2) {
+    if (filterAttributes.value?.FilterPrice?.RegularPrice) {
+      filterValues.value.price = [
+        filterAttributes.value.FilterPrice.RegularPrice.MinPriceTaxIncl || 0,
+        filterAttributes.value.FilterPrice.RegularPrice.MaxPriceTaxIncl || 1000
+      ];
+    } else {
+      filterValues.value.price = [0, 1000];
+    }
+  }
+};
+
+// Initialize size attributes from URL if present
+const initSizeFromUrl = () => {
+  const sizeQuery = route.query.sizes;
+  if (sizeQuery) {
+    const sizeValues = Array.isArray(sizeQuery) 
+      ? sizeQuery.map(val => String(val)) 
+      : [String(sizeQuery)];
+      
+    // Update sizeAttrs with values from URL
+    sizeAttrs.value = sizeValues;
+  }
+};
+
+// Call this when component is mounted
+onMounted(() => {
+  ensurePriceValues();
+  initSizeFromUrl();
+});
+
+// Also watch for changes in filterAttributes
+watch(() => filterAttributes.value, () => {
+  ensurePriceValues();
+}, { deep: true });
+
+// Watch for route changes to update size values
+watch(() => route.query, () => {
+  initSizeFromUrl();
+}, { deep: true });
+
 const startFilter = () => {
   const isFilterPrice =
     filterValues.value.price[0] !==
       filterAttributes.value?.FilterPrice?.RegularPrice?.MinPriceTaxIncl ||
     filterValues.value.price[1] !==
       filterAttributes.value?.FilterPrice?.RegularPrice?.MaxPriceTaxIncl;
+      
+  // Get size attribute IDs from the filterAttrsSizes
+  const sizeAttributeIds = filterAttrsSizes.value?.Attribute?.map(attr => attr.IdAttribute || '0') || [];
+  
+  // Filter out size attributes from the main attrs array
+  const sizeValues = sizeAttrs.value.length > 0 ? sizeAttrs.value : [];
+  
+  // Filter out color attributes and other attributes that are not sizes
+  const otherAttrs = filterValues.value.attrs.filter(attr => !sizeAttributeIds.includes(attr));
 
   router.replace({
     query: {
@@ -84,7 +140,11 @@ const startFilter = () => {
         ? { sort: filterValues.value.sort }
         : {}),
 
-      attrs: filterValues.value.attrs,
+      // Include other attributes that are not sizes
+      ...(otherAttrs.length > 0 ? { attrs: otherAttrs } : {}),
+      
+      // Include sizes as a separate parameter
+      ...(sizeValues.length > 0 ? { sizes: sizeValues } : {}),
 
       ...(isFilterPrice ? { price: filterValues.value.price } : {}),
 
@@ -96,6 +156,34 @@ const startFilter = () => {
 
   isVisible.value = false;
   emit('onFilterClick');
+};
+
+const resetFilter = () => {
+  // Reset all filter values to their defaults
+  filterValues.value.sort = '';
+  filterValues.value.attrs = [];
+  filterValues.value.brands = [];
+  filterValues.value.promotion = false;
+  
+  // Also reset the separate attribute arrays
+  sizeAttrs.value = [];
+  colorAttrs.value = [];
+  
+  if (filterAttributes.value?.FilterPrice) {
+    filterValues.value.price = [
+      filterAttributes.value.FilterPrice.RegularPrice?.MinPriceTaxIncl || 0,
+      filterAttributes.value.FilterPrice.RegularPrice?.MaxPriceTaxIncl || 1000
+    ];
+  }
+  
+  // Clear URL query parameters - explicitly remove sizes parameter
+  router.replace({ 
+    query: {} 
+  });
+  
+  // Trigger filter update
+  emit('onFilterClick');
+  isVisible.value = false;
 };
 </script>
 
@@ -182,7 +270,7 @@ const startFilter = () => {
                     v-for="att in getOptions(filterAttrsSizes.Attribute)"
                     name="filterAttrs"
                     :id="`att-${att.id}`"
-                    v-model="filterValues.attrs"
+                    v-model="sizeAttrs"
                     :value="att.id"
                     group
                   >
@@ -210,7 +298,7 @@ const startFilter = () => {
                     v-for="att in getOptions(filterAttrsColors.Attribute)"
                     name="filterAttrs"
                     :id="`att-${att.id}`"
-                    v-model="filterValues.attrs"
+                    v-model="colorAttrs"
                     :value="att.id"
                     group
                   >
@@ -270,16 +358,16 @@ const startFilter = () => {
             {{ $t('button.show_result') }}
           </BaseButton>
         </div>
-        <!-- <div class="mt-3">
+        <div class="mt-3">
           <BaseButton
             type="primary"
             plain
             class="w-full"
-            @click="clearFilter()"
+            @click="resetFilter()"
           >
             {{ $t('button.reset') }}
           </BaseButton>
-        </div> -->
+        </div>
       </div>
     </BaseDrawer>
   </div>

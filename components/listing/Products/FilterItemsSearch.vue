@@ -1,7 +1,8 @@
 <script setup lang="ts">
 interface Item {
   label: string;
-  value: any;
+  value?: any;
+  id?: any;
   selected?: boolean;
 }
 
@@ -43,9 +44,14 @@ const filteredItems = computed(() => {
   );
 });
 
+// Normalize item value to handle both id and value properties
+const getItemValue = (item: Item): any => {
+  return item.id !== undefined ? item.id : item.value;
+};
+
 const selectedLabels = computed(() => {
   const selected = props.items.filter((item) =>
-    props.modelValue.includes(item.value)
+    props.modelValue.includes(getItemValue(item))
   );
   if (selected.length === 0) return props.title || 'Select Items';
 
@@ -80,20 +86,20 @@ const calculatePosition = () => {
 
 const reset = () => {
   searchQuery.value = '';
-  const list = props.items.filter((item) => !props.modelValue.includes(item));
-
   emit('update:modelValue', []);
-  emit('change', list);
+  emit('change', []);
 };
 
 const selectItem = (item: Item) => {
+  const itemValue = getItemValue(item);
+  
   if (props.multiple) {
     // Multi-select logic
     const newSelection = [...props.modelValue];
-    const index = newSelection.indexOf(item.value);
+    const index = newSelection.indexOf(itemValue);
 
     if (index === -1) {
-      newSelection.push(item.value);
+      newSelection.push(itemValue);
     } else {
       newSelection.splice(index, 1);
     }
@@ -101,18 +107,19 @@ const selectItem = (item: Item) => {
     emit('update:modelValue', newSelection);
     emit(
       'change',
-      props.items.filter((item) => newSelection.includes(item.value))
+      props.items.filter((item) => newSelection.includes(getItemValue(item)))
     );
   } else {
     // Single select logic
-    emit('update:modelValue', [item.value]);
-    emit('change', item);
+    emit('update:modelValue', [itemValue]);
+    // For single select, pass just the value to make it easier to use
+    emit('change', itemValue);
     isOpen.value = false;
   }
 };
 
 const isSelected = (item: Item): boolean => {
-  return props.modelValue.includes(item.value);
+  return props.modelValue.includes(getItemValue(item));
 };
 
 const handleClickOutside = (event: MouseEvent) => {

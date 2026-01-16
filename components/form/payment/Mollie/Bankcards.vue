@@ -82,6 +82,7 @@ const cartStore = useCartStore();
 const { cart } = toRefs(cartStore);
 const auth = useAuth();
 const { customer } = toRefs(auth);
+const { customerSaveAddress } = auth;
 const { registerAndPrepareGuestAddress } = useCheckoutGuest();
 const checkoutStore = useCheckoutStore();
 const addressStore = useAddressStore();
@@ -317,7 +318,10 @@ const handleSubmit = async () => {
       message: t('tunnel.payment.card.preparing'),
     };
     console.log('Registering/Preparing guest address...');
+
+    await customerSaveAddress();
     await registerAndPrepareGuestAddress();
+
     console.log('Guest address prepared.');
     const mollieHelper = new MollieHelper({
       cart: cart.value,
@@ -338,12 +342,12 @@ const handleSubmit = async () => {
     const payment = response?.payment || response;
     const links = payment?._links;
 
-    console.log('Redirecting logic check:', {
-      hasPayment: !!payment,
-      hasLinks: !!links,
-      checkoutHref: links?.checkout?.href,
-      status: payment?.status,
-    });
+    // console.log('Redirecting logic check:', {
+    //   hasPayment: !!payment,
+    //   hasLinks: !!links,
+    //   checkoutHref: links?.checkout?.href,
+    //   status: payment?.status,
+    // });
     // Redirect to Mollie checkout if needed (mostly for 3DS)
     if (links?.checkout?.href) {
       console.log('Redirecting to 3DS/Checkout:', links.checkout.href);

@@ -7,6 +7,7 @@ import type {
 } from '~/services/AuthService';
 import AuthService from '~/services/AuthService';
 import Service from '~/services/Services';
+import type { AddressType } from '~/types/AddressType';
 import type {
   AuthDataType,
   CustomerRegisterType,
@@ -170,8 +171,6 @@ export const useAuth = defineStore('useAuthStore', () => {
     const { currencyIsoCode, countryIsoCode, languageIsoCode } =
       toRefs(appStore);
 
-
-    
     options.CurrencyIsoCode = currencyIsoCode.value;
     options.LanguageIsoCode = languageIsoCode.value;
     options.Guest = true;
@@ -342,6 +341,42 @@ export const useAuth = defineStore('useAuthStore', () => {
     }
   }
 
+  async function customerSaveAddress() {
+    const checkoutStore = useCheckoutStore();
+    const { checkoutCustomer, hasSameAddressForShipping } =
+      toRefs(checkoutStore);
+    const addressStore = useAddressStore();
+    const { addressDelivery } = toRefs(addressStore);
+    const { addAddress } = addressStore;
+    if (isLoggedIn.value && !isGuest.value && !addressDelivery.value) {
+      await addAddress({
+        Firstname: checkoutCustomer.value.deliveryAddress.firstname,
+        Lastname: checkoutCustomer.value.deliveryAddress.lastname,
+        Address1: checkoutCustomer.value.deliveryAddress.address,
+        Postcode: checkoutCustomer.value.deliveryAddress.postalCode,
+        City: checkoutCustomer.value.deliveryAddress.city,
+        CountryIsoCode: checkoutCustomer.value.deliveryAddress.country,
+        MobilePhone: checkoutCustomer.value.deliveryAddress.phone,
+        IsInvoice: true,
+        IsDelivery: true,
+      });
+
+      if (!hasSameAddressForShipping.value) {
+        const address = {} as AddressType;
+        address.Firstname = checkoutCustomer.value.invoiceAddress.firstname;
+        address.Lastname = checkoutCustomer.value.invoiceAddress.lastname;
+        address.Address1 = checkoutCustomer.value.invoiceAddress.address;
+        address.Postcode = checkoutCustomer.value.invoiceAddress.postalCode;
+        address.City = checkoutCustomer.value.invoiceAddress.city;
+        address.CountryIsoCode = checkoutCustomer.value.invoiceAddress.country;
+        address.MobilePhone = checkoutCustomer.value.invoiceAddress.phone;
+        address.IsDelivery = false;
+        address.IsInvoice = true;
+        await addAddress(address);
+      }
+    }
+  }
+
   return {
     customer,
     token,
@@ -356,5 +391,6 @@ export const useAuth = defineStore('useAuthStore', () => {
     logout,
     refresh,
     loginWithFacebook,
+    customerSaveAddress,
   };
 });

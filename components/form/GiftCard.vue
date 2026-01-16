@@ -38,8 +38,12 @@
                 type="textarea"
                 :errors="v$.message?.$errors"
                 :label="$t('label.message')"
+                :maxlength="300"
                 border
               />
+              <div class="text-right text-xs text-gray-500">
+                {{ state.message.length }}/300
+              </div>
             </div>
             <div>
               <InputText
