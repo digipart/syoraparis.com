@@ -112,9 +112,11 @@ const AddToCartGiftCard = (payload: GiftCardPayload) => {
 };
 
 onMounted(() => {
-  if (variants.value && variants.value.length > 0) {
-    if (variants.value[0]) {
-      selectVariant(0, variants.value[0]);
+  if (isGiftCard.value) {
+    if (variants.value && variants.value.length > 0) {
+      if (variants.value[0]) {
+        selectVariant(0, variants.value[0]);
+      }
     }
   }
 });
