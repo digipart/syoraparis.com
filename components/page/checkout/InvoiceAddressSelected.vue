@@ -53,6 +53,7 @@ watch(state.value, () => {
 
 <template>
   <div class="">
+    {{ (isLoggedIn && !addressInvoice) }}
     <div
       v-if="addressInvoice"
       class="text-xs text-gray-888 flex gap-3 justify-between items-end bg-white px-5 py-3 border border-black"
@@ -72,7 +73,7 @@ watch(state.value, () => {
         </span>
       </div>
     </div>
-    <transition name="slide" v-if="isLoggedIn">
+    <transition name="slide" v-if="isLoggedIn && addressInvoice">
       <div v-show="isEditing" ref="addressFormAdd" class="mt-3">
         <FormAddress
           v-if="addressInvoice"
@@ -83,7 +84,7 @@ watch(state.value, () => {
       </div>
     </transition>
     <transition name="slide" v-else>
-      <div v-show="!isLoggedIn" ref="addressFormAdd" class="">
+      <div v-show="!isLoggedIn || (isLoggedIn && !addressInvoice)" ref="addressFormAdd" class="">
         <div ref="addressFormAdd" class="">
           <form class="formDelivery-form">
             <div class="grid grid-cols-12 gap-x-5">
@@ -208,3 +209,4 @@ watch(state.value, () => {
 </template>
 
 <style scoped></style>
+

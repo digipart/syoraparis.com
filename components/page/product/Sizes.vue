@@ -45,7 +45,7 @@ const isDrawer = computed(() => {
 });
 
 const isGiftCard = computed(() => {
-  return true;
+  return product?.ProductType === 'e-giftcard';
 });
 
 const selectVariant = (index: number, variant: Variant) => {
@@ -112,20 +112,11 @@ const AddToCartGiftCard = (payload: GiftCardPayload) => {
 };
 
 onMounted(() => {
-  // if (containers.value && lines.value !== null) {
-  //   containers.value.map((container, index) => {
-  //     const containerWidth = container.offsetWidth;
-  //     const containerHeight = container.offsetHeight;
-  //     const angle =
-  //       Math.atan(containerHeight / containerWidth) * (180 / Math.PI);
-  //     if (containers.value && lines.value !== null) {
-  //       const line = lines.value[index];
-  //       if (line) {
-  //         line.style.transform = `translate(-50%, -50%) rotate(${angle}deg)`;
-  //       }
-  //     }
-  //   });
-  // }
+  if (variants.value && variants.value.length > 0) {
+    if (variants.value[0]) {
+      selectVariant(0, variants.value[0]);
+    }
+  }
 });
 </script>
 
