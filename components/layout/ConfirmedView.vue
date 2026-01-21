@@ -9,6 +9,9 @@ const { customer } = toRefs(auth);
 
 const localePath = useLocalePath();
 
+const checkoutStore = useCheckoutStore();
+const { checkoutCustomer } = toRefs(checkoutStore);
+
 const config = useRuntimeConfig();
 </script>
 
@@ -24,7 +27,10 @@ const config = useRuntimeConfig();
           class="confirmedView-body text-xs lg:text-xl font-light"
           v-html="
             $t('order.order_thanks', {
-              name: customer?.Firstname,
+              name:
+                customer?.Firstname ||
+                checkoutCustomer?.deliveryAddress?.firstname ||
+                '',
               mail: config.public.shopEmail,
               tel: config.public.shopPhone,
               tel_text: config.public.shopPhone,

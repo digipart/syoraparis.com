@@ -1,11 +1,9 @@
 import { defineStore } from 'pinia';
-import { reactive } from 'vue';
+import { reactive, computed } from 'vue';
 import { useVuelidate } from '@vuelidate/core';
 import { required, email, helpers } from '@vuelidate/validators';
 
 export const useFormInvoiceStore = defineStore('formInvoiceStore', () => {
-  const { t } = useI18n();
-
   const state = reactive({
     name: '',
     firstname: '',
@@ -19,34 +17,37 @@ export const useFormInvoiceStore = defineStore('formInvoiceStore', () => {
     phone: '',
   });
 
-  const rules = {
-    name: {
-      required: helpers.withMessage(t('error.name_required'), required),
-    },
-    firstname: {
-      required: helpers.withMessage(t('error.firstname_required'), required),
-    },
-    address: {
-      required: helpers.withMessage(t('error.address_required'), required),
-    },
+  const rules = computed(() => {
+    const { t } = useNuxtApp().$i18n;
+    return {
+      name: {
+        required: helpers.withMessage(t('error.name_required'), required),
+      },
+      firstname: {
+        required: helpers.withMessage(t('error.firstname_required'), required),
+      },
+      address: {
+        required: helpers.withMessage(t('error.address_required'), required),
+      },
 
-    city: {
-      required: helpers.withMessage(t('error.city_required'), required),
-    },
-    country: {
-      required: helpers.withMessage(t('error.country_required'), required),
-    },
-    // email: {
-    //   required: helpers.withMessage(t('error.email_required'), required),
-    //   email: helpers.withMessage(t('error.email_valide'), email),
-    // },
-    phone: {
-      required: helpers.withMessage(t('error.phone_required'), required),
-    },
-    // prefix: {
-    //   required: helpers.withMessage(t('error.prefix_required'), required),
-    // },
-  };
+      city: {
+        required: helpers.withMessage(t('error.city_required'), required),
+      },
+      country: {
+        required: helpers.withMessage(t('error.country_required'), required),
+      },
+      // email: {
+      //   required: helpers.withMessage(t('error.email_required'), required),
+      //   email: helpers.withMessage(t('error.email_valide'), email),
+      // },
+      phone: {
+        required: helpers.withMessage(t('error.phone_required'), required),
+      },
+      // prefix: {
+      //   required: helpers.withMessage(t('error.prefix_required'), required),
+      // },
+    };
+  });
 
   const v$ = useVuelidate(rules, state);
 

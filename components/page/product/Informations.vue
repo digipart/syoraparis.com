@@ -122,7 +122,9 @@ onUnmounted(() => {
           >{{ $t('label.color') }} :
         </label>
         <CardProductColors
-          :product="product"
+          v-for="p in product?.Relationship?.Child"
+          :key="p.IdProduct"
+          :product="p"
           :activeIdProduct="Number(product.IdProduct)"
           size="medium"
           link

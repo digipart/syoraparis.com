@@ -42,6 +42,21 @@
       </div>
     </div>
 
+    <div class="mb-5">
+      <span
+        class="text-xs ml-1 inline-block -translate-y-0.5"
+        v-html="
+          t('tunnel.payment.cgv', {
+            shopname: shopName,
+            link_cgv: localePath({
+              name: 'terms-and-conditions',
+            }),
+          })
+        "
+      >
+      </span>
+    </div>
+
     <div class="text-center mt-6">
       <BaseButton
         :disabled="isProcessing"
@@ -89,6 +104,10 @@ const addressStore = useAddressStore();
 const { addressDelivery, addressInvoice } = toRefs(addressStore);
 const isProcessing = ref(false);
 const paymentStatus = ref<{ type: string; message: string } | null>(null);
+const localePath = useLocalePath();
+const appStore = useAppStore();
+const { shopName } = toRefs(appStore);
+
 // Mollie references
 // We use a global variable on window to ensure singleton across component re-mounts
 const getMollieInstance = () => mollie.value; // Use composable value

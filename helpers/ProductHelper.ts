@@ -18,7 +18,7 @@ export class ProductHelper {
   static getColor(variant: Variant) {
     return variant?.Combination?.Attributes?.find(
       (attr) => attr.GroupName === 'Color'
-    )?.AttributeName;
+    )?.AttributeCode;
   }
   static getFirstImage(product: ProductType) {
     if (product) {

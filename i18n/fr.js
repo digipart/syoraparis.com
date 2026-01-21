@@ -338,7 +338,7 @@ const fr = {
         name: 'Payer avec Alma',
         sname: 'Paiement en 2,3 ou 4 fois sans frais.',
       },
-      cgv: "En continuant, j'accepte les conditions générales de vente de {shopname}",
+      cgv: "En continuant, j'accepte <a href='{link_cgv}' class='underline'> les conditions générales de vente</a> de {shopname}",
       error: {
         fetch_methods: 'Échec de la récupération des méthodes de paiement',
         processing: 'Erreur lors du traitement du paiement',

@@ -190,6 +190,8 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
       MobilePhone: checkoutCustomer.value.deliveryAddress.lastname,
     })
       .then((response) => {
+        console.log('add', response);
+        
         return response;
       })
       .catch((err) => {

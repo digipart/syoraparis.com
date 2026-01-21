@@ -8,15 +8,21 @@
               <CardProductMedia :product="product" image-size="xsmall" />
             </div>
             <div class="productHeader-info">
-              <BaseColor size="small" color="red" active />
-              <div>
-                <CardProductTitle
+              <!-- <BaseColor size="small" color="red" active /> -->
+              <div class="mb-3">
+                <CardProductColors
                   :product="product"
-                  tag="h3"
-                  :lines="2"
-                  class="mb-2 font-normal"
+                  :activeIdProduct="Number(product?.IdProduct || 0)"
+                  size="medium"
                 />
               </div>
+              <CardProductTitle
+                :product="product"
+                tag="h3"
+                :lines="2"
+                class="mb-2 font-normal"
+              />
+
               <CardProductPrice :product="product" />
             </div>
           </div>

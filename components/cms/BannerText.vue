@@ -34,7 +34,7 @@ $bannerText: '.bannerText';
       @apply text-5xl lg:text-7xl;
     }
     p {
-      @apply text-5xl lg:text-7xl;
+      @apply text-[2rem] leading-tight lg:text-7xl;
       b {
         @apply font-medium;
       }

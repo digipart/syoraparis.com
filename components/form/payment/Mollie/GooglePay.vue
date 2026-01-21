@@ -1,5 +1,20 @@
 <template>
   <div class="google-pay-form">
+    <div class="mb-5">
+      <span
+        class="text-xs ml-1 inline-block -translate-y-0.5"
+        v-html="
+          t('tunnel.payment.cgv', {
+            shopname: shopName,
+            link_cgv: localePath({
+              name: 'terms-and-conditions',
+            }),
+          })
+        "
+      >
+      </span>
+    </div>
+
     <div class="google-pay-container">
       <!-- Google Pay Button -->
       <div v-if="isGooglePayAvailable" class="button-container">
@@ -80,6 +95,10 @@ const { v$: v$FormDelivery } = toRefs(formDeliveryStore);
 
 const formInvoiceStore = useFormInvoiceStore();
 const { v$: v$AddressInvoice } = toRefs(formInvoiceStore);
+
+const localePath = useLocalePath();
+const appStore = useAppStore();
+const { shopName } = toRefs(appStore);
 
 const auth = useAuth();
 const { customer } = toRefs(auth);

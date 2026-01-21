@@ -1,32 +1,29 @@
 <template>
   <div class="cardProduct-colors">
     <ul>
-      <li
-        v-for="productR in relationshipProducts?.slice(0, max)"
-        :key="productR.IdProduct"
-      >
+      <li>
         <NuxtLink
           v-if="link"
-          :to="getProductUrl(productR)"
+          :to="getProductUrl(product)"
           class="cardProduct-color"
-          :class="[size, { active: productR.IdProduct === activeIdProduct }]"
+          :class="[size, { active: product.IdProduct === activeIdProduct }]"
           :style="{
-            backgroundColor: getRandomHexColor(),
+            backgroundColor: getRandomHexColor(product?.Variant?.[0]),
           }"
         >
         </NuxtLink>
         <span
           v-else
           class="cardProduct-color"
-          :class="[size, { active: productR.IdProduct === activeIdProduct }]"
+          :class="[size, { active: product.IdProduct === activeIdProduct }]"
           :style="{
-            backgroundColor: getRandomHexColor(),
+            backgroundColor: getRandomHexColor(product?.Variant?.[0]),
           }"
-          @click="colorSelected($event, productR)"
+          @click="colorSelected($event, product)"
         >
         </span>
       </li>
-      <li
+      <!-- <li
         v-if="
           maxToShow &&
           relationshipProducts?.length &&
@@ -36,17 +33,18 @@
         <span class="text-xxs lg:text-xs block hover:underline">
           +{{ relationshipProducts?.length - maxToShow }}
         </span>
-      </li>
+      </li> -->
     </ul>
   </div>
 </template>
 <script setup lang="ts">
 import { ProductHelper } from '~/helpers/ProductHelper';
-import type { ProductType } from '~/types/ProductType';
+import type { ProductType, Variant } from '~/types/ProductType';
 
 const { product, size, max } = defineProps({
   product: {
     type: {} as PropType<ProductType>,
+    required: true,
   },
   activeIdProduct: {
     type: Number,
@@ -68,13 +66,12 @@ const emit = defineEmits(['colorClick']);
 
 const localePath = useLocalePath();
 
-const getRandomHexColor = (): string => {
-  return `#ffffff`;
+const getRandomHexColor = (variant: Variant | undefined): string => {
+  if (variant) {
+    return ProductHelper.getColor(variant) || '#ffffff';
+  }
+  return '#ffffff';
 };
-
-const relationshipProducts = computed(() => {
-  return product?.Relationship?.Child;
-});
 
 const colorSelected = ($event: MouseEvent, product: ProductType) => {
   $event.preventDefault();
@@ -85,7 +82,7 @@ const maxToShow = computed(() => {
   if (max) {
     return max;
   }
-  return relationshipProducts.value?.length || 0;
+  return 100;
 });
 
 const getProductUrl = (p: ProductType) => {
