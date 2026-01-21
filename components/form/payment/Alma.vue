@@ -18,10 +18,19 @@
       </template>
     </div>
 
-    <div class="mb-5 flex items-start gap-2 mt-5">
-      <label for="generalConditions" class="text-xs">
-        {{ t('tunnel.payment.cgv', { shopname: shopName }) }}
-      </label>
+    <div class="mb-5">
+      <span
+        class="text-xs ml-1 inline-block -translate-y-0.5"
+        v-html="
+          t('tunnel.payment.cgv', {
+            shopname: shopName,
+            link_cgv: localePath({
+              name: 'terms-and-conditions',
+            }),
+          })
+        "
+      >
+      </span>
     </div>
 
     <BaseButton
@@ -55,6 +64,7 @@ const addressStore = useAddressStore();
 const { addressDelivery, addressInvoice } = toRefs(addressStore);
 
 const checkoutStore = useCheckoutStore();
+const localePath = useLocalePath();
 
 const props = defineProps<{
   paymentMethods: PaymentMethodType[];

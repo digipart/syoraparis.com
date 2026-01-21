@@ -3,7 +3,10 @@ const routesI18N = {
     fr: '/politique-de-confidentialite',
     en: '/privacy-policy',
   },
-
+ 'terms-and-conditions': {
+    fr: '/conditions-generales-de-vente',
+    en: '/terms-and-conditions',
+  },
   'account/login': {
     fr: '/compte/se-connecter',
     en: '/account/login',

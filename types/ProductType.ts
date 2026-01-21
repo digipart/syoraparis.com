@@ -126,6 +126,7 @@ export type Attribute = {
   LanguageIsoCode?: string;
   AttributeName?: string;
   GroupName?: GroupName;
+  AttributeCode?: string;
 };
 
 export enum GroupName {

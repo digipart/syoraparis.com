@@ -168,171 +168,116 @@ const config = useRuntimeConfig();
       v-if="checkoutPaymentMethods.length > 0"
       :index-active="[1]"
     >
-      <BaseCollapsibleItem
-        v-for="(pm, index) in checkoutPaymentMethods"
-        :key="pm.IdPayment"
-        :index="index + 1"
-        :closeOthers="true"
-        :hideArrow="true"
-      >
-        <template #header>
-          <div class="flex justify-between w-full items-center">
-            <div class="flex flex-col text-xs">
-              <span class="uppercase font-normal">
-                {{ pm?.PaymentName }}
-              </span>
-              <span class="font-light"> {{ pm.PaymentDescription }} </span>
+      <template v-for="(pm, index) in checkoutPaymentMethods">
+        <BaseCollapsibleItem
+          v-if="
+            (pm.PaymentProvider?.toLowerCase() === 'mollie' &&
+              ['creditcard', 'paypal', 'applepay', 'googlepay'].includes(
+                pm.PaymentCode?.toLowerCase() || ''
+              )) ||
+            (pm.PaymentProvider?.toLowerCase() === 'payzen' &&
+              pm.PaymentCode?.toLowerCase() === 'creditcard') ||
+            (pm.PaymentProvider?.toLowerCase() === 'stripe' &&
+              ['creditcard', 'klarna'].includes(
+                pm.PaymentCode?.toLowerCase() || ''
+              )) ||
+            (pm.PaymentProvider?.toLowerCase() === 'paypal' &&
+              pm.PaymentCode?.toLowerCase() === 'paypal')
+          "
+          :index="index + 1"
+          :closeOthers="true"
+          :hideArrow="true"
+        >
+          <template #header>
+            <div class="flex justify-between w-full items-center">
+              <div class="flex flex-col text-xs">
+                <span class="uppercase font-normal">
+                  {{ pm?.PaymentName }}
+                </span>
+                <span class="font-light"> {{ pm.PaymentDescription }} </span>
+              </div>
+              <div>
+                <img
+                  v-if="getPaymentImage(pm.PaymentCode)"
+                  :src="getPaymentImage(pm.PaymentCode)"
+                  :alt="pm.PaymentName"
+                  class="h-5"
+                />
+              </div>
             </div>
-            <div>
-              <img
-                v-if="getPaymentImage(pm.PaymentCode)"
-                :src="getPaymentImage(pm.PaymentCode)"
-                :alt="pm.PaymentName"
-                class="h-5"
+          </template>
+          <template #content>
+            <div class="p-5">
+              <!-- Mollie -->
+              <FormPaymentMollieBankcards
+                v-if="
+                  pm.PaymentProvider?.toLowerCase() === 'mollie' &&
+                  pm.PaymentCode?.toLowerCase() === 'creditcard'
+                "
+                :paymentMethod="pm"
               />
-            </div>
-          </div>
-        </template>
-        <template #content>
-          <div class="p-5">
-            <!-- Mollie -->
-            <FormPaymentMollieBankcards
-              v-if="
-                pm.PaymentProvider?.toLowerCase() === 'mollie' &&
-                pm.PaymentCode?.toLowerCase() === 'creditcard'
-              "
-              :paymentMethod="pm"
-            />
-            <FormPaymentMolliePaypal
-              v-if="
-                pm.PaymentProvider?.toLowerCase() === 'mollie' &&
-                pm.PaymentCode?.toLowerCase() === 'paypal'
-              "
-              :paymentMethod="pm"
-            />
-            <FormPaymentMollieApplePay
-              v-if="
-                pm.PaymentProvider?.toLowerCase() === 'mollie' &&
-                pm.PaymentCode?.toLowerCase() === 'applepay'
-              "
-              :paymentMethod="pm"
-            />
-            <FormPaymentMollieGooglePay
-              v-if="
-                pm.PaymentProvider?.toLowerCase() === 'mollie' &&
-                pm.PaymentCode?.toLowerCase() === 'googlepay'
-              "
-              :paymentMethod="pm"
-            />
+              <FormPaymentMolliePaypal
+                v-if="
+                  pm.PaymentProvider?.toLowerCase() === 'mollie' &&
+                  pm.PaymentCode?.toLowerCase() === 'paypal'
+                "
+                :paymentMethod="pm"
+              />
+              <FormPaymentMollieApplePay
+                v-if="
+                  pm.PaymentProvider?.toLowerCase() === 'mollie' &&
+                  pm.PaymentCode?.toLowerCase() === 'applepay'
+                "
+                :paymentMethod="pm"
+              />
+              <FormPaymentMollieGooglePay
+                v-if="
+                  pm.PaymentProvider?.toLowerCase() === 'mollie' &&
+                  pm.PaymentCode?.toLowerCase() === 'googlepay'
+                "
+                :paymentMethod="pm"
+              />
 
-            <!-- PAYZEN -->
-            <FormPaymentPayzenBankcards
-              v-if="
-                pm.PaymentProvider?.toLowerCase() === 'payzen' &&
-                pm.PaymentCode?.toLowerCase() === 'creditcard'
-              "
-              :paymentMethod="pm"
-            />
+              <!-- PAYZEN -->
+              <FormPaymentPayzenBankcards
+                v-if="
+                  pm.PaymentProvider?.toLowerCase() === 'payzen' &&
+                  pm.PaymentCode?.toLowerCase() === 'creditcard'
+                "
+                :paymentMethod="pm"
+              />
 
-            <!-- Strip -->
-            <FormPaymentStripe
-              v-if="
-                pm.PaymentProvider?.toLowerCase() === 'stripe' &&
-                pm.PaymentCode?.toLowerCase() === 'creditcard'
-              "
-              :paymentMethod="pm"
-              form-type="card"
-            />
-            <FormPaymentStripe
-              v-if="
-                pm.PaymentProvider?.toLowerCase() === 'stripe' &&
-                pm.PaymentCode?.toLowerCase() === 'klarna'
-              "
-              :paymentMethod="pm"
-              form-type="klarna"
-            />
-          </div>
-        </template>
-      </BaseCollapsibleItem>
-    </BaseCollapsible>
-
-    <!-- <BaseCollapsible v-if="paymentMethods.length > 0" :index-active="[1]">
-      <BaseCollapsibleItem
-        v-for="(s, index) in paymentMethods"
-        :key="s?.key"
-        :index="index+1"
-        :closeOthers="true"
-        :hideArrow="true"
-      >
-        <template #header>
-          <div class="flex justify-between w-full items-center">
-            <div class="flex flex-col text-xs">
-              <span class="uppercase font-normal">
-                {{ s?.name }}
-              </span>
-              <span class="font-light">
-                {{ s?.sname }} {{ index }}
-              </span>
-            </div>
-            <div>
-              <img :src="s?.logo" :alt="s?.name" class="h-5" />
-            </div>
-          </div>
-        </template>
-        <template #content>
-          <div class="p-5">
-            <template v-if="s?.key === 'card'"> -->
-    <!-- <FormPaymentStripe
-                :paymentMethod="s.data"
-                :disabled="disabled"
-                form-type="card"
-              /> -->
-
-    <!-- <FormPaymentMollie :paymentMethod="s.data" />
-            </template>
-            <template v-if="s?.key === 'card-payzen'">
-              <FormPaymentPayzen :paymentMethod="s.data" />
-            </template>
-            <template v-if="s?.key === 'paypal'">
-              <FormPaymentPaypal :paymentMethod="s.data" />
-            </template>
-            <template v-if="s?.key === 'klarna'">
+              <!-- Strip -->
               <FormPaymentStripe
-                :paymentMethod="s.data"
-                :disabled="disabled"
+                v-if="
+                  pm.PaymentProvider?.toLowerCase() === 'stripe' &&
+                  pm.PaymentCode?.toLowerCase() === 'creditcard'
+                "
+                :paymentMethod="pm"
+                form-type="card"
+              />
+              <FormPaymentStripe
+                v-if="
+                  pm.PaymentProvider?.toLowerCase() === 'stripe' &&
+                  pm.PaymentCode?.toLowerCase() === 'klarna'
+                "
+                :paymentMethod="pm"
                 form-type="klarna"
               />
-            </template>
-          </div>
-        </template>
-      </BaseCollapsibleItem>
-
-      <BaseCollapsibleItem :index="1000" :closeOthers="true" :hideArrow="true">
-        <template #header>
-          <div class="flex justify-between w-full items-center">
-            <div class="flex flex-col text-xs">
-              <span class="uppercase font-normal">
-                {{ t('tunnel.payment.alma.name') }}
-              </span>
-              <span class="font-light">
-                {{ t('tunnel.payment.alma.sname') }}
-              </span>
+              <!-- Paypal -->
+              <FormPaymentPaypal
+                v-if="
+                  pm.PaymentProvider?.toLowerCase() === 'paypal' &&
+                  pm.PaymentCode?.toLowerCase() === 'paypal'
+                "
+                :paymentMethod="pm"
+                form-type="paypal"
+              />
             </div>
-            <div>
-              <img src="/assets/images/alma-logo.svg" alt="Alma" class="h-5" />
-            </div>
-          </div>
-        </template>
-        <template #content>
-          <div class="p-5">
-            <FormPaymentAlma
-              v-if="checkoutPaymentMethods.length > 0"
-              :paymentMethods="checkoutPaymentMethods"
-            />
-          </div>
-        </template>
-      </BaseCollapsibleItem> 
-    </BaseCollapsible>-->
+          </template>
+        </BaseCollapsibleItem>
+      </template>
+    </BaseCollapsible>
   </div>
 </template>
 

@@ -1,8 +1,17 @@
 <template>
   <div class="paypal-form relative">
     <div class="mb-3">
-      <span class="text-xs ml-1 inline-block -translate-y-0.5">
-        {{ t('tunnel.payment.cgv', { shopname: shopName }) }}
+      <span
+        class="text-xs ml-1 inline-block -translate-y-0.5"
+        v-html="
+          t('tunnel.payment.cgv', {
+            shopname: shopName,
+            link_cgv: localePath({
+              name: 'terms-and-conditions',
+            }),
+          })
+        "
+      >
       </span>
     </div>
 
@@ -27,6 +36,9 @@ const { cart } = toRefs(cartStore);
 const auth = useAuth();
 const { customer } = toRefs(auth);
 
+const { customerSaveAddress } = auth;
+const { registerAndPrepareGuestAddress } = useCheckoutGuest();
+
 const checkoutStore = useCheckoutStore();
 
 // Composables
@@ -43,7 +55,11 @@ const props = defineProps({
 });
 
 // Emit events
-const emit = defineEmits(['payment-started', 'payment-completed', 'payment-error']);
+const emit = defineEmits([
+  'payment-started',
+  'payment-completed',
+  'payment-error',
+]);
 
 // Reactive state
 const generalConditionsSale = ref(false);
@@ -55,11 +71,12 @@ const acceptConditionsText = computed(() =>
   t('I accept the general sales conditions', ['/content/cgv'])
 );
 
-const paypalPayment = computed(() =>
-  new PaypalHelper({
-    cart: cart.value,
-    customer: customer.value || {},
-  })
+const paypalPayment = computed(
+  () =>
+    new PaypalHelper({
+      cart: cart.value,
+      customer: customer.value || {},
+    })
 );
 
 const getCurrency = computed(() => cart.value?.Currency?.IsoCode);
@@ -116,7 +133,7 @@ const handlePaypalApproval = (data, actions) => {
       cartId: cart.value.IdCart,
       details,
     });
-    
+
     // Create a new cart after successful payment
     try {
       await cartStore.newIdCart();
@@ -160,6 +177,8 @@ const startPayment = async () => {
         },
         onClick: async (data, actions) => {
           const allValid = await checkoutStore.validateCheckoutBeforePayment();
+          await customerSaveAddress();
+          await registerAndPrepareGuestAddress();
           if (!allValid) {
             const firstError = document.querySelector(
               '.formShipping .text-red-500, .inputText.error, .v-select.error'
@@ -187,7 +206,10 @@ const startPayment = async () => {
 
 // Lifecycle hooks
 onMounted(() => {
-  if (paypalButtonContainer.value && paypalButtonContainer.value.innerHTML.trim() === '') {
+  if (
+    paypalButtonContainer.value &&
+    paypalButtonContainer.value.innerHTML.trim() === ''
+  ) {
     startPayment();
   }
 });
@@ -196,7 +218,10 @@ onMounted(() => {
 watch(
   () => [cart.value?.IdCart, getCurrency.value],
   () => {
-    if (paypalButtonContainer.value && paypalButtonContainer.value.children.length === 0) {
+    if (
+      paypalButtonContainer.value &&
+      paypalButtonContainer.value.children.length === 0
+    ) {
       startPayment();
     }
   },

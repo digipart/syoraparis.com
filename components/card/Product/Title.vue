@@ -21,7 +21,7 @@ const { product, tag, size } = defineProps({
 });
 
 const title = computed(() => {
-  if ((product as ProductOrderType).Title) {
+  if ((product as ProductOrderType)?.Title) {
     return (product as ProductOrderType)?.Title;
   } else {
     return (product as ProductType)?.Description?.Title;

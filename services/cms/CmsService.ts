@@ -6,7 +6,7 @@ export default class CmsService {
     link: new HttpLink({
       uri: process.env.STRAPI_URL
         ? process.env.STRAPI_URL + '/graphql'
-        : 'https://cms.syoraparis.com/graphql',
+        : 'https://cms.unicodeparis.com/graphql',
     }),
     cache: new InMemoryCache(),
   });

@@ -17,6 +17,9 @@ const { customer } = toRefs(auth);
 const addressStore = useAddressStore();
 const { addressDelivery, addressInvoice } = toRefs(addressStore);
 
+const { customerSaveAddress } = auth;
+const { registerAndPrepareGuestAddress } = useCheckoutGuest();
+
 const checkoutStore = useCheckoutStore();
 
 const localePath = useLocalePath();
@@ -42,16 +45,20 @@ const stripePayment = ref<StripeHelper>();
 
 const postData = async () => {
   try {
-    if (addressDelivery?.value && paymentMethod) {
-      const response = await stripePayment.value?.postData({
-        clientSecret: clientSecret.value,
-        paymentMethod: paymentMethod,
-        addressDelivery: addressDelivery?.value,
-        addressInvoice: addressInvoice?.value,
-      });
+    const cs = await customerSaveAddress();
+    const ga = await registerAndPrepareGuestAddress();
+    console.log('cs', cs);
+    console.log('ga', ga);
+    // if (addressDelivery?.value && paymentMethod) {
+    const response = await stripePayment.value?.postData({
+      clientSecret: clientSecret.value,
+      paymentMethod: paymentMethod,
+      addressDelivery: addressDelivery?.value,
+      addressInvoice: addressInvoice?.value,
+    });
 
-      return true;
-    }
+    return true;
+    // }
     return false;
   } catch (error) {
     console.log(error);
@@ -191,8 +198,17 @@ onMounted(async () => {
     </div>
 
     <div class="mb-5">
-      <span class="text-xs ml-1 inline-block -translate-y-0.5">
-        {{ t('tunnel.payment.cgv', { shopname: shopName }) }}
+      <span
+        class="text-xs ml-1 inline-block -translate-y-0.5"
+        v-html="
+          t('tunnel.payment.cgv', {
+            shopname: shopName,
+            link_cgv: localePath({
+              name: 'terms-and-conditions',
+            }),
+          })
+        "
+      >
       </span>
     </div>
 

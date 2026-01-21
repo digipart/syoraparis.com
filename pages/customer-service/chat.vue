@@ -24,16 +24,16 @@
               <div class="flex">
                 <div class="max-w-[160px]">
                   <NuxtImg
-                    :src="product.ImagesUrl.product_small[0].Url"
+                    :src="product?.ImagesUrl?.product_small[0].Url"
                     class="w-full"
                   />
                 </div>
                 <div class="pl-3">
                   <span class="text-xs block mt-1">
-                    {{ product.Title[0].Title }}
+                    {{ product?.Title?.[0]?.Title }}
                   </span>
                   <span class="text-xs block mt-1"
-                    >{{ product.Size }}, {{ product.Color }}</span
+                    >{{ product?.Size }}, {{ product?.Color }}</span
                   >
                 </div>
               </div>
@@ -47,16 +47,16 @@
               <div class="flex">
                 <div class="max-w-[160px]">
                   <NuxtImg
-                    :src="product.ImagesUrl.product_small[0].Url"
+                    :src="product?.ImagesUrl?.product_small[0].Url"
                     class="w-full"
                   />
                 </div>
                 <div class="pl-3">
                   <span class="text-xs block mt-1">
-                    {{ product.Title[0].Title }}
+                    {{ product?.Title?.[0]?.Title }}
                   </span>
                   <span class="text-xs block mt-1"
-                    >{{ product.Size }}, {{ product.Color }}</span
+                    >{{ product?.Size }}, {{ product?.Color }}</span
                   >
                 </div>
               </div>
