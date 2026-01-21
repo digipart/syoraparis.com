@@ -334,7 +334,7 @@ const en = {
         name: 'Pay with Alma',
         sname: 'Payment in 2,3 or 4 installments without fees.',
       },
-      cgv: 'By continuing, I accept the general terms and conditions of sale of {shopname}',
+      cgv: "By continuing, I accept <a href='{link_cgv}' class='underline'>the general terms and conditions of sale</a> of {shopname}",
       error: {
         fetch_methods: 'Failed to fetch payment methods',
         processing: 'Error processing payment',

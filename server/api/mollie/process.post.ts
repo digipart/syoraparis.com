@@ -26,7 +26,7 @@ export default defineEventHandler(async (event) => {
     };
 
     // redirectUrl is required by Mollie even for direct card payments (for 3DS fallback)
-    paymentBody.redirectUrl = redirectUrl || `${process.env.NUXT_PUBLIC_URL || 'https://syoraparis.com'}/order/accepted?orderid=${orderId}&init=1`;
+    paymentBody.redirectUrl = redirectUrl || `${process.env.NUXT_PUBLIC_URL || 'https://unicodeparis.com'}/order/accepted?orderid=${orderId}&init=1`;
 
     console.log('Sending payload to Mollie:', JSON.stringify(paymentBody, null, 2));
 
