@@ -151,7 +151,7 @@
           </BaseHeadLine>
           <p>
             Retour sur les chapitres fondateurs qui ont façonné l’univers
-            Unicodeparis.
+            Syoraparis.
           </p>
         </div>
         <ul class="brandPage-timelineList">
@@ -183,7 +183,7 @@
             :key="index"
             :src="image"
             class="brandPage-galleryImage"
-            :alt="`Inspiration Unicodeparis ${index + 1}`"
+            :alt="`Inspiration Syoraparis ${index + 1}`"
           />
         </div>
       </LayoutContainer>
@@ -197,8 +197,8 @@
 const frContent = {
   hero: {
     image: '/images/brand.jpg',
-    alt: 'Univers de Unicodeparis',
-    title: 'Unicodeparis',
+    alt: 'Univers de Syoraparis',
+    title: 'Syoraparis',
     subtitle: 'L’élégance parisienne, consciente et intemporelle',
     buttonText: 'Découvrir',
     scrollText: 'Défiler',
@@ -206,8 +206,8 @@ const frContent = {
   story: {
     title: 'Notre Histoire',
     paragraphs: [
-      "Unicode est une marque née à Paris, pensée comme une ode à l'élégance naturelle et à la féminité contemporaine. Elle s'inspire du style parisien dans ce qu'il a de plus authentique : une allure maîtrisée mais jamais figée, une sophistication discrète, une liberté assumée. Unicode s'adresse aux femmes qui recherchent des pièces justes, durables et bien construites, capables de traverser les saisons sans perdre leur sens ni leur allure.",
-      "Implantée à Paris, Unicode a fait le choix de placer son bureau au cœur de la capitale afin de rester au plus près des tendances, des marchés et de ses partenaires. Ce bureau parisien est le centre névralgique de la marque. Il concentre le développement commercial, le suivi technique des collections, la relation client ainsi qu'un showroom permanent permettant une immersion directe dans l'univers Unicode. Cette proximité avec les donneurs d'ordre et les acteurs du secteur garantit une réactivité constante, une vision précise du marché et un suivi des collections en temps réel.",
+      "Syora est une marque née à Paris, pensée comme une ode à l'élégance naturelle et à la féminité contemporaine. Elle s'inspire du style parisien dans ce qu'il a de plus authentique : une allure maîtrisée mais jamais figée, une sophistication discrète, une liberté assumée. Syora s'adresse aux femmes qui recherchent des pièces justes, durables et bien construites, capables de traverser les saisons sans perdre leur sens ni leur allure.",
+      "Implantée à Paris, Syora a fait le choix de placer son bureau au cœur de la capitale afin de rester au plus près des tendances, des marchés et de ses partenaires. Ce bureau parisien est le centre névralgique de la marque. Il concentre le développement commercial, le suivi technique des collections, la relation client ainsi qu'un showroom permanent permettant une immersion directe dans l'univers Syora. Cette proximité avec les donneurs d'ordre et les acteurs du secteur garantit une réactivité constante, une vision précise du marché et un suivi des collections en temps réel.",
     ],
     image: {
       src: '/images/brand-2.jpg',
@@ -234,11 +234,11 @@ const frContent = {
   craft: {
     title: 'Collections et savoir-faire',
     paragraphs: [
-      "La création chez Unicode repose sur un équilibre exigeant entre intuition stylistique et rigueur technique. Chaque collection est développée avec une attention particulière portée aux coupés, aux matières et aux finitions. Le travail de mécénat, la mise au point technique et le prototypage occupent une place centrale dans le processus créatif, avec une capacité de développement allant jusqu'à soixante échantillons par semaine. Les modèles sont ensuite pensés pour une industrialisation fluide et maîtrisée, afin de garantir une production fidèle à l'intention initiale, sans compromis sur la qualité ou le confort.",
+      "La création chez Syora repose sur un équilibre exigeant entre intuition stylistique et rigueur technique. Chaque collection est développée avec une attention particulière portée aux coupés, aux matières et aux finitions. Le travail de mécénat, la mise au point technique et le prototypage occupent une place centrale dans le processus créatif, avec une capacité de développement allant jusqu'à soixante échantillons par semaine. Les modèles sont ensuite pensés pour une industrialisation fluide et maîtrisée, afin de garantir une production fidèle à l'intention initiale, sans compromis sur la qualité ou le confort.",
     ],
     image: {
       src: '/images/brand-3.jpg',
-      alt: 'Développement technique Unicode',
+      alt: 'Développement technique Syora',
     },
   },
   valuesTitle: 'Nos Valeurs',
@@ -262,24 +262,24 @@ const frContent = {
   excellence: {
     title: 'Excellence et vision responsable',
     paragraphs: [
-      "Depuis sa création, Unicode place la qualité et l'exigence au cœur de son projet. Chaque étape de production est pensée et contrôlée avec rigueur par une équipe d'inspecteurs dédiés, afin de garantir que chaque pièce réponde aux normes les plus élevées. Cette attention se traduit par un taux de conformité supérieur à 98 % et par le respect strict des cahiers des charges définis en amont. La sélection des matières, la démarche de négociation des prix, le contrôle des tissus et l'optimisation des coûts font partie intégrante de cette approche globale, qui vise à offrir le meilleur équilibre entre qualité, performance et durabilité.",
-      "Au-delà de la qualité, Unicode inscrit son développement dans une logique de responsabilité sociale et environnementale forte. La marque s'engage à respecter les normes internationales les plus exigeantes en matière de conditions de travail, de traçabilité des matières et de sécurité de la chaîne d'approvisionnement. Les certifications ICS, SMETA, OCS, RCS et ISO 28000 témoignent de cet engagement concret, tout comme l'usage d'outils reconnus pour mesurer la performance environnementale et sociale.",
-      "L'avenir de Unicode se construit autour d'investissements continus dans l'innovation et la durabilité. Dès 2026, la marque déploiera de nouvelles certifications liées à la santé, à la sécurité au travail et à la gestion environnementale, tout en mettant en service une centrale solaire qui permettra de réduire significativement son empreinte carbone. Cette vision à long terme reflète une volonté claire : proposer une mode responsable, consciente et tournée vers l'avenir.",
-      "Unicode s'affirme ainsi comme une marque parisienne moderne, où l'élégance rencontre l'exigence et la maîtrise industrielle. Une marque qui crée des pièces désirables, pensées pour durer, et portées par une vision responsable de la mode contemporaine.",
+      "Depuis sa création, Syora place la qualité et l'exigence au cœur de son projet. Chaque étape de production est pensée et contrôlée avec rigueur par une équipe d'inspecteurs dédiés, afin de garantir que chaque pièce réponde aux normes les plus élevées. Cette attention se traduit par un taux de conformité supérieur à 98 % et par le respect strict des cahiers des charges définis en amont. La sélection des matières, la démarche de négociation des prix, le contrôle des tissus et l'optimisation des coûts font partie intégrante de cette approche globale, qui vise à offrir le meilleur équilibre entre qualité, performance et durabilité.",
+      "Au-delà de la qualité, Syora inscrit son développement dans une logique de responsabilité sociale et environnementale forte. La marque s'engage à respecter les normes internationales les plus exigeantes en matière de conditions de travail, de traçabilité des matières et de sécurité de la chaîne d'approvisionnement. Les certifications ICS, SMETA, OCS, RCS et ISO 28000 témoignent de cet engagement concret, tout comme l'usage d'outils reconnus pour mesurer la performance environnementale et sociale.",
+      "L'avenir de Syora se construit autour d'investissements continus dans l'innovation et la durabilité. Dès 2026, la marque déploiera de nouvelles certifications liées à la santé, à la sécurité au travail et à la gestion environnementale, tout en mettant en service une centrale solaire qui permettra de réduire significativement son empreinte carbone. Cette vision à long terme reflète une volonté claire : proposer une mode responsable, consciente et tournée vers l'avenir.",
+      "Syora s'affirme ainsi comme une marque parisienne moderne, où l'élégance rencontre l'exigence et la maîtrise industrielle. Une marque qui crée des pièces désirables, pensées pour durer, et portées par une vision responsable de la mode contemporaine.",
     ],
   },
   seo: {
-    title: 'Unicodeparis — Univers de marque',
+    title: 'Syoraparis — Univers de marque',
     description:
-      "Découvrez l’univers Unicodeparis : élégance contemporaine, sourcing responsable et silhouettes emblématiques conçues à Paris.",
+      "Découvrez l’univers Syoraparis : élégance contemporaine, sourcing responsable et silhouettes emblématiques conçues à Paris.",
   },
 } as const;
 
 const enContent = {
   hero: {
     image: '/images/brand.jpg',
-    alt: 'World of Unicodeparis',
-    title: 'Unicodeparis',
+    alt: 'World of Syoraparis',
+    title: 'Syoraparis',
     subtitle: 'Parisian elegance, conscious and timeless',
     buttonText: 'Discover',
     scrollText: 'Scroll',
@@ -287,8 +287,8 @@ const enContent = {
   story: {
     title: 'Our Story',
     paragraphs: [
-      'Unicode is a brand born in Paris, conceived as an ode to natural elegance and contemporary femininity. It draws on Parisian style at its most authentic: a composed yet fluid attitude, discreet sophistication, and an assured freedom. Unicode speaks to women who seek considered, durable pieces crafted to move through the seasons without losing their meaning or allure.',
-      'Based in Paris, Unicode chose to anchor its studio in the heart of the capital to stay close to trends, markets, and partners. This Parisian headquarters is the brand’s nerve center. It concentrates commercial development, technical follow-up of the collections, client relations, and a permanent showroom offering an immediate immersion in the Unicode universe. This proximity to decision-makers and industry players ensures constant reactivity, a precise vision of the market, and real-time monitoring of the collections.',
+      'Syora is a brand born in Paris, conceived as an ode to natural elegance and contemporary femininity. It draws on Parisian style at its most authentic: a composed yet fluid attitude, discreet sophistication, and an assured freedom. Syora speaks to women who seek considered, durable pieces crafted to move through the seasons without losing their meaning or allure.',
+      'Based in Paris, Syora chose to anchor its studio in the heart of the capital to stay close to trends, markets, and partners. This Parisian headquarters is the brand’s nerve center. It concentrates commercial development, technical follow-up of the collections, client relations, and a permanent showroom offering an immediate immersion in the Syora universe. This proximity to decision-makers and industry players ensures constant reactivity, a precise vision of the market, and real-time monitoring of the collections.',
     ],
     image: {
       src: '/images/brand-2.jpg',
@@ -315,11 +315,11 @@ const enContent = {
   craft: {
     title: 'Collections & craftsmanship',
     paragraphs: [
-      'Creation at Unicode balances instinctive style with technical rigor. Each collection is developed with meticulous attention to cuts, materials, and finishes. Patronage, technical refinements, and prototyping play a central role in the process, with an in-house capacity of up to sixty samples per week. The pieces are then designed for smooth, controlled industrialization to deliver production faithful to the original intent, without compromising on quality or comfort.',
+      'Creation at Syora balances instinctive style with technical rigor. Each collection is developed with meticulous attention to cuts, materials, and finishes. Patronage, technical refinements, and prototyping play a central role in the process, with an in-house capacity of up to sixty samples per week. The pieces are then designed for smooth, controlled industrialization to deliver production faithful to the original intent, without compromising on quality or comfort.',
     ],
     image: {
       src: '/images/brand-3.jpg',
-      alt: 'Unicode technical development',
+      alt: 'Syora technical development',
     },
   },
   valuesTitle: 'Our Values',
@@ -343,16 +343,16 @@ const enContent = {
   excellence: {
     title: 'Excellence & responsible vision',
     paragraphs: [
-      'Since its inception, Unicode has placed quality and high standards at the heart of its mission. Every production stage is planned and monitored with rigor by a dedicated team of inspectors to ensure each piece meets the highest requirements. This attention results in a compliance rate above 98% and strict adherence to the specifications defined upstream. Material selection, price negotiations, fabric inspection, and cost optimization are integral to this holistic approach, designed to offer the best balance between quality, performance, and durability.',
-      'Beyond quality, Unicode anchors its development within a strong social and environmental responsibility framework. The brand is committed to meeting the most demanding international standards for working conditions, material traceability, and supply-chain security. Certifications such as ICS, SMETA, OCS, RCS, and ISO 28000 attest to this concrete commitment, as does the use of recognized tools to measure environmental and social performance.',
-      'Unicode’s future is built on ongoing investments in innovation and sustainability. Starting in 2026, the brand will roll out new certifications focused on health, workplace safety, and environmental management, while commissioning a solar plant that will significantly reduce its carbon footprint. This long-term vision expresses a clear intent: to propose responsible fashion that is conscious and forward-looking.',
-      'Unicode asserts itself as a modern Parisian label where elegance meets high standards and industrial mastery. A brand that crafts desirable, lasting pieces fueled by a responsible vision of contemporary fashion.',
+      'Since its inception, Syora has placed quality and high standards at the heart of its mission. Every production stage is planned and monitored with rigor by a dedicated team of inspectors to ensure each piece meets the highest requirements. This attention results in a compliance rate above 98% and strict adherence to the specifications defined upstream. Material selection, price negotiations, fabric inspection, and cost optimization are integral to this holistic approach, designed to offer the best balance between quality, performance, and durability.',
+      'Beyond quality, Syora anchors its development within a strong social and environmental responsibility framework. The brand is committed to meeting the most demanding international standards for working conditions, material traceability, and supply-chain security. Certifications such as ICS, SMETA, OCS, RCS, and ISO 28000 attest to this concrete commitment, as does the use of recognized tools to measure environmental and social performance.',
+      'Syora’s future is built on ongoing investments in innovation and sustainability. Starting in 2026, the brand will roll out new certifications focused on health, workplace safety, and environmental management, while commissioning a solar plant that will significantly reduce its carbon footprint. This long-term vision expresses a clear intent: to propose responsible fashion that is conscious and forward-looking.',
+      'Syora asserts itself as a modern Parisian label where elegance meets high standards and industrial mastery. A brand that crafts desirable, lasting pieces fueled by a responsible vision of contemporary fashion.',
     ],
   },
   seo: {
-    title: 'Unicodeparis — Brand universe',
+    title: 'Syoraparis — Brand universe',
     description:
-      'Explore the Unicodeparis universe: contemporary elegance, responsible sourcing, and emblematic silhouettes crafted in Paris.',
+      'Explore the Syoraparis universe: contemporary elegance, responsible sourcing, and emblematic silhouettes crafted in Paris.',
   },
 } as const;
 

@@ -83,7 +83,7 @@ const fr = `
             </p>
 
             <h3>Contact</h3>
-            <p>info@unicodeparis.fr</p>
+            <p>info@syoraparis.fr</p>
 
             <p>
               <em
@@ -155,7 +155,7 @@ const en = `
             </p>
 
             <h3>Contact</h3>
-            <p>info@unicodeparis.fr</p>
+            <p>info@syoraparis.fr</p>
 
             <p>
               <em
