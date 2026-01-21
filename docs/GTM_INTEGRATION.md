@@ -1,6 +1,6 @@
 # Google Tag Manager (GTM) Integration
 
-This document explains how Google Tag Manager has been integrated into the UnicodeParis.com application.
+This document explains how Google Tag Manager has been integrated into the SyoraParis.com application.
 
 ## Overview
 
