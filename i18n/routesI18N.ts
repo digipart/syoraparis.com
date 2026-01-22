@@ -15,18 +15,18 @@ const routesI18N = {
     fr: '/compte/registre',
     en: '/account/register',
   },
-  'account/password/forget': {
-    fr: '/compte/mot-de-passe/oublier',
-    en: '/account/password/forget',
-  },
-  'account/password/validate': {
-    fr: '/compte/mot-de-passe/valider',
-    en: '/account/password/validate',
-  },
-  'account/password/new': {
-    fr: '/compte/mot-de-passe/nouveau',
-    en: '/account/password/new',
-  },
+  // 'account/password/forget': {
+  //   fr: '/compte/mot-de-passe/oublier',
+  //   en: '/account/password/forget',
+  // },
+  // 'account/password/validate': {
+  //   fr: '/compte/mot-de-passe/valider',
+  //   en: '/account/password/validate',
+  // },
+  // 'account/password/new': {
+  //   fr: '/compte/mot-de-passe/nouveau',
+  //   en: '/account/password/new',
+  // },
   search: {
     fr: '/recherche',
     en: '/search',
