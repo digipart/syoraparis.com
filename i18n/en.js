@@ -228,7 +228,7 @@ const en = {
     recommended_products: 'Recommended products',
     shippingOption: {
       noCarrier:
-        'Enter your shipping address to view available shipping methods.',
+        'There are no carriers available for this shipping address.',
       title: 'Options of delivery',
       Home: 'Home',
       Store: 'Store',

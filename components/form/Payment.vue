@@ -122,7 +122,10 @@ const config = useRuntimeConfig();
       >
         <transition name="slide">
           <div v-show="!showForm && !listAddressVisible">
-            <div class="mt-3">
+            <div>
+              <span class="text-xs">
+                {{ t('titles.invoice_address') }}
+              </span>
               <PageCheckoutInvoiceAddressSelected />
             </div>
             <span
