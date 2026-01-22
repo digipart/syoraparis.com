@@ -43,7 +43,7 @@ const bc = computed((): BreadCrump[] => {
       <span v-else class="text-gray-888">
         {{ item.text }}
       </span>
-      <i v-if="index < bc.length - 1" class="breadcrumb-icon">
+      <i v-if="index > 0" class="breadcrumb-icon">
         <IconChevronRight />
       </i>
     </li>
@@ -52,10 +52,13 @@ const bc = computed((): BreadCrump[] => {
 
 <style lang="scss">
 .breadcrumb {
-  @apply flex items-center
+  @apply flex items-center flex-wrap gap-y-1
   text-xs;
   &-item {
-    @apply pr-5 relative;
+    @apply pl-5 relative;
+    &:first-child {
+      @apply pl-0;
+    }
     &:last-child {
       overflow: hidden;
       display: -webkit-box;
@@ -65,7 +68,7 @@ const bc = computed((): BreadCrump[] => {
     }
   }
   &-icon {
-    @apply absolute right-0 top-1/2 -translate-y-1/2;
+    @apply absolute left-0 top-1/2 -translate-y-1/2;
   }
 }
 </style>

@@ -21,6 +21,8 @@
 
 <script setup lang="ts">
 const { locale } = useI18n();
+const appStore = useAppStore();
+const { domainName } = toRefs(appStore);
 const fr = `
  <h1>Vente Exceptionnelle Ouverte au Public</h1>
 
@@ -83,7 +85,7 @@ const fr = `
             </p>
 
             <h3>Contact</h3>
-            <p>info@syoraparis.fr</p>
+            <p>info@${domainName.value}</p>
 
             <p>
               <em
@@ -155,7 +157,7 @@ const en = `
             </p>
 
             <h3>Contact</h3>
-            <p>info@syoraparis.fr</p>
+            <p>info@${domainName.value}</p>
 
             <p>
               <em

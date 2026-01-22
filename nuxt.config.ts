@@ -13,7 +13,9 @@ export default defineNuxtConfig({
   runtimeConfig: {
     mollieApiKey: process.env.MOLLIE_API_KEY,
     public: {
+      strapiUrl: process.env.STRAPI_URL,
       shopname: process.env.SHOP_NAME,
+      domainName: process.env.DOMAIN_NAME,
       shopEmail: process.env.SHOP_EMAIL,
       shopPhone: process.env.SHOP_PHONE,
       shopLogoDark: process.env.SHOP_LOGO_DARK,
@@ -24,8 +26,6 @@ export default defineNuxtConfig({
       apiUrl: process.env.API_URL,
       googleMapKey: process.env.GOOGLE_MAP_KEY,
       googleClientId: process.env.GOOGLE_CLIENT_ID,
-
-      strapiUrl: process.env.STRAPI_URL,
       stripePublicKey: process.env.STRIPE_PUBLIC_KEY,
       paypalClientID: process.env.PAYPAL_CLIENT_ID,
       payzenPublicKey: process.env.PAYZEN_PUBLIC_KEY,
@@ -125,7 +125,7 @@ export default defineNuxtConfig({
     differentDomains: false,
   },
   strapi: {
-    url: process.env.STRAPI_URL || 'https://cms.syoraparis.com',
+    url: process.env.STRAPI_URL,
     prefix: '/api',
     admin: '/admin',
     version: 'v4',
@@ -136,7 +136,7 @@ export default defineNuxtConfig({
     clients: {
       default: {
         httpEndpoint: `${
-          process.env.STRAPI_URL || 'https://cms.syoraparis.com'
+          process.env.STRAPI_URL
         }/graphql`,
       },
     },
