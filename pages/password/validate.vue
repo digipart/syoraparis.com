@@ -7,6 +7,8 @@ useHead(() => ({
   title: () => t('pages.account.password_validate.title'),
   description: () => t('pages.account.password_validate.description'),
 }));
+const route = useRoute();
+const email = (route.query.email as string) || '';
 </script>
 
 <template>
@@ -24,7 +26,7 @@ useHead(() => ({
         <div
           class="text"
           v-html="
-            $t('html.passwordForgetText', { email: 'adamtest01@yopmail.com' })
+            $t('html.passwordForgetText', { email: email })
           "
         ></div>
       </div>

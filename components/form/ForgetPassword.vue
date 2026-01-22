@@ -30,10 +30,14 @@ const submitForm = async () => {
         LanguageIsoCode: languageIsoCode.value,
       })
       .then(() => {
-        router.replace(localePath({ name: 'account-password-validate' }));
+        router.replace(
+          localePath({
+            name: 'password-validate',
+            query: { email: state.value.email },
+          })
+        );
       })
       .catch((err) => {
-
         responseError.value = err?.response?._data?.Message || '';
       })
       .finally(() => {
