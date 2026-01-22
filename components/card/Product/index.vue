@@ -205,7 +205,6 @@ const variantSelected = () => {
     @mouseleave="setDefaultProduct()"
   >
     <div class="cardProduct-top relative aspect-[1080/1610]">
-  
       <CardProductMedia
         @click="redirect"
         :product="currentProduct"
@@ -218,7 +217,7 @@ const variantSelected = () => {
         class="showbody"
         :product="currentProduct"
       />
-      <div v-if="favorite" class="cardProduct-favorite">
+      <div v-if="favorite && direction === 'vertical'" class="cardProduct-favorite">
         <CardProductAddToFavorite :product="currentProduct" colorIcon="black" />
       </div>
 
@@ -237,7 +236,7 @@ const variantSelected = () => {
         }"
       >
         <div class="flex-1">
-          <CardProductTitle @click="redirect" :product="currentProduct"/>
+          <CardProductTitle @click="redirect" :product="currentProduct" />
           <CardProductPrice :product="currentProduct" :size="size" />
           <div
             v-if="btnRemoveFromCart && productInCart()"
@@ -251,12 +250,17 @@ const variantSelected = () => {
         </div>
 
         <CardProductColors
-          v-if="size === 'medium'"
+          v-if="size === 'medium' && product && direction === 'vertical'"
           :product="product"
           :activeIdProduct="Number(product?.IdProduct)"
-          :max="1"
           class="mt-1"
         />
+        <div v-if="favorite && direction === 'horizontal'" class="cardProduct-favorite cardProduct-favorite--horizontal">
+          <CardProductAddToFavorite
+            :product="currentProduct"
+            colorIcon="black"
+          />
+        </div>
       </div>
 
       <div
@@ -281,7 +285,11 @@ $cardProduct: '.cardProduct';
   &.hasBorder {
     &:after {
       content: '';
-      box-shadow: 1px 0 black, 0 1px black, 1px 1px black, 1px 0 black inset,
+      box-shadow:
+        1px 0 black,
+        0 1px black,
+        1px 1px black,
+        1px 0 black inset,
         0 1px black inset;
       height: 100%;
       left: 0;
@@ -364,6 +372,9 @@ $cardProduct: '.cardProduct';
         @apply flex-1;
       }
       &-favorite {
+        &--horizontal {
+          @apply opacity-100 pointer-events-auto;
+        }
         @screen lg {
           @apply top-0 right-0;
         }

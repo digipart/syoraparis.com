@@ -1,7 +1,7 @@
 <template>
   <div class="LoyaltyProductBlock" @click="visible = true">
     <div class="w-12 h-12 bg-black rounded-full p-1 flex items-center">
-      <img src="/assets/images/logo-white.svg" alt="MY JMP" class="w-full" />
+      <img src="/settings/images/logo-white.svg" alt="MY JMP" class="w-full" />
     </div>
     <div class="flex flex-col font-light gap-[4px]">
       <strong>{{ $t('ProductLoyalty.program_title') }}</strong>

@@ -116,8 +116,15 @@ const scrollToElement = (index: number) => {
 <template>
   <div class="pageProductMedia flex justify-center">
     <BaseDrawer v-model="isVisibleZoomMedia" size="100%" position="center">
-      <div class="-m-5">
+      <div class="-m-5 hidden lg:block">
         <BaseMediaZoomDesktop
+          :medias="mediasXl"
+          :startAt="zoomStartAt"
+          @onOutClick="isVisibleZoomMedia = false"
+        />
+      </div>
+      <div class="-m-5 block lg:hidden">
+        <BaseMediaZoom
           :medias="mediasXl"
           :startAt="zoomStartAt"
           @onOutClick="isVisibleZoomMedia = false"
