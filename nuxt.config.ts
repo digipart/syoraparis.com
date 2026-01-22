@@ -114,7 +114,7 @@ export default defineNuxtConfig({
   },
   i18n: {
     locales: ['en', 'fr'],
-    defaultLocale: 'fr',
+    // defaultLocale: 'fr',
     strategy: 'prefix_except_default',
     customRoutes: 'config',
     pages: routesI18N,
