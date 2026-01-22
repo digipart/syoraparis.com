@@ -225,7 +225,7 @@ const fr = {
     return_notice: 'Notice explicative sur les retours',
     return_voucher: 'Bon de retour',
     brands: 'Marques',
-    brand: 'la marque',
+    brand: 'Marque',
     recommended_products: 'Produits recommandés',
     shippingOption: {
       title: 'Options de livraison',

@@ -7,7 +7,7 @@ const { addToCart } = cartStore;
 const appStore = useAppStore();
 const { miniCartVisible, miniFavoriteVisible } = toRefs(appStore);
 
-const { product, openCartAfterAddProduct } = defineProps({
+const { product, openCartAfterAddProduct,showColor } = defineProps({
   product: {
     type: {} as PropType<ProductType>,
   },
@@ -15,6 +15,10 @@ const { product, openCartAfterAddProduct } = defineProps({
     type: Number,
   },
   openCartAfterAddProduct: {
+    type: Boolean,
+    default: true,
+  },
+  showColor: {
     type: Boolean,
     default: true,
   },
@@ -75,13 +79,12 @@ onMounted(() => {});
       </li>
     </ul>
     <CardProductColors
+      v-if="product && showColor"
       :product="product"
       @colorClick="$emit('colorClick', $event)"
       :activeIdProduct="activeIdProduct"
-      :max="4"
     />
   </div>
-
 </template>
 
 <style lang="scss">

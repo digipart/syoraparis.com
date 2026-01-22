@@ -13,6 +13,9 @@ export const useAppStore = defineStore('appStore', () => {
   const shopName = computed(() => {
     return runtimeConfig.public.shopname as string;
   });
+  const domainName = computed(() => {
+    return runtimeConfig.public.domainName as string;
+  });
 
   const loadingPage = ref(false);
   function setLoadingPage(status: boolean) {
@@ -72,6 +75,7 @@ export const useAppStore = defineStore('appStore', () => {
     logoLight,
     logoDark,
     shopName,
+    domainName,
     setCategoryListingView,
     setLoadingPage,
   };

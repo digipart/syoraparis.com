@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import type { MediaType } from '~/types/MediaType';
 import { Swiper, SwiperSlide } from 'swiper/vue';
-import { Pagination } from 'swiper/modules';
+import { Pagination, Zoom } from 'swiper/modules';
 
 
-const modules = [Pagination];
+const modules = [Pagination, Zoom];
 
 const { medias } = defineProps({
   medias: {
@@ -24,6 +24,7 @@ const { medias } = defineProps({
     :mousewheel="true"
     class="mediaZoom"
     :modules="modules"
+    :zoom="true"
     :pagination="{ type: 'progressbar' }"
     :initialSlide="startAt"
   >
@@ -32,12 +33,9 @@ const { medias } = defineProps({
       :key="index"
       class="mediaZoom-slide"
     >
-      <NuxtImg
-        v-if="media.type === 'image'"
-        :src="media.src"
-        ref="bigImg"
-        class="mediaZoom-image"
-      />
+      <div class="swiper-zoom-container" v-if="media.type === 'image'">
+        <img :src="media.src" class="mediaZoom-image" />
+      </div>
       <CardProductVideo v-else :videoUrl="media.src" />
     </swiper-slide>
   </swiper>
@@ -48,7 +46,7 @@ $mediaZoom: '.mediaZoom';
 
 #{$mediaZoom} {
   &-image {
-    @apply w-full h-dvh object-cover duration-150;
+    @apply w-full h-dvh object-contain duration-150;
   }
 }
 </style>

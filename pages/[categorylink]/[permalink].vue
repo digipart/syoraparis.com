@@ -396,7 +396,7 @@ onDeactivated(() => cleanupObserver());
         </div>
         <div ref="productInfo" class="grid grid-cols-12 mb-5 lg:mb-24">
           <div
-            class="col-span-12 lg:col-span-6 pageProduct-media mdMax:aspect-[1500/2250] relative"
+            class="col-span-12 lg:col-span-6 pageProduct-media mdMax:aspect-[1500/2113] relative"
           >
             <ClientOnly>
               <PageProductMedia
