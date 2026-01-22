@@ -229,8 +229,7 @@ const fr = {
     recommended_products: 'Produits recommandés',
     shippingOption: {
       title: 'Options de livraison',
-      noCarrier:
-        "Entrez votre adresse de livraison pour voir les méthodes d'expédition disponibles.",
+      noCarrier: "Aucun transporteur n'est disponible pour cette adresse de livraison.",
       Home: 'Domicile',
       Store: 'Point de dépôt',
       RelayPoint: 'Point relais',

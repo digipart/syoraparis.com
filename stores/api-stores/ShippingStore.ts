@@ -16,6 +16,7 @@ export const useShippingStore = defineStore('shippingStore', () => {
   const relayPoints = ref<RelayPointType[]>([]);
   const relayPointsSerched = ref<RelayPointType[]>([]);
   const relayPointSelected = ref<RelayPointType | null>(null);
+  
 
   const clear = () => {
     carriers.value = [];

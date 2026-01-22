@@ -48,12 +48,19 @@ watch(state.value, () => {
   checkoutCustomer.value.invoiceAddress.phone = state.value.phone;
   checkoutCustomer.value.invoiceAddress.postalCode = state.value.postcode;
   checkoutCustomer.value.invoiceAddress.country = state.value.country;
+
+  checkoutCustomer.value.deliveryAddress.firstname = state.value.firstname;
+  checkoutCustomer.value.deliveryAddress.lastname = state.value.name;
+  checkoutCustomer.value.deliveryAddress.address = state.value.address;
+  checkoutCustomer.value.deliveryAddress.city = state.value.city;
+  checkoutCustomer.value.deliveryAddress.phone = state.value.phone;
+  checkoutCustomer.value.deliveryAddress.postalCode = state.value.postcode;
+  checkoutCustomer.value.deliveryAddress.country = state.value.country;
 });
 </script>
 
 <template>
   <div class="">
-    {{ (isLoggedIn && !addressInvoice) }}
     <div
       v-if="addressInvoice"
       class="text-xs text-gray-888 flex gap-3 justify-between items-end bg-white px-5 py-3 border border-black"
@@ -84,7 +91,11 @@ watch(state.value, () => {
       </div>
     </transition>
     <transition name="slide" v-else>
-      <div v-show="!isLoggedIn || (isLoggedIn && !addressInvoice)" ref="addressFormAdd" class="">
+      <div
+        v-show="!isLoggedIn || (isLoggedIn && !addressInvoice)"
+        ref="addressFormAdd"
+        class=""
+      >
         <div ref="addressFormAdd" class="">
           <form class="formDelivery-form">
             <div class="grid grid-cols-12 gap-x-5">
@@ -209,4 +220,3 @@ watch(state.value, () => {
 </template>
 
 <style scoped></style>
-
