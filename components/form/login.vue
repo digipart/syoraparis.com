@@ -102,7 +102,7 @@ const googleSubmit = () => {
           />
         </div>
         <div class="text-xs text-gray-888 underline -mt-3">
-          <NuxtLink :to="localePath({ name: 'account-password-forget' })">
+          <NuxtLink :to="localePath({ name: 'password-forget' })">
             {{ $t('button.forgot_password') }}
           </NuxtLink>
         </div>
