@@ -245,6 +245,10 @@ const fr = {
     gift_card: {
       custom: 'Je veux envoyer ceci en cadeau.',
     },
+    legal_notice: 'Mentions Légales',
+    privacy_policy: 'Politique de Confidentialité',
+    terms_and_conditions: 'Conditions Générales de Vente',
+    contact_us: 'Contactez-nous',
   },
   component: {
     faq: {

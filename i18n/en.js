@@ -244,6 +244,10 @@ const en = {
     gift_card: {
       custom: 'I want to send this as a gift',
     },
+    legal_notice: 'Legal Notice',
+    privacy_policy: 'Privacy Policy',
+    terms_and_conditions: 'Terms and Conditions',
+    contact_us: 'Contact Us',
   },
   component: {
     faq: {
