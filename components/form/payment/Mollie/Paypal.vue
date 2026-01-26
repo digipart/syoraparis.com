@@ -1,18 +1,27 @@
 <template>
   <div class="paypal-payment-form">
-    <div class="mb-5">
-      <span
-        class="text-xs ml-1 inline-block -translate-y-0.5"
-        v-html="
-          t('tunnel.payment.cgv', {
-            shopname: shopName,
-            link_cgv: localePath({
-              name: 'terms-and-conditions',
-            }),
-          })
-        "
+    <div class="mb-5 mt-5">
+      <InputCheckBox
+        :id="`mollie-paypal-cgv-${uid}`"
+        v-model="generalConditionsSale"
+        :required="true"
       >
-      </span>
+        <span
+          class="text-xs ml-1 inline-block -translate-y-0.5"
+          v-html="
+            t('tunnel.payment.cgv', {
+              shopname: shopName,
+              link_cgv: localePath({
+                name: 'terms-and-conditions',
+              }),
+            })
+          "
+        >
+        </span>
+      </InputCheckBox>
+      <p v-if="generalConditionsError" class="mt-1 text-xs text-red-500">
+        {{ generalConditionsError }}
+      </p>
     </div>
 
     <div class="paypal-button-container">
@@ -59,7 +68,9 @@
 </template>
 
 <script setup lang="ts">
+import { watch } from 'vue';
 import MollieHelper from '~/helpers/payments/MollieHelper';
+import InputCheckBox from '~/components/input/CheckBox.vue';
 import type { PaymentMethodType } from '~/types/PaymentType';
 import { useCheckoutGuest } from '~/composables/useCheckoutGuest';
 
@@ -108,12 +119,21 @@ const router = useRouter();
 
 const isProcessing = ref(false);
 const paymentStatus = ref<{ type: string; message: string } | null>(null);
+const generalConditionsSale = ref(false);
+const generalConditionsError = ref<string | null>(null);
+const uid = Math.random().toString(36).substring(7);
 
 const formatAmount = (amount?: number) => {
   if (!amount) return '0.00';
   return (amount / 100).toFixed(2);
 };
 const { mollie, loadMollie } = useMollie();
+
+watch(generalConditionsSale, (value) => {
+  if (value) {
+    generalConditionsError.value = null;
+  }
+});
 
 onMounted(async () => {
   const profileId = config.public.mollieProfileId as string;
@@ -123,6 +143,15 @@ onMounted(async () => {
 });
 
 const handlePayPalPayment = async () => {
+  if (!generalConditionsSale.value) {
+    generalConditionsError.value =
+      t('tunnel.payment.error.cgv_required') ||
+      'Please accept the terms and conditions to continue.';
+    return;
+  }
+
+  generalConditionsError.value = null;
+
   const allValid = await checkoutStore.validateCheckoutBeforePayment();
 
   if (!allValid) {
@@ -144,6 +173,18 @@ const handlePayPalPayment = async () => {
   };
 
   try {
+    const deliveryAddress = addressDelivery.value;
+    const invoiceAddress = addressInvoice.value || deliveryAddress;
+
+    if (!deliveryAddress || !invoiceAddress) {
+      paymentStatus.value = {
+        type: 'error',
+        message: t('tunnel.payment.error.payment_method'),
+      };
+      isProcessing.value = false;
+      return;
+    }
+
     const mollieHelper = new MollieHelper({
       cart: cart.value,
       customer: customer.value || {},
@@ -154,8 +195,8 @@ const handlePayPalPayment = async () => {
     const { paymentUrl } = await mollieHelper.startPayementMethod({
       paymentName: 'paypal',
       paymentMethod: props.paymentMethod,
-      addressDelivery: addressDelivery.value,
-      addressInvoice: addressInvoice.value,
+      addressDelivery: deliveryAddress,
+      addressInvoice: invoiceAddress,
     });
 
     if (paymentUrl) {

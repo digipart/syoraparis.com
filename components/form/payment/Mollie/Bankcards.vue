@@ -42,19 +42,28 @@
       </div>
     </div>
 
-    <div class="mb-5">
-      <span
-        class="text-xs ml-1 inline-block -translate-y-0.5"
-        v-html="
-          t('tunnel.payment.cgv', {
-            shopname: shopName,
-            link_cgv: localePath({
-              name: 'terms-and-conditions',
-            }),
-          })
-        "
+    <div class="mb-5 mt-5">
+      <InputCheckBox
+        :id="`mollie-bankcards-cgv-${uid}`"
+        v-model="generalConditionsSale"
+        :required="true"
       >
-      </span>
+        <span
+          class="text-xs ml-1 inline-block -translate-y-0.5"
+          v-html="
+            t('tunnel.payment.cgv', {
+              shopname: shopName,
+              link_cgv: localePath({
+                name: 'terms-and-conditions',
+              }),
+            })
+          "
+        >
+        </span>
+      </InputCheckBox>
+      <p v-if="generalConditionsError" class="mt-1 text-xs text-red-500">
+        {{ generalConditionsError }}
+      </p>
     </div>
 
     <div class="text-center mt-6">
@@ -84,6 +93,7 @@
 
 <script setup lang="ts">
 import MollieHelper from '~/helpers/payments/MollieHelper';
+import InputCheckBox from '~/components/input/CheckBox.vue';
 import type { PaymentMethodType } from '~/types/PaymentType';
 const { t } = useI18n();
 const config = useRuntimeConfig();
@@ -104,6 +114,8 @@ const addressStore = useAddressStore();
 const { addressDelivery, addressInvoice } = toRefs(addressStore);
 const isProcessing = ref(false);
 const paymentStatus = ref<{ type: string; message: string } | null>(null);
+const generalConditionsSale = ref(false);
+const generalConditionsError = ref<string | null>(null);
 const localePath = useLocalePath();
 const appStore = useAppStore();
 const { shopName } = toRefs(appStore);
@@ -118,6 +130,12 @@ let verificationCode: any = null;
 const isMollieInitialized = ref(false);
 const uid = Math.random().toString(36).substring(7);
 const { mollie, loadMollie } = useMollie();
+
+watch(generalConditionsSale, (value) => {
+  if (value) {
+    generalConditionsError.value = null;
+  }
+});
 const cleanUpMollieComponents = () => {
   try {
     if (cardHolder) {
@@ -239,6 +257,15 @@ onUnmounted(() => {
 });
 const handleSubmit = async () => {
   console.log('handleSubmit called - starting payment flow');
+
+  if (!generalConditionsSale.value) {
+    generalConditionsError.value =
+      t('tunnel.payment.error.cgv_required') ||
+      'Please accept the terms and conditions to continue.';
+    return;
+  }
+
+  generalConditionsError.value = null;
 
   try {
     const allValid = await checkoutStore.validateCheckoutBeforePayment();

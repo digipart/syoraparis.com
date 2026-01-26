@@ -245,6 +245,10 @@ const fr = {
     gift_card: {
       custom: 'Je veux envoyer ceci en cadeau.',
     },
+    legal_notice: 'Mentions Légales',
+    privacy_policy: 'Politique de Confidentialité',
+    terms_and_conditions: 'Conditions Générales de Vente',
+    contact_us: 'Contactez-nous',
   },
   component: {
     faq: {
@@ -343,6 +347,7 @@ const fr = {
         processing: 'Erreur lors du traitement du paiement',
         payment_url: 'URL de paiement non reçue',
         payment_method: "La méthode de paiement n'est pas définie.",
+        cgv_required: "Veuillez accepter les conditions générales de vente pour continuer.",
       },
     },
   },

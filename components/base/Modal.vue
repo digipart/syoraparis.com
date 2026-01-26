@@ -36,14 +36,14 @@ const bodySizeStyle = computed(() => {
     return {
       width: '100%',
       height: size,
-      maxHeight: '100%',
+      maxHeight: 'calc(100% - 2rem)',
     };
   } else {
     return {
       height: 'auto',
       width: size,
       maxWidth: 'calc(100% - 40px)',
-      maxHeight: '100%',
+      maxHeight: 'calc(100% - 2rem)',
     };
   }
 });
@@ -184,7 +184,6 @@ $modal: '.modal';
   &-body {
     @apply absolute top-0 left-0 z-10 h-full duration-300
     flex flex-col border border-black bg-white;
-
 
     &.top {
       @apply top-0 left-0;

@@ -244,6 +244,10 @@ const en = {
     gift_card: {
       custom: 'I want to send this as a gift',
     },
+    legal_notice: 'Legal Notice',
+    privacy_policy: 'Privacy Policy',
+    terms_and_conditions: 'Terms and Conditions',
+    contact_us: 'Contact Us',
   },
   component: {
     faq: {
@@ -340,6 +344,7 @@ const en = {
         processing: 'Error processing payment',
         payment_url: 'Payment URL not received',
         payment_method: 'Payment method is not defined.',
+        cgv_required: 'Please accept the general terms and conditions to continue.',
       },
     },
   },

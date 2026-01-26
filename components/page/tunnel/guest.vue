@@ -41,6 +41,9 @@ const setDelivredOption = async (
 ) => {
   allCarriers.value = {};
   checkoutDeliveryOption.value = optionType;
+  updateShipping({ idCarrier: 0 }).then(() => {
+    removeCarrier();
+  });
 };
 
 const handalFormGuestChange = (state: any) => {
@@ -280,6 +283,8 @@ watch(state.value, () => {
               </template>
             </BaseAlert>
           </div>
+
+          <PageTunnelFooter class="hidden lg:block" />
         </div>
       </div>
 
@@ -300,6 +305,8 @@ watch(state.value, () => {
           </div>
           <hr class="mb-5" />
           <PageTunnelOrderSummary />
+
+          <PageTunnelFooter class="lg:hidden" />
         </div>
       </div>
     </div>
