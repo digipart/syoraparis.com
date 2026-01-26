@@ -37,12 +37,26 @@ const loading = ref(false);
 const error = ref('');
 const paymentFormInitialized = ref(false);
 const generalConditionsSale = ref(false);
+const generalConditionsError = ref<string | null>(null);
 const krInstance = ref<any>(undefined);
 const payzenPayment = ref<PayzenHelper>();
+
+watch(generalConditionsSale, (value) => {
+  if (value) {
+    generalConditionsError.value = null;
+  }
+});
 
 // Fonction pour envoyer les données de paiement
 const postData = async () => {
   try {
+    if (!generalConditionsSale.value) {
+      generalConditionsError.value =
+        t('tunnel.payment.error.cgv_required') ||
+        'Veuillez accepter les conditions générales de vente pour continuer.';
+      return false;
+    }
+
     if (!addressDelivery?.value || !props.paymentMethod) {
       return false;
     }
@@ -358,19 +372,28 @@ onBeforeUnmount(() => {
       </div>
     </div>
 
-    <div class="mb-5">
-      <span
-        class="text-xs ml-1 inline-block -translate-y-0.5"
-        v-html="
-          t('tunnel.payment.cgv', {
-            shopname: shopName,
-            link_cgv: localePath({
-              name: 'terms-and-conditions',
-            }),
-          })
-        "
+    <div class="mb-5 mt-5">
+      <InputCheckBox
+        id="payzen-cgv"
+        v-model="generalConditionsSale"
+        :required="true"
       >
-      </span>
+        <span
+          class="text-xs ml-1 inline-block -translate-y-0.5"
+          v-html="
+            t('tunnel.payment.cgv', {
+              shopname: shopName,
+              link_cgv: localePath({
+                name: 'terms-and-conditions',
+              }),
+            })
+          "
+        >
+        </span>
+      </InputCheckBox>
+      <p v-if="generalConditionsError" class="mt-1 text-xs text-red-500">
+        {{ generalConditionsError }}
+      </p>
     </div>
   </div>
 </template>

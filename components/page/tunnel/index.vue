@@ -11,6 +11,7 @@ const { checkoutCustomer, checkoutCarrier, checkoutDeliveryOption } =
 
 const cartStore = useCartStore();
 const { totalToPay, carrier, totalProductQuantity, cart } = toRefs(cartStore);
+const { updateShipping, removeCarrier } = cartStore;
 
 const addressStore = useAddressStore();
 const { addressDelivery, addressInvoice } = toRefs(addressStore);
@@ -35,11 +36,12 @@ const ip = useIp();
 const setDelivredOption = async (
   optionType: 'home' | 'relayPoint' | 'store'
 ) => {
+  updateShipping({ idCarrier: 0 }).then(() => {
+    removeCarrier();
+  });
   checkoutDeliveryOption.value = optionType;
-
   if (optionType === 'relayPoint' && pickupAddress.value) {
     handleSelectPickupAddress(pickupAddress.value);
-  } else if (optionType === 'store' && ip.value) {
   }
 };
 
@@ -180,7 +182,7 @@ onMounted(() => {
             {{ $t('label.address_delivery') }} :
           </BaseHeadLine>
           <div v-if="checkoutDeliveryOption === 'home'">
-            <PageCheckoutCustomer  />
+            <PageCheckoutCustomer />
             <!-- Shipping option -->
             <BaseHeadLine size="md" class="uppercase font-medium mt-5">
               {{ $t('label.shippingOption.title') }} :
@@ -221,6 +223,8 @@ onMounted(() => {
               </template>
             </BaseAlert>
           </div>
+
+          <PageTunnelFooter class="hidden lg:block" />
         </div>
       </div>
 
@@ -253,6 +257,8 @@ onMounted(() => {
             <FormCodePromo @onCodePromoApplied="refreshCodePromo" />
           </div>
           <PageTunnelOrderSummary class="mt-5" />
+
+          <PageTunnelFooter class="block lg:hidden" />
         </div>
       </div>
     </div>
