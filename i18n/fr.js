@@ -347,6 +347,7 @@ const fr = {
         processing: 'Erreur lors du traitement du paiement',
         payment_url: 'URL de paiement non reçue',
         payment_method: "La méthode de paiement n'est pas définie.",
+        cgv_required: "Veuillez accepter les conditions générales de vente pour continuer.",
       },
     },
   },

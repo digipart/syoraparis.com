@@ -344,6 +344,7 @@ const en = {
         processing: 'Error processing payment',
         payment_url: 'Payment URL not received',
         payment_method: 'Payment method is not defined.',
+        cgv_required: 'Please accept the general terms and conditions to continue.',
       },
     },
   },
