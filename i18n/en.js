@@ -117,6 +117,9 @@ const en = {
   },
   label: {
     ref: 'REF',
+    trackMyDelivery: 'Track my delivery',
+    trackingDetails: 'Tracking Details',
+    trackMyDeliveryOnThe: 'Track my delivery on the {carrier} website',
     color: 'Color',
     size: 'Size',
     pieces: 'Pieces',
