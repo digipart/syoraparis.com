@@ -117,6 +117,9 @@ const fr = {
   },
   label: {
     ref: 'RÉF',
+    trackMyDelivery: 'Suivre ma livraison',
+    trackingDetails: 'Détails du suivi',
+    trackMyDeliveryOnThe: 'Suivre ma livraison sur le site {carrier}',
     color: 'Couleur',
     size: 'Taille',
     pieces: 'Pièces',
