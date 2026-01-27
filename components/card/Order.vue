@@ -48,12 +48,12 @@ const state = computed(() => {
 </script>
 <template>
   <div class="cardOrder">
-    <div class="grid grid-cols-12 mb-4">
+    <div class="grid grid-cols-12 mb-4 gap-y-2 lg:gap-y-0">
       <div class="col-span-12 lg:col-span-6">
         <ul class="uppercase text-xs font-light">
           <li class="mb-1 flex items-center">
             <span class="cardOrder-state" :class="[state]"></span>
-            {{ $t(`order.state.${order.State?.Label}`) }}
+            {{ order.State?.Label }}
           </li>
           <li>
             {{ order.DateAdd }}
@@ -108,11 +108,13 @@ const state = computed(() => {
           </template>
         </ul>
       </div>
-      <div v-if="details" class="col-span-12 lg:col-span-6 flex flex-col justify-end">
+      <div
+        v-if="details"
+        class="col-span-12 lg:col-span-6 flex flex-col justify-end"
+      >
         <ul class="flex gap-x-5">
-          <li>
+          <li v-if="order.OrderReturn?.Available">
             <NuxtLink
-              v-if="order.OrderReturn?.Available"
               :to="
                 localePath({
                   name: 'account-order-return-idOrder',
@@ -139,6 +141,9 @@ const state = computed(() => {
             >
               {{ $t('button.download_invoice') }}
             </a>
+          </li>
+          <li>
+            <LayoutOrderTracking :order="order" />
           </li>
         </ul>
       </div>
@@ -257,15 +262,19 @@ $cardOrder: '.cardOrder';
     &.created {
       @apply bg-slate-400;
     }
+
     &.preparation {
       @apply bg-orange-400;
     }
+
     &.shipped {
       @apply bg-blue-500;
     }
+
     &.delivered {
       @apply bg-green-400;
     }
+
     &.canceled {
       @apply bg-red-500;
     }
