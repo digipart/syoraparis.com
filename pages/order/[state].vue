@@ -59,7 +59,6 @@ if (isGuest.value === true) {
 
 <template>
   <LayoutContainer>
-    {{ cartId }}
     <div v-if="loading" class="mt-40">
       <BaseLoading class="py-10" />
       <!-- <div class="text-center">Validation in progress, please wait...</div> -->
