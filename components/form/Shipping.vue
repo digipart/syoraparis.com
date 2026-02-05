@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { trackAddShippingInfo, trackAddPaymentInfo } from '~/utils/gtm';
 import PaymentService from '~/services/PaymentService';
 import type { RelayPointType } from '~/types/RelayPointsType';
 import type { CarrierGenre, CarrierType } from '~/types/ShippingType';
@@ -86,6 +87,7 @@ const selectShipping = (event: {
         if (carrier.value) {
           checkoutCarrier.value.carrier = cart.value.Shipping?.Carrier;
         }
+        trackAddShippingInfo(cart.value, event.carrier?.Name || '');
       });
     })
     .finally(() => {
@@ -102,6 +104,9 @@ const loadPayments = async (options: any) => {
     });
     console.log('payment methods:', data.PaymentMethods);
     checkoutPaymentMethods.value = data.PaymentMethods || [];
+    if (checkoutPaymentMethods.value.length > 0) {
+      trackAddPaymentInfo(cart.value);
+    }
   } catch (error) {
     console.error(t('tunnel.payment.error.fetch_methods'), error);
   }
@@ -136,13 +141,13 @@ const hasCarrierOfType = computed(() => {
   if (!carrier.value || Object.keys(carrier.value).length === 0) {
     return false;
   }
-  
-  for (const carrierType of displayOptions.split(',').map(t => t.trim())) {
+
+  for (const carrierType of displayOptions.split(',').map((t) => t.trim())) {
     if (carrier.value[carrierType as keyof CarrierType]) {
       return true;
     }
   }
-  
+
   return false;
 });
 

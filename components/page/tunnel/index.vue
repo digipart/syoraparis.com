@@ -10,7 +10,13 @@ const { checkoutCustomer, checkoutCarrier, checkoutDeliveryOption } =
   toRefs(checkoutStore);
 
 const cartStore = useCartStore();
-const { totalToPay, carrier, totalProductQuantity, cart } = toRefs(cartStore);
+const {
+  totalToPay,
+  carrier,
+  totalProductQuantity,
+  cart,
+  hasUnavailableProducts,
+} = toRefs(cartStore);
 const { updateShipping, removeCarrier } = cartStore;
 
 const addressStore = useAddressStore();
@@ -23,7 +29,9 @@ const codePromoRefreshing = ref(false);
 const pickupAddress = ref('');
 
 const valide = computed(() => {
-  return totalProductQuantity.value && carrier.value;
+  return (
+    totalProductQuantity.value && carrier.value && !hasUnavailableProducts.value
+  );
 });
 
 const refreshCodePromo = () => {
@@ -213,13 +221,24 @@ onMounted(() => {
               {{ $t('tunnel.payment.title') }} :
             </BaseHeadLine>
             <FormPayment v-if="valide && !codePromoRefreshing" />
-            <BaseAlert v-else fill type="default" :closeButton="false">
+            <BaseAlert
+              v-else
+              fill
+              :type="hasUnavailableProducts ? 'danger' : 'default'"
+              :closeButton="false"
+            >
               <span class="text-sm">
-                {{ $t('label.payment.noPayment') }}
+                <template v-if="hasUnavailableProducts">
+                  {{ $t('cart.has_unavailable_products') }}
+                </template>
+                <template v-else>
+                  {{ $t('label.payment.noPayment') }}
+                </template>
               </span>
 
               <template #icon>
-                <IconPayment />
+                <IconPayment v-if="!hasUnavailableProducts" />
+                <IconInfo v-else />
               </template>
             </BaseAlert>
           </div>

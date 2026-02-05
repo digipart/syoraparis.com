@@ -26,6 +26,7 @@ const addToCartHandler = (variant: Variant) => {
     addToCart({
       idProduct: product?.IdProduct,
       idProductAttribute: idProductAttributeSelected,
+      product: product,
     }).then((data) => {
       emit('onSizeSelected');
     });

@@ -6,7 +6,7 @@ import { trackAddToCart } from '~/utils/gtm';
 const { t } = useI18n();
 
 const appStore = useAppStore();
-const { miniCartVisible,miniFavoriteVisible } = toRefs(appStore);
+const { miniCartVisible, miniFavoriteVisible } = toRefs(appStore);
 
 const { product } = defineProps({
   product: {
@@ -38,7 +38,6 @@ const loadVariants = (event: any) => {
 
     if (!product.Media?.Images?.product_small) {
       productService.fetchMedias(product.IdProduct).then((data: any) => {
-
         product.Media = data;
       });
     }
@@ -48,11 +47,6 @@ const loadVariants = (event: any) => {
 const sizeSelected = (size: any) => {
   isVisible.value = false;
   miniCartVisible.value = true;
-  
-  // Track add to cart event
-  if (product) {
-    trackAddToCart(product, 1);
-  }
 };
 </script>
 

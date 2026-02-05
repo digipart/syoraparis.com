@@ -14,10 +14,18 @@ useHead(() => ({
 }));
 
 const { fetchCart, clear: clearCart, newIdCart } = useCartStore();
+const { cart } = toRefs(useCartStore());
 const auth = useAuth();
 const { refresh: refreshAuth, logout } = auth;
 const { isGuest } = toRefs(auth);
 
+import { trackPurchase } from '~/utils/gtm';
+
+if (route.params.state === 'accepted' || route.params.state === 'paid') {
+  if (cart.value && cart.value.Products && cart.value.Products.length > 0) {
+    trackPurchase(cart.value);
+  }
+}
 await clearCart();
 
 try {

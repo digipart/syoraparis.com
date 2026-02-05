@@ -1,3 +1,4 @@
+import { trackAddToCart } from '~/utils/gtm';
 import { defineStore } from 'pinia';
 import CartService from '~/services/CartService';
 import type { CartType } from '~/types/CartType';
@@ -36,6 +37,15 @@ export const useCartStore = defineStore('cartStore', () => {
 
   const totalDiscount = computed(() => {
     return cart.value?.Total?.Discount?.TaxIncl;
+  });
+
+  const hasUnavailableProducts = computed(() => {
+    return (
+      cart.value?.Products?.some((product) => {
+        const selectedVariant = product.Variant?.find((v) => v.Selected);
+        return selectedVariant && !selectedVariant.Available;
+      }) || false
+    );
   });
 
   const clear = () => {
@@ -130,6 +140,7 @@ export const useCartStore = defineStore('cartStore', () => {
     dateSend,
     languageIsoCode,
     productType,
+    product,
   }: {
     idProduct: number;
     idProductAttribute: number;
@@ -141,6 +152,7 @@ export const useCartStore = defineStore('cartStore', () => {
     dateSend?: string;
     languageIsoCode?: string;
     productType?: 'e-giftcard' | '';
+    product?: any;
   }) => {
     const auth = useAuth();
     const { isLoggedIn } = auth;
@@ -159,7 +171,8 @@ export const useCartStore = defineStore('cartStore', () => {
       if (email !== undefined) options.Email = email;
       if (message !== undefined) options.Message = message;
       if (dateSend !== undefined) options.DateSend = dateSend;
-      if (languageIsoCode !== undefined) options.LanguageIsoCode = languageIsoCode;
+      if (languageIsoCode !== undefined)
+        options.LanguageIsoCode = languageIsoCode;
       options.ProductType = productType; // Always include product type
     }
 
@@ -177,6 +190,9 @@ export const useCartStore = defineStore('cartStore', () => {
           }
         }
         fetchCart();
+        if (product) {
+          trackAddToCart(product, quantity);
+        }
         return data;
       })
       .catch((error) => {
@@ -294,6 +310,7 @@ export const useCartStore = defineStore('cartStore', () => {
     carrier,
     promoCodes,
     totalDiscount,
+    hasUnavailableProducts,
     loaded,
     clear,
     initIdCart,

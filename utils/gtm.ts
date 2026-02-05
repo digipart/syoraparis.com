@@ -7,13 +7,28 @@
  * @param eventName The name of the event
  * @param eventParams Additional parameters for the event
  */
-export function trackEvent(eventName: string, eventParams: Record<string, any> = {}) {
+export function trackEvent(
+  eventName: string,
+  eventParams: Record<string, any> = {}
+) {
   // Check if we're in the browser and dataLayer exists
   if (process.client && window.dataLayer) {
     window.dataLayer.push({
       event: eventName,
-      ...eventParams
+      ...eventParams,
     });
+  }
+}
+
+/**
+ * Get current currency from AppStore
+ */
+function getCurrency() {
+  try {
+    const appStore = useAppStore();
+    return appStore.currencyIsoCode || 'EUR';
+  } catch (e) {
+    return 'EUR';
   }
 }
 
@@ -24,15 +39,17 @@ export function trackEvent(eventName: string, eventParams: Record<string, any> =
 export function trackProductView(product: any) {
   trackEvent('view_item', {
     ecommerce: {
-      items: [{
-        item_id: product.id,
-        item_name: product.name,
-        price: product.price,
-        currency: 'EUR',
-        item_category: product.category?.name || '',
-        item_variant: product.variant || ''
-      }]
-    }
+      items: [
+        {
+          item_id: product.id,
+          item_name: product.name,
+          price: product.price,
+          currency: getCurrency(),
+          item_category: product.category?.name || '',
+          item_variant: product.variant || '',
+        },
+      ],
+    },
   });
 }
 
@@ -44,16 +61,18 @@ export function trackProductView(product: any) {
 export function trackAddToCart(product: any, quantity: number = 1) {
   trackEvent('add_to_cart', {
     ecommerce: {
-      items: [{
-        item_id: product.id,
-        item_name: product.name,
-        price: product.price,
-        currency: 'EUR',
-        quantity: quantity,
-        item_category: product.category?.name || '',
-        item_variant: product.variant || ''
-      }]
-    }
+      items: [
+        {
+          item_id: product.id,
+          item_name: product.name,
+          price: product.price,
+          currency: getCurrency(),
+          quantity: quantity,
+          item_category: product.category?.name || '',
+          item_variant: product.variant || '',
+        },
+      ],
+    },
   });
 }
 
@@ -65,16 +84,18 @@ export function trackAddToCart(product: any, quantity: number = 1) {
 export function trackRemoveFromCart(product: any, quantity: number = 1) {
   trackEvent('remove_from_cart', {
     ecommerce: {
-      items: [{
-        item_id: product.id,
-        item_name: product.name,
-        price: product.price,
-        currency: 'EUR',
-        quantity: quantity,
-        item_category: product.category?.name || '',
-        item_variant: product.variant || ''
-      }]
-    }
+      items: [
+        {
+          item_id: product.id,
+          item_name: product.name,
+          price: product.price,
+          currency: getCurrency(),
+          quantity: quantity,
+          item_category: product.category?.name || '',
+          item_variant: product.variant || '',
+        },
+      ],
+    },
   });
 }
 
@@ -82,22 +103,92 @@ export function trackRemoveFromCart(product: any, quantity: number = 1) {
  * Track a purchase event
  * @param order The order data
  */
-export function trackPurchase(order: any) {
+export function trackPurchase(cart: any) {
   trackEvent('purchase', {
     ecommerce: {
-      transaction_id: order.id,
-      value: order.total,
-      tax: order.tax || 0,
-      shipping: order.shipping || 0,
-      currency: 'EUR',
-      items: order.items.map((item: any) => ({
-        item_id: item.product.id,
-        item_name: item.product.name,
-        price: item.price,
-        quantity: item.quantity,
-        item_category: item.product.category?.name || '',
-        item_variant: item.variant || ''
-      }))
-    }
+      transaction_id: cart.IdCart,
+      value: cart.Total?.ToPay?.TaxIncl || 0,
+      tax: cart.Total?.ToPay?.TaxIncl - cart.Total?.ToPay?.TaxExcl || 0,
+      shipping: cart.Total?.Shipping?.TaxIncl || 0,
+      currency: getCurrency(),
+      items:
+        cart.Products?.map((item: any) => ({
+          item_id: item.IdProduct,
+          item_name: item.Description?.Title,
+          price: item.Price?.TaxIncl,
+          quantity: item.Quantity,
+          item_category: item.Category?.Name || '',
+          item_variant: item.Variant?.find((v: any) => v.Selected)?.Name || '',
+        })) || [],
+    },
+  });
+}
+/**
+ * Track beginning of checkout
+ * @param cart The cart data
+ */
+export function trackBeginCheckout(cart: any) {
+  trackEvent('begin_checkout', {
+    ecommerce: {
+      value: cart.Total?.ToPay?.TaxIncl || 0,
+      currency: getCurrency(),
+      items:
+        cart.Products?.map((item: any) => ({
+          item_id: item.IdProduct,
+          item_name: item.Description?.Title,
+          price: item.Price?.TaxIncl,
+          quantity: item.Quantity,
+          item_category: item.Category?.Name || '',
+          item_variant: item.Variant?.find((v: any) => v.Selected)?.Name || '',
+        })) || [],
+    },
+  });
+}
+
+/**
+ * Track adding shipping info
+ * @param cart The cart data
+ * @param shippingTier The selected shipping tier
+ */
+export function trackAddShippingInfo(cart: any, shippingTier: string = '') {
+  trackEvent('add_shipping_info', {
+    ecommerce: {
+      value: cart.Total?.ToPay?.TaxIncl || 0,
+      currency: getCurrency(),
+      shipping_tier: shippingTier,
+      items:
+        cart.Products?.map((item: any) => ({
+          item_id: item.IdProduct,
+          item_name: item.Description?.Title,
+          price: item.Price?.TaxIncl,
+          quantity: item.Quantity,
+          item_category: item.Category?.Name || '',
+          item_variant: item.Variant?.find((v: any) => v.Selected)?.Name || '',
+        })) || [],
+    },
+  });
+}
+
+/**
+ * Track adding payment info
+ * @param cart The cart data
+ * @param paymentType The selected payment type
+ */
+export function trackAddPaymentInfo(cart: any, paymentType: string = '') {
+  trackEvent('add_payment_info', {
+    ecommerce: {
+      value: cart.Total?.ToPay?.TaxIncl || 0,
+      currency: getCurrency(),
+      payment_type: paymentType,
+      items:
+        cart.Products?.map((item: any) => ({
+          item_id: item.IdProduct,
+          item_name: item.Description?.Title,
+          price: item.Price?.TaxIncl,
+          quantity: item.Quantity,
+          item_category: item.Category?.Name || '',
+          item_variant: item.Variant?.find((v: any) => v.Selected)?.Name || '',
+        })) || [],
+    },
   });
 }
