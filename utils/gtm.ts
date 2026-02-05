@@ -33,20 +33,37 @@ function getCurrency() {
 }
 
 /**
+ * Extract variant ID from product or specific attribute ID
+ * @param product The product data
+ * @param idProductAttribute Optional specific attribute ID
+ */
+function getSelectedVariantId(product: any, idProductAttribute?: number) {
+  if (idProductAttribute) return idProductAttribute.toString();
+
+  const selectedVariant = product.Variant?.find((v: any) => v.Selected);
+  return selectedVariant?.Combination?.IdProductAttribute?.toString() || '';
+}
+
+/**
  * Track a product view event
  * @param product The product data
  */
 export function trackProductView(product: any) {
+  const price =
+    product.Price?.PromotionalPrice?.PriceTaxIncl ||
+    product.Price?.RegularPrice?.PriceTaxIncl ||
+    0;
+
   trackEvent('view_item', {
     ecommerce: {
       items: [
         {
-          item_id: product.id,
-          item_name: product.name,
-          price: product.price,
+          item_id: product.IdProduct?.toString(),
+          item_name: product.Description?.Title || '',
+          price: price,
           currency: getCurrency(),
-          item_category: product.category?.name || '',
-          item_variant: product.variant || '',
+          item_category: product.Category?.Main?.IdCategory?.toString() || '',
+          item_variant: getSelectedVariantId(product),
         },
       ],
     },
@@ -57,19 +74,29 @@ export function trackProductView(product: any) {
  * Track adding a product to cart
  * @param product The product data
  * @param quantity The quantity added
+ * @param idProductAttribute The specific attribute ID added
  */
-export function trackAddToCart(product: any, quantity: number = 1) {
+export function trackAddToCart(
+  product: any,
+  quantity: number = 1,
+  idProductAttribute?: number
+) {
+  const price =
+    product.Price?.PromotionalPrice?.PriceTaxIncl ||
+    product.Price?.RegularPrice?.PriceTaxIncl ||
+    0;
+
   trackEvent('add_to_cart', {
     ecommerce: {
       items: [
         {
-          item_id: product.id,
-          item_name: product.name,
-          price: product.price,
+          item_id: product.IdProduct?.toString(),
+          item_name: product.Description?.Title || '',
+          price: price,
           currency: getCurrency(),
           quantity: quantity,
-          item_category: product.category?.name || '',
-          item_variant: product.variant || '',
+          item_category: product.Category?.Main?.IdCategory?.toString() || '',
+          item_variant: getSelectedVariantId(product, idProductAttribute),
         },
       ],
     },
@@ -82,17 +109,22 @@ export function trackAddToCart(product: any, quantity: number = 1) {
  * @param quantity The quantity removed
  */
 export function trackRemoveFromCart(product: any, quantity: number = 1) {
+  const price =
+    product.Price?.PromotionalPrice?.PriceTaxIncl ||
+    product.Price?.RegularPrice?.PriceTaxIncl ||
+    0;
+
   trackEvent('remove_from_cart', {
     ecommerce: {
       items: [
         {
-          item_id: product.id,
-          item_name: product.name,
-          price: product.price,
+          item_id: product.IdProduct?.toString(),
+          item_name: product.Description?.Title || '',
+          price: price,
           currency: getCurrency(),
           quantity: quantity,
-          item_category: product.category?.name || '',
-          item_variant: product.variant || '',
+          item_category: product.Category?.Main?.IdCategory?.toString() || '',
+          item_variant: getSelectedVariantId(product),
         },
       ],
     },
@@ -106,23 +138,34 @@ export function trackRemoveFromCart(product: any, quantity: number = 1) {
 export function trackPurchase(cart: any) {
   trackEvent('purchase', {
     ecommerce: {
-      transaction_id: cart.IdCart,
+      transaction_id: cart.IdCart?.toString(),
       value: cart.Total?.ToPay?.TaxIncl || 0,
-      tax: cart.Total?.ToPay?.TaxIncl - cart.Total?.ToPay?.TaxExcl || 0,
+      tax:
+        (cart.Total?.ToPay?.TaxIncl || 0) - (cart.Total?.ToPay?.TaxExcl || 0),
       shipping: cart.Total?.Shipping?.TaxIncl || 0,
       currency: getCurrency(),
       items:
-        cart.Products?.map((item: any) => ({
-          item_id: item.IdProduct,
-          item_name: item.Description?.Title,
-          price: item.Price?.TaxIncl,
-          quantity: item.Quantity,
-          item_category: item.Category?.Name || '',
-          item_variant: item.Variant?.find((v: any) => v.Selected)?.Name || '',
-        })) || [],
+        cart.Products?.map((item: any) => {
+          const itemPrice =
+            item.Price?.PromotionalPrice?.PriceTaxIncl ||
+            item.Price?.RegularPrice?.PriceTaxIncl ||
+            item.Price?.TaxIncl ||
+            0;
+
+          return {
+            item_id: item.IdProduct?.toString(),
+            item_name: item.Description?.Title || '',
+            price: itemPrice,
+            quantity: item.Quantity,
+            item_category: item.Category?.Main?.IdCategory?.toString() || '',
+            item_variant:
+              item.IdProductAttribute?.toString() || getSelectedVariantId(item),
+          };
+        }) || [],
     },
   });
 }
+
 /**
  * Track beginning of checkout
  * @param cart The cart data
@@ -133,14 +176,23 @@ export function trackBeginCheckout(cart: any) {
       value: cart.Total?.ToPay?.TaxIncl || 0,
       currency: getCurrency(),
       items:
-        cart.Products?.map((item: any) => ({
-          item_id: item.IdProduct,
-          item_name: item.Description?.Title,
-          price: item.Price?.TaxIncl,
-          quantity: item.Quantity,
-          item_category: item.Category?.Name || '',
-          item_variant: item.Variant?.find((v: any) => v.Selected)?.Name || '',
-        })) || [],
+        cart.Products?.map((item: any) => {
+          const itemPrice =
+            item.Price?.PromotionalPrice?.PriceTaxIncl ||
+            item.Price?.RegularPrice?.PriceTaxIncl ||
+            item.Price?.TaxIncl ||
+            0;
+
+          return {
+            item_id: item.IdProduct?.toString(),
+            item_name: item.Description?.Title || '',
+            price: itemPrice,
+            quantity: item.Quantity,
+            item_category: item.Category?.Main?.IdCategory?.toString() || '',
+            item_variant:
+              item.IdProductAttribute?.toString() || getSelectedVariantId(item),
+          };
+        }) || [],
     },
   });
 }
@@ -157,14 +209,23 @@ export function trackAddShippingInfo(cart: any, shippingTier: string = '') {
       currency: getCurrency(),
       shipping_tier: shippingTier,
       items:
-        cart.Products?.map((item: any) => ({
-          item_id: item.IdProduct,
-          item_name: item.Description?.Title,
-          price: item.Price?.TaxIncl,
-          quantity: item.Quantity,
-          item_category: item.Category?.Name || '',
-          item_variant: item.Variant?.find((v: any) => v.Selected)?.Name || '',
-        })) || [],
+        cart.Products?.map((item: any) => {
+          const itemPrice =
+            item.Price?.PromotionalPrice?.PriceTaxIncl ||
+            item.Price?.RegularPrice?.PriceTaxIncl ||
+            item.Price?.TaxIncl ||
+            0;
+
+          return {
+            item_id: item.IdProduct?.toString(),
+            item_name: item.Description?.Title || '',
+            price: itemPrice,
+            quantity: item.Quantity,
+            item_category: item.Category?.Main?.IdCategory?.toString() || '',
+            item_variant:
+              item.IdProductAttribute?.toString() || getSelectedVariantId(item),
+          };
+        }) || [],
     },
   });
 }
@@ -181,14 +242,23 @@ export function trackAddPaymentInfo(cart: any, paymentType: string = '') {
       currency: getCurrency(),
       payment_type: paymentType,
       items:
-        cart.Products?.map((item: any) => ({
-          item_id: item.IdProduct,
-          item_name: item.Description?.Title,
-          price: item.Price?.TaxIncl,
-          quantity: item.Quantity,
-          item_category: item.Category?.Name || '',
-          item_variant: item.Variant?.find((v: any) => v.Selected)?.Name || '',
-        })) || [],
+        cart.Products?.map((item: any) => {
+          const itemPrice =
+            item.Price?.PromotionalPrice?.PriceTaxIncl ||
+            item.Price?.RegularPrice?.PriceTaxIncl ||
+            item.Price?.TaxIncl ||
+            0;
+
+          return {
+            item_id: item.IdProduct?.toString(),
+            item_name: item.Description?.Title || '',
+            price: itemPrice,
+            quantity: item.Quantity,
+            item_category: item.Category?.Main?.IdCategory?.toString() || '',
+            item_variant:
+              item.IdProductAttribute?.toString() || getSelectedVariantId(item),
+          };
+        }) || [],
     },
   });
 }

@@ -14,16 +14,29 @@ useHead(() => ({
 }));
 
 const { fetchCart, clear: clearCart, newIdCart } = useCartStore();
-const { cart } = toRefs(useCartStore());
+const { cart, cartId } = toRefs(useCartStore());
 const auth = useAuth();
 const { refresh: refreshAuth, logout } = auth;
 const { isGuest } = toRefs(auth);
 
 import { trackPurchase } from '~/utils/gtm';
 
+try {
+  cartId.value = Number(route.query.orderid || 0);
+  await fetchCart();
+  console.log('cart.value 1 ', cart.value);
+} catch (error) {
+  console.error('Failed to fetch cart:', error);
+}
 if (route.params.state === 'accepted' || route.params.state === 'paid') {
   if (cart.value && cart.value.Products && cart.value.Products.length > 0) {
-    trackPurchase(cart.value);
+    if (process.client) {
+      const storageKey = `purchase_event_sent_${cart.value.IdCart}`;
+      if (!localStorage.getItem(storageKey)) {
+        trackPurchase(cart.value);
+        localStorage.setItem(storageKey, 'true');
+      }
+    }
   }
 }
 await clearCart();

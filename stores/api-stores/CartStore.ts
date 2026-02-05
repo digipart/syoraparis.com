@@ -191,7 +191,7 @@ export const useCartStore = defineStore('cartStore', () => {
         }
         fetchCart();
         if (product) {
-          trackAddToCart(product, quantity);
+          trackAddToCart(product, quantity, idProductAttribute);
         }
         return data;
       })
