@@ -3,7 +3,7 @@ const fr = {
   button: {
     checkout: 'Commander',
     add_to_cart: 'Ajouter au panier',
-    edit_cart: 'Edit Cart',
+    edit_cart: 'Modifier mon panier',
     menu: 'Menu',
     search: 'Recherche',
     account: 'Compte',
@@ -81,6 +81,9 @@ const fr = {
     codepromo: {
       title: 'Code de promo',
     },
+    product_unavailable: 'Produit indisponible',
+    has_unavailable_products:
+      'Certains produits de votre panier ne sont plus disponibles',
   },
   titles: {
     select_a_size: 'Sélectionnez une taille',

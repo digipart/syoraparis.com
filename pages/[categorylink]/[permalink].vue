@@ -3,6 +3,7 @@ import CategoryService from '~/services/CategoryService';
 import { scrollToElement } from '~/utils/scroll';
 import type { MediaType } from '~/types/MediaType';
 import type { ProductType } from '~/types/ProductType';
+import { trackProductView } from '~/utils/gtm';
 
 definePageMeta({
   keepalive: true,
@@ -307,6 +308,11 @@ if (idProduct.value) {
       ],
     }));
 
+    // Trigger product view event
+    if (product.value) {
+      trackProductView(product.value);
+    }
+
     // if (p.Category?.Main?.IdCategory) {
     //   loadData(p.Category?.Main?.IdCategory);
     // }
@@ -462,7 +468,6 @@ onDeactivated(() => cleanupObserver());
         </template>
       </ListingCarouselProducts>
 
-      
       <ListingCarouselProducts
         v-if="productsSameStyle.length"
         :products="productsSameStyle"

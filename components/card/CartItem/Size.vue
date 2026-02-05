@@ -11,13 +11,16 @@ const { product, editable = true } = defineProps<{
 
 const loading = ref(false);
 
-const selectedOption = computed(() => {
+type Option = {
+  label: string | undefined;
+  value: number | undefined;
+  disabled: boolean;
+};
+
+const selectedOption = computed<Option>(() => {
   if (product?.Variant) {
     const selectedProduct = product.Variant.find((variant) => variant.Selected);
     if (selectedProduct?.Combination) {
-      //   return selectedProduct
-      //     ? selectedProduct?.Combination.IdProductAttribute
-      //     : null;
       if (selectedProduct?.Combination?.Attributes) {
         const sizeAttribute = selectedProduct?.Combination?.Attributes.find(
           (attr: Attribute) => attr.GroupName === 'Size'
@@ -25,13 +28,18 @@ const selectedOption = computed(() => {
         return {
           label: sizeAttribute?.AttributeName,
           value: selectedProduct.Combination.IdProductAttribute,
+          disabled: !selectedProduct.Available,
         };
       }
     }
   }
-  return {};
+  return {
+    label: undefined,
+    value: undefined,
+    disabled: false,
+  };
 });
-const selected = ref(selectedOption.value);
+const selected = ref<Option>(selectedOption.value);
 
 const options = computed(() => {
   if (product?.Variant) {
@@ -49,6 +57,8 @@ const options = computed(() => {
     });
   }
 });
+
+const isOptionSelectable = (option: Option) => !option.disabled;
 
 const handleChange = (newValue: any) => {
   loading.value = true;
@@ -77,11 +87,16 @@ const handleChange = (newValue: any) => {
       class="centered-select"
       :searchable="false"
       :clearable="false"
+      :selectable="isOptionSelectable"
       @update:modelValue="handleChange"
       :class="{
         readOnly: !editable,
+        'is-unavailable': selected?.disabled,
       }"
     ></v-select>
+    <div v-if="selected?.disabled" class="text-error text-[10px] mt-1">
+      {{ $t('cart.product_unavailable') }}
+    </div>
   </div>
 </template>
 
@@ -89,6 +104,19 @@ const handleChange = (newValue: any) => {
 $cartItemSize: '.cartItemSize';
 
 #{$cartItemSize} {
+  .text-error {
+    color: #ff0000;
+    @apply font-medium;
+  }
+}
+
+.is-unavailable {
+  .vs__dropdown-toggle {
+    @apply border-red-500;
+  }
+  .vs__selected {
+    @apply text-error;
+  }
 }
 
 .readOnly {

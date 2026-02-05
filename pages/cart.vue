@@ -4,7 +4,8 @@ definePageMeta({
 });
 
 const cartStore = useCartStore();
-const { totalProductQuantity, loaded } = toRefs(cartStore);
+const { totalProductQuantity, loaded, hasUnavailableProducts } =
+  toRefs(cartStore);
 const { t } = useI18n();
 useHead(() => ({
   title: () => t('pages.cart.title'),
@@ -38,6 +39,18 @@ const localePath = useLocalePath();
           <IconChevronLeft :size="1.3" class="mr-2" />
           {{ t('label.continue_shopping') }}
         </NuxtLink>
+        <BaseAlert
+          v-if="hasUnavailableProducts"
+          type="danger"
+          size="small"
+          class="mb-5"
+          :closeButton="false"
+        >
+          <template #icon>
+            <IconInfo :size="2" />
+          </template>
+          <div class="pt-1">{{ $t('cart.has_unavailable_products') }}</div>
+        </BaseAlert>
         <div class="grid grid-cols-12 gap-5">
           <div class="col-span-12 lg:col-span-8">
             <!-- Payment step -->
@@ -50,9 +63,11 @@ const localePath = useLocalePath();
             <div class="hidden lg:block">
               <NuxtLink
                 :to="
-                  localePath({
-                    name: 'checkout',
-                  })
+                  !hasUnavailableProducts
+                    ? localePath({
+                        name: 'checkout',
+                      })
+                    : ''
                 "
               >
                 <BaseButton
@@ -60,6 +75,7 @@ const localePath = useLocalePath();
                   size="small"
                   :title="$t('button.checkout')"
                   class="w-full"
+                  :disabled="hasUnavailableProducts"
                 >
                   {{ $t('button.checkout') }}
                 </BaseButton>
@@ -90,9 +106,11 @@ const localePath = useLocalePath();
             <div class="hidden lg:block">
               <NuxtLink
                 :to="
-                  localePath({
-                    name: 'checkout',
-                  })
+                  !hasUnavailableProducts
+                    ? localePath({
+                        name: 'checkout',
+                      })
+                    : ''
                 "
               >
                 <BaseButton
@@ -100,6 +118,7 @@ const localePath = useLocalePath();
                   size="small"
                   :title="$t('button.checkout')"
                   class="w-full"
+                  :disabled="hasUnavailableProducts"
                 >
                   {{ $t('button.checkout') }}
                 </BaseButton>
@@ -113,9 +132,11 @@ const localePath = useLocalePath();
       >
         <NuxtLink
           :to="
-            localePath({
-              name: 'checkout',
-            })
+            !hasUnavailableProducts
+              ? localePath({
+                  name: 'checkout',
+                })
+              : ''
           "
         >
           <BaseButton
@@ -123,8 +144,13 @@ const localePath = useLocalePath();
             size="medium"
             :title="$t('button.checkout')"
             class="w-full"
+            :disabled="hasUnavailableProducts"
           >
-            {{ $t('button.checkout') }}
+            {{
+              hasUnavailableProducts
+                ? $t('button.edit_cart')
+                : $t('button.checkout')
+            }}
           </BaseButton>
         </NuxtLink>
       </div>

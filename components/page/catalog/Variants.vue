@@ -7,7 +7,7 @@ const { addToCart } = cartStore;
 const appStore = useAppStore();
 const { miniCartVisible, miniFavoriteVisible } = toRefs(appStore);
 
-const { product, openCartAfterAddProduct,showColor } = defineProps({
+const { product, openCartAfterAddProduct, showColor } = defineProps({
   product: {
     type: {} as PropType<ProductType>,
   },
@@ -41,6 +41,7 @@ const addToCartHandler = (event: any, variant: Variant) => {
       addToCart({
         idProduct: product?.IdProduct,
         idProductAttribute: idProductAttributeSelected,
+        product: product,
       }).then((data) => {
         if (openCartAfterAddProduct) {
           miniCartVisible.value = true;

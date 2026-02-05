@@ -18,7 +18,8 @@ const formInvoiceStore = useFormInvoiceStore();
 const { state: invoiceState } = toRefs(formInvoiceStore);
 
 const cartStore = useCartStore();
-const { totalToPay, carrier, totalProductQuantity } = toRefs(cartStore);
+const { totalToPay, carrier, totalProductQuantity, hasUnavailableProducts } =
+  toRefs(cartStore);
 const { updateShipping, removeCarrier } = cartStore;
 
 const paymentRefreshing = ref(false);
@@ -26,7 +27,9 @@ const paymentRefreshing = ref(false);
 const pickupAddress = ref('');
 
 const valide = computed(() => {
-  return totalProductQuantity.value && carrier.value;
+  return (
+    totalProductQuantity.value && carrier.value && !hasUnavailableProducts.value
+  );
 });
 
 const refreshCodePromo = () => {
@@ -273,13 +276,24 @@ watch(state.value, () => {
               </BaseHeadLine>
               <FormPayment />
             </div>
-            <BaseAlert v-else fill type="default" :closeButton="false">
+            <BaseAlert
+              v-else
+              fill
+              :type="hasUnavailableProducts ? 'danger' : 'default'"
+              :closeButton="false"
+            >
               <span class="text-sm">
-                {{ $t('label.payment.noPayment') }}
+                <template v-if="hasUnavailableProducts">
+                  {{ $t('cart.has_unavailable_products') }}
+                </template>
+                <template v-else>
+                  {{ $t('label.payment.noPayment') }}
+                </template>
               </span>
 
               <template #icon>
-                <IconPayment />
+                <IconPayment v-if="!hasUnavailableProducts" />
+                <IconInfo v-else />
               </template>
             </BaseAlert>
           </div>

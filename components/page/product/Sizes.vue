@@ -80,7 +80,10 @@ const addToCartHandler = (giftCardPayload?: GiftCardPayload) => {
           ...giftCardPayload,
         };
       }
-      addToCart(params).then(() => {
+      addToCart({
+        ...params,
+        product: product,
+      }).then(() => {
         miniCartVisible.value = true;
       });
     }
@@ -238,8 +241,11 @@ $pageProduct-sizes: '.pageProduct-sizes';
     &:after {
       @apply h-full w-full absolute top-0 left-0 pointer-events-none z-10;
       content: '';
-      box-shadow: 1px 0 var(--border-color), 0 1px var(--border-color),
-        1px 1px var(--border-color), 1px 0 var(--border-color) inset,
+      box-shadow:
+        1px 0 var(--border-color),
+        0 1px var(--border-color),
+        1px 1px var(--border-color),
+        1px 0 var(--border-color) inset,
         0 1px var(--border-color) inset;
     }
 
