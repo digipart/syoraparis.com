@@ -81,6 +81,8 @@ const en = {
     codepromo: {
       title: 'Promo code',
     },
+    product_unavailable: 'Product unavailable',
+    has_unavailable_products: 'Some products in your cart are no longer available',
   },
   titles: {
     select_a_size: 'Select a size',

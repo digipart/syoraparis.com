@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { trackBeginCheckout } from '~/utils/gtm';
 definePageMeta({
   layout: 'checkout',
   keepalive: false,
@@ -38,6 +39,11 @@ if (isLoggedIn.value) {
 
 onMounted(async () => {
   loading.value = false;
+
+  // Trigger begin checkout event
+  if (cart.value && cart.value.Products && cart.value.Products.length > 0) {
+    trackBeginCheckout(cart.value);
+  }
 });
 </script>
 

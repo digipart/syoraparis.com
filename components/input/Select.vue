@@ -17,7 +17,7 @@
       :disabled="disabled"
       :required="required"
       :placeholder="placeholder"
-      :reduce="(option:any) => option.value"
+      :reduce="(option: any) => option.value"
       class="v-select-input"
       :multiple="multiple"
       :searchable="searchable"
@@ -144,10 +144,10 @@ watch(internalValue, (newValue) => {
       }
 
       .vs__dropdown-toggle {
-        padding-bottom: 0.1px
+        padding-bottom: 0.1px;
       }
       .vs__actions {
-        @apply -translate-y-1.5
+        @apply -translate-y-1.5;
       }
     }
   }
