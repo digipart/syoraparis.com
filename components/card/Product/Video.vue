@@ -11,8 +11,6 @@ const { videoUrl, subTitle } = defineProps({
     default: '',
   },
 });
-
-
 </script>
 
 <template>
@@ -28,7 +26,7 @@ const { videoUrl, subTitle } = defineProps({
       allow="autoplay; fullscreen"
       allowfullscreen
       :title="subTitle"
-      class="h-full w-full relative z-10 bg-white pointer-events-none"
+      class="h-full w-full relative z-10 pointer-events-none"
     ></iframe>
   </div>
 </template>
