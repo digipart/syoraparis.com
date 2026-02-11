@@ -99,7 +99,6 @@ onMounted(() => {
 watch(
   () => modelValue,
   (newValue) => {
-
     if (newValue) {
       beforeEnter();
       enter({} as Element, () => {});
@@ -164,7 +163,7 @@ $drawer: '.drawer';
   @apply fixed h-dvh w-screen z-[1000] top-0 left-0;
 
   &-bg {
-    @apply relative bg-white opacity-80 h-full w-full;
+    @apply relative bg-black opacity-50 h-full w-full;
   }
 
   &-closebtn {

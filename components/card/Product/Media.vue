@@ -128,10 +128,6 @@ const images = computed(() => {
         :modules="modules"
         :initialSlide="0"
         class="w-full cardProductImage-image"
-        :navigation="{
-          nextEl: '.swiper-button-next',
-          prevEl: '.swiper-button-prev',
-        }"
       >
         <swiper-slide v-for="(image, index) in images" :key="index">
           <NuxtImg
@@ -144,14 +140,6 @@ const images = computed(() => {
             loading="lazy"
           />
         </swiper-slide>
-        <div
-          @click="($event) => $event.stopPropagation()"
-          class="swiper-button-prev custom-swiper-button"
-        ></div>
-        <div
-          @click="($event) => $event.stopPropagation()"
-          class="swiper-button-next custom-swiper-button"
-        ></div>
       </swiper>
     </div>
   </div>

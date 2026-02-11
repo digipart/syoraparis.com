@@ -85,7 +85,13 @@ onUnmounted(() => {
         <LayoutBreadCrumb :items="breadcrumbItems" />
       </div>
       <div class="relative mb-3 pr-8">
-        <CardProductTitle :product="product" size="lg" tag="h1" class="mb-2" :lines="3" />
+        <CardProductTitle
+          :product="product"
+          size="lg"
+          tag="h1"
+          class="mb-2"
+          :lines="3"
+        />
         <div class="block text-xs mb-1 font-normal">
           <span class="text-gray-888 font-light">
             {{ $t('label.ref') }} :
@@ -112,7 +118,7 @@ onUnmounted(() => {
             {{ product.Brand?.Name }}
           </NuxtLink>
         </div>
-        <CardProductPrice displayPaymentX :product="product" size="medium" />
+        <CardProductPrice displayPaymentX :product="product" size="large" />
         <div class="absolute -top-2 right-0">
           <CardProductAddToFavorite :product="product" />
         </div>

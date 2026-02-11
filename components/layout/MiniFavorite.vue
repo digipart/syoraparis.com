@@ -47,19 +47,20 @@ const localePath = useLocalePath();
     </div>
 
     <template v-if="!isLoggedIn" #footer>
-      <div class="grid grid-cols-12 items-center gap-5 w-full">
-        <div class="col-span-8">
-          <p class="text-left text-xs">
+      <div class="flex items-center gap-5 w-full">
+        <div class="flex-1">
+          <p class="text-left text-xxs md:text-xs">
             {{ $t('html.mini_favorite') }}
           </p>
         </div>
-        <div class="col-span-4">
+        <div>
           <NuxtLink :to="localePath({ name: 'account-login' })">
             <BaseButton
               type="primary"
               :title="$t('button.login')"
               class="w-full"
               @click="miniFavoriteVisible = false"
+              size="small"
             >
               {{ $t('button.save') }}
             </BaseButton>

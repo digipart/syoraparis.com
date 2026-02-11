@@ -96,7 +96,13 @@ const promotionalPrice = computed(() => {
   //   }
   // }
   &.medium {
-    @apply text-base;
+    @apply text-xxs;
+    @screen lg {
+      @apply text-sm;
+    }
+  }
+  &.large {
+    @apply text-xs;
     @screen lg {
       @apply text-lg;
     }

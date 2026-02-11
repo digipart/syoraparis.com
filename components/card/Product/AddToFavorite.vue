@@ -56,7 +56,7 @@ const favoritToggle = async (event: any) => {
     @click="favoritToggle"
     :title="$t('button.favorite')"
     :type="type"
-    :size="size"
+    size="small"
     v-loading="loading"
     v-bind="$attrs"
   >

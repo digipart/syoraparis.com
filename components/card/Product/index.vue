@@ -211,13 +211,22 @@ const variantSelected = () => {
         :imageSize="imageSize"
         :slider="slider"
       />
+      <div
+        v-if="favorite && direction === 'horizontal'"
+        class="cardProduct-favorite cardProduct-favorite--horizontal"
+      >
+        <CardProductAddToFavorite :product="currentProduct" colorIcon="black" />
+      </div>
 
       <CardProductAddToCart
         v-if="addToCart && windowWidth < 992"
         class="showbody"
         :product="currentProduct"
       />
-      <div v-if="favorite && direction === 'vertical'" class="cardProduct-favorite">
+      <div
+        v-if="favorite && direction === 'vertical'"
+        class="cardProduct-favorite"
+      >
         <CardProductAddToFavorite :product="currentProduct" colorIcon="black" />
       </div>
 
@@ -236,7 +245,11 @@ const variantSelected = () => {
         }"
       >
         <div class="flex-1">
-          <CardProductTitle @click="redirect" :product="currentProduct" />
+          <CardProductTitle
+            @click="redirect"
+            :product="currentProduct"
+            class="mb-1 lg:mb-0"
+          />
           <CardProductPrice :product="currentProduct" :size="size" />
           <div
             v-if="btnRemoveFromCart && productInCart()"
@@ -253,14 +266,8 @@ const variantSelected = () => {
           v-if="size === 'medium' && product && direction === 'vertical'"
           :product="product"
           :activeIdProduct="Number(product?.IdProduct)"
-          class="mt-1"
+          class="mt-0"
         />
-        <div v-if="favorite && direction === 'horizontal'" class="cardProduct-favorite cardProduct-favorite--horizontal">
-          <CardProductAddToFavorite
-            :product="currentProduct"
-            colorIcon="black"
-          />
-        </div>
       </div>
 
       <div
@@ -366,7 +373,10 @@ $cardProduct: '.cardProduct';
     @apply flex;
     #{$cardProduct} {
       &-top {
-        @apply w-40;
+        @apply w-28;
+        @screen lg {
+          @apply w-40;
+        }
       }
       &-body {
         @apply flex-1;

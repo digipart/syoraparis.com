@@ -69,7 +69,13 @@ const sizeSelected = (size: any) => {
       :closeButton="false"
     >
       <div class="cardProduct-addtoCart -mx-5 -my-5">
-        <div class="relative mb-3 pr-8">
+        <CardProductSizes
+          class="-mx-4"
+          :product="product"
+          @onSizeSelected="sizeSelected"
+        />
+        <div class="border-t border-black -mx-4 mt-[-1px]"></div>
+        <div class="relative my-3 pr-8">
           <CardProductTitle :product="product" />
           <CardProductPrice :product="product" />
           <div class="absolute -top-2 right-0">
@@ -78,17 +84,12 @@ const sizeSelected = (size: any) => {
         </div>
         <CardProductColors class="mb-4" />
         <CardProductImagesSlide :product="product" class="-mx-4" />
-        <CardProductSizes
-          class="-mx-4"
-          :product="product"
-          @onSizeSelected="sizeSelected"
-        />
       </div>
     </BaseDrawer>
   </div>
 </template>
 <style lang="scss">
 .cardProduct-addtoCart {
-  @apply relative px-4  py-3 border-black border-t;
+  @apply relative px-4;
 }
 </style>

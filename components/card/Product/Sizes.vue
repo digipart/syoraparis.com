@@ -36,8 +36,8 @@ const addToCartHandler = (variant: Variant) => {
 
 <template>
   <div class="cardProduct-sizes">
-    <div v-if="label" class="uppercase font-normal py-5 px-4">
-      {{ $t('titles.select_a_size') }}
+    <div v-if="label" class="uppercase font-normal py-3 px-2 text-xs">
+      {{ $t('titles.select_a_size') }} :
     </div>
 
     <ul class="cardProduct-sizes-body">
@@ -65,9 +65,9 @@ $cardProduct-sizes: '.cardProduct-sizes';
     flex flex-wrap;
   }
   &-cel {
-    @apply w-1/2 px-4 py-5 border-b border-black duration-150
-    text-center  border-r font-light cursor-pointer;
-    &:nth-child(even) {
+    @apply w-1/3 px-2 py-3 border-b border-black duration-150
+    text-center text-xs border-r font-light cursor-pointer;
+    &:nth-child(3n) {
       @apply border-r-0;
     }
 

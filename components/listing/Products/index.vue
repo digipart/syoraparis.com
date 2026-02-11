@@ -25,12 +25,12 @@ initFilterAttrs();
 const initSizeFromUrl = () => {
   const sizeQuery = route.query.sizes;
   if (sizeQuery) {
-    const sizeValues = Array.isArray(sizeQuery) 
-      ? sizeQuery.map(val => String(val)) 
+    const sizeValues = Array.isArray(sizeQuery)
+      ? sizeQuery.map((val) => String(val))
       : [String(sizeQuery)];
-      
+
     // Add size values to filterValues.attrs if they're not already there
-    sizeValues.forEach(size => {
+    sizeValues.forEach((size) => {
       if (!filterValues.value.attrs.includes(size)) {
         filterValues.value.attrs.push(size);
       }
@@ -90,18 +90,18 @@ const getFilter = () => {
   if (FilterBrands != '') {
     options.FilterBrand = FilterBrands;
   }
-  
+
   // Handle size attributes separately if they exist in the URL
   const sizeQuery = route.query.sizes;
   let sizeValues: string[] = [];
-  
+
   if (sizeQuery) {
     // Convert to array if it's a string or use as is if it's already an array
-    sizeValues = Array.isArray(sizeQuery) 
-      ? sizeQuery.map(val => String(val)) 
+    sizeValues = Array.isArray(sizeQuery)
+      ? sizeQuery.map((val) => String(val))
       : [String(sizeQuery)];
   }
-  
+
   // Combine size values with other attribute values
   const allAttributes = [...filterValues.value.attrs, ...sizeValues];
   const FilterAttribute = [...new Set(allAttributes)].join(',');
@@ -113,10 +113,10 @@ const getFilter = () => {
   // Always include sort parameter in API payload
   // Get sort value directly from filterValues to ensure we use the latest value
   const sortValue = filterValues.value.sort;
-  
+
   // Log for debugging
   console.log('Sort value in API payload:', sortValue);
-  
+
   if (sortValue === 'newest_asc' || sortValue === 'newest_desc') {
     options.SortByNewest = sortValue === 'newest_asc' ? 'ASC' : 'DESC';
   } else if (sortValue === 'price_asc' || sortValue === 'price_desc') {
@@ -225,7 +225,11 @@ const setupIntersectionObserver = () => {
     intersectionObserver = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting && !isLodingMore.value && hasNextPage.value) {
+          if (
+            entry.isIntersecting &&
+            !isLodingMore.value &&
+            hasNextPage.value
+          ) {
             loadData();
           }
         });
@@ -308,15 +312,19 @@ onUnmounted(() => {
         <ListingProductsFilterHorizontal @onFilterClick="startFilter()" />
       </div>
       <div
-        class="col-span-12 lg:col-span-2 flex items-center justify-between gap-x-5 px-5 py-2 lg:py-0"
+        class="col-span-12 lg:col-span-2 grid grid-cols-3 items-center justify-between gap-x-5 px-2 py-2 lg:py-0"
       >
-        <div class="block lg:hidden">
+        <div class="col-span-1 block lg:hidden">
           <ListingProductsFilter @onFilterClick="startFilter()" />
         </div>
-        <span class="text-xxs lg:text-sm uppercase">
+        <span
+          class="col-span-1 text-xxs lg:text-sm uppercase flex justify-center"
+        >
           {{ catrgoryProducts?.TotalProduct }} {{ $t('label.pieces') }}
         </span>
-        <ListingProductsView @onChangeView="setTypeView($event)" />
+        <div class="col-span-1 flex justify-end">
+          <ListingProductsView @onChangeView="setTypeView($event)" />
+        </div>
       </div>
     </div>
 
