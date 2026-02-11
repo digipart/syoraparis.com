@@ -6,7 +6,7 @@
           v-if="link"
           :to="getProductUrl(product)"
           class="cardProduct-color"
-          :class="[size, { active: product.IdProduct === activeIdProduct }]"
+          :class="[size, { active: product?.IdProduct === activeIdProduct }]"
           :style="{
             backgroundColor: getRandomHexColor(product?.Variant?.[0]),
           }"
@@ -15,7 +15,7 @@
         <span
           v-else
           class="cardProduct-color"
-          :class="[size, { active: product.IdProduct === activeIdProduct }]"
+          :class="[size, { active: product?.IdProduct === activeIdProduct }]"
           :style="{
             backgroundColor: getRandomHexColor(product?.Variant?.[0]),
           }"
@@ -105,6 +105,9 @@ const getProductUrl = (p: ProductType) => {
   }
   &-color {
     @apply h-5 w-5 block border;
+    @screen mdMax {
+      @apply h-3 w-3;
+    }
   }
 }
 </style>

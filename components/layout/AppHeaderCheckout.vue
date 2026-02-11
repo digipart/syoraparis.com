@@ -29,7 +29,7 @@ const localePath = useLocalePath();
 .appheaderCheckout {
   @apply fixed z-[100] w-full top-0;
   &-menu {
-    @apply px-4 h-14 py-1.5  bg-white
+    @apply px-3 h-14 py-1.5  bg-white
   flex justify-between items-center
     duration-500 text-black;
   }

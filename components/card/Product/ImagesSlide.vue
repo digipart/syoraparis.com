@@ -44,19 +44,21 @@ const medias = computed((): MediaType[] => {
   const media: MediaType[] = [];
 
   if (videos.value) {
-    videos.value.map((video) => {
+    videos.value.forEach((video, index) => {
       media.push({
         src: video.Src,
         type: 'video',
+        key: index,
       });
     });
   }
 
   if (imagesLarge.value) {
-    imagesLarge.value.map((image) => {
+    imagesLarge.value.forEach((image, index) => {
       media.push({
         src: image.Src,
         type: 'image',
+        key: (videos.value?.length || 0) + index,
       });
     });
   }
@@ -77,7 +79,11 @@ const medias = computed((): MediaType[] => {
       class="cardProduct-imagesslide-image-wrapper"
       :key="`video-${index}`"
     >
-      <CardProductVideo class="w-full" :videoUrl="video.Src" @click="showZoomMedia(index)" />
+      <CardProductVideo
+        class="w-full"
+        :videoUrl="video.Src"
+        @click="showZoomMedia(index)"
+      />
     </div>
     <div
       v-for="(image, index) in imagesSmall"
