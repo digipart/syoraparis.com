@@ -456,7 +456,7 @@ onDeactivated(() => cleanupObserver());
         </LayoutContainer>
       </template>
       <ListingCarouselProducts
-        v-if="productsAssociation.length"
+        v-if="productsAssociation?.length"
         :products="productsAssociation"
         class="mt-6 lg:mt-24"
         name="sameStyle"
