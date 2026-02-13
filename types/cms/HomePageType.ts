@@ -52,4 +52,5 @@ export type CmsOurSelection = {
   numberOfProducts?: number;
   idCategory?: number;
   column?: CmsColumnType;
+  category_link?: string;
 };

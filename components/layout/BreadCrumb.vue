@@ -44,7 +44,7 @@ const bc = computed((): BreadCrump[] => {
         {{ item.text }}
       </span>
       <i v-if="index > 0" class="breadcrumb-icon">
-        <IconChevronRight />
+        <IconChevronRight :size="1" />
       </i>
     </li>
   </ul>
@@ -59,16 +59,21 @@ const bc = computed((): BreadCrump[] => {
     &:first-child {
       @apply pl-0;
     }
-    &:last-child {
+
+    a,
+    span:not(.breadcrumb-icon) {
+      @apply inline-block align-bottom;
+      max-width: 10ch;
       overflow: hidden;
-      display: -webkit-box;
-      -webkit-line-clamp: 1;
-      line-clamp: 1;
-      -webkit-box-orient: vertical;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      @screen lg {
+        max-width: unset;
+      }
     }
   }
   &-icon {
-    @apply absolute left-0 top-1/2 -translate-y-1/2;
+    @apply absolute left-1 top-1.5 -translate-y-1/2 h-5;
   }
 }
 </style>

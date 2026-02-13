@@ -2,7 +2,6 @@
   <div v-if="!loading && homePageData" class="homePage">
     <!-- <div class="fakeScroll"></div> -->
     <CmsGrid>
-  
       <template v-for="(item, index) in homePageData.body">
         <CmsColumn v-if="item.column" :column="item.column">
           <CmsBanner
@@ -24,7 +23,6 @@
         >
           <CmsOurSelection v-if="item.idCategory" :data="item" />
         </div>
-    
       </template>
     </CmsGrid>
   </div>
