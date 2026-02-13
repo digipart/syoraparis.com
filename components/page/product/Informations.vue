@@ -127,14 +127,16 @@ onUnmounted(() => {
         <label class="font-normal text-sm mb-2 inline-block"
           >{{ $t('label.color') }} :
         </label>
-        <CardProductColors
-          v-for="p in product?.Relationship?.Child"
-          :key="p.IdProduct"
-          :product="p"
-          :activeIdProduct="Number(product.IdProduct)"
-          size="medium"
-          link
-        />
+        <div class="flex flex-wrap gap-2">
+          <CardProductColors
+            v-for="p in product?.Relationship?.Child"
+            :key="p.IdProduct"
+            :product="p"
+            :activeIdProduct="Number(product.IdProduct)"
+            size="medium"
+            link
+          />
+        </div>
       </div>
       <div class="mb-3">
         <div class="justify-between gap-x-4 mb-2 hidden lg:flex">

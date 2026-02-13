@@ -13,7 +13,7 @@ const localePath = useLocalePath();
     <div
       class="absolute top-0 left-0 w-[200px] h-full bg-white -translate-x-full border-x border-black"
     >
-      <ListingRecommendedProducts />
+      <ListingRecommendedProducts :shopthelook="false" />
     </div>
     <template #header>
       <div
