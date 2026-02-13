@@ -230,11 +230,7 @@ const variantSelected = () => {
         <CardProductAddToFavorite :product="currentProduct" colorIcon="black" />
       </div>
 
-      <ButtonShopTheLook
-        v-if="shopthelook && product?.Association"
-        :product="product"
-        class="cardProduct-shopthelook"
-      />
+      <ButtonShopTheLook :product="product" class="cardProduct-shopthelook" />
     </div>
     <div v-if="body" class="cardProduct-body">
       <div
@@ -248,7 +244,7 @@ const variantSelected = () => {
           <CardProductTitle
             @click="redirect"
             :product="currentProduct"
-            class="mb-1 lg:mb-0"
+            class="mb-1"
           />
           <CardProductPrice :product="currentProduct" :size="size" />
           <div
@@ -412,10 +408,10 @@ $cardProduct: '.cardProduct';
   //   @apply h-12;
   // }
   &-shopthelook {
-    @apply absolute bottom-5 right-5 z-10;
+    @apply absolute top-3 left-3 z-10;
 
     @screen lg {
-      @apply opacity-0 pointer-events-none duration-150;
+      @apply opacity-0 pointer-events-none duration-150 bottom-5 right-5 left-auto top-auto;
     }
   }
 }

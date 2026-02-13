@@ -70,6 +70,7 @@ const en = {
     read_less: 'Read Less',
     select: 'Select',
     learnMore: 'Learn more',
+    view_collection: 'View collection',
   },
   link: {
     contact_us: 'Contact-us',
@@ -264,6 +265,27 @@ const en = {
     },
     guidesize: {
       label: 'Size guide',
+      international_equivalence: 'International size equivalence',
+      how_to_measure: 'How to measure',
+      waist: {
+        label: 'Waist circumference',
+        title: 'Waist',
+        description: 'Measure around the narrowest part of the abdomen.',
+      },
+      hip: {
+        label: 'Hip circumference',
+        title: 'Hip',
+        description: 'Measure the circumference at the widest point.',
+      },
+      regions: {
+        europe: 'Europe',
+        italy: 'Italy',
+        uk: 'United Kingdom',
+        usa: 'United States',
+        mexico: 'Mexico',
+        china: 'China',
+        korea: 'Korea',
+      },
     },
     newsletter_popup: {
       title: 'Subscribe and get 10% off',

@@ -5,6 +5,20 @@
       :products="catrgoryInfo?.Products"
     >
     </ListingCarouselProducts>
+    <div v-if="data?.category_link" class="flex justify-center mt-5">
+      <NuxtLink
+        :to="
+          localePath({
+            name: 'categorylink',
+            params: {
+              categorylink: data.category_link,
+            },
+          })
+        "
+      >
+        {{ $t('button.view_collection') }}
+      </NuxtLink>
+    </div>
   </div>
 </template>
 
@@ -19,6 +33,8 @@ const { currencyIsoCode, languageIsoCode } = toRefs(appStore);
 const { data } = defineProps<{
   data?: CmsOurSelection;
 }>();
+
+const localePath = useLocalePath();
 
 const catrgoryInfo = ref<CategoryType | null>(null);
 
