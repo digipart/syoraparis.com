@@ -70,6 +70,7 @@ const fr = {
     read_less: 'Lire moins',
     select: 'Sélectionner',
     learnMore: 'en savoir plus',
+    view_collection: 'Voir la collection',
   },
   link: {
     contact_us: 'Contactez-nous',
@@ -266,6 +267,27 @@ const fr = {
     },
     guidesize: {
       label: 'Guide des tailles',
+      international_equivalence: 'Équivalence des tailles internationales',
+      how_to_measure: 'Prendre les mesures',
+      waist: {
+        label: 'Tour de taille',
+        title: 'Taille',
+        description: "Faites le tour de la partie la plus étroite de l'abdomen.",
+      },
+      hip: {
+        label: 'Tour de bassin',
+        title: 'Hanche',
+        description: 'Mesurez la circonférence au point le plus large.',
+      },
+      regions: {
+        europe: 'Europe',
+        italy: 'Italie',
+        uk: 'Royaume-Uni',
+        usa: 'États-Unis',
+        mexico: 'Mexique',
+        china: 'Chine',
+        korea: 'Corée',
+      },
     },
     newsletter_popup: {
       title: "Abonnez-vous et bénéficiez d'une réduction de 10%",

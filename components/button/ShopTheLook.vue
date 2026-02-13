@@ -27,7 +27,7 @@ const getLooks = () => {
         .finally(() => {
           loading.value = false;
         });
-    } 
+    }
   }
 };
 
@@ -50,7 +50,12 @@ const open = () => {
       v-loading="loading"
       :disabled="loading"
     >
-      {{ $t('button.shopthelook') }}
+      <span class="hidden lg:block">
+        {{ $t('button.shopthelook') }}
+      </span>
+      <span class="lg:hidden">
+        {{ $t('Look') }}
+      </span>
     </BaseButton>
 
     <BaseDrawer
@@ -78,7 +83,7 @@ const open = () => {
         <hr class="my-4" /> -->
         <div
           class="shopthelook-item"
-          v-for="product, index in productsAssociation"
+          v-for="(product, index) in productsAssociation"
           :key="product.IdProductAttribute"
         >
           <CardProduct
