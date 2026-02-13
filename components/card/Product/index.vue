@@ -28,6 +28,7 @@ const {
   direction,
   hasBorder,
   size,
+  shopthelook,
 } = defineProps({
   product: {
     type: {} as PropType<ProductType>,
@@ -66,7 +67,7 @@ const {
   },
   shopthelook: {
     type: Boolean,
-    default: false,
+    default: true,
   },
   btnRemoveFromCart: {
     type: Boolean,
@@ -230,7 +231,11 @@ const variantSelected = () => {
         <CardProductAddToFavorite :product="currentProduct" colorIcon="black" />
       </div>
 
-      <ButtonShopTheLook :product="product" class="cardProduct-shopthelook" />
+      <ButtonShopTheLook
+        v-if="shopthelook"
+        :product="product"
+        class="cardProduct-shopthelook"
+      />
     </div>
     <div v-if="body" class="cardProduct-body">
       <div
