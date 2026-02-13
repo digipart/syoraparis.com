@@ -19,7 +19,7 @@ const isVisisble = ref(false);
 
 const getLooks = () => {
   if (product?.IdProduct) {
-    if (!productsAssociation.value.length) {
+    if (!productsAssociation.value?.length) {
       loading.value = true;
       fetchShopTheLook(product?.IdProduct)
         .then((data) => {})
