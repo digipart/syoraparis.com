@@ -232,7 +232,7 @@ const variantSelected = () => {
       </div>
 
       <ButtonShopTheLook
-        v-if="shopthelook"
+        v-if="shopthelook && product?.Association"
         :product="product"
         class="cardProduct-shopthelook"
       />
