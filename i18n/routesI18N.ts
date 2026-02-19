@@ -3,7 +3,7 @@ const routesI18N = {
     fr: '/politique-de-confidentialite',
     en: '/privacy-policy',
   },
- 'terms-and-conditions': {
+  'terms-and-conditions': {
     fr: '/conditions-generales-de-vente',
     en: '/terms-and-conditions',
   },
@@ -50,6 +50,10 @@ const routesI18N = {
   'page/brand': {
     fr: '/page/marque',
     en: '/page/brand',
+  },
+  maintenance: {
+    fr: '/maintenance',
+    en: '/maintenance',
   },
 } as const;
 
