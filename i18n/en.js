@@ -655,46 +655,48 @@ const en = {
         description: 'Consultez et gérez vos demandes de support soumises.',
       },
       password_new: {
-        title: 'Définir un Nouveau Mot de Passe',
-        description:
-          'Définissez un nouveau mot de passe pour sécuriser votre compte.',
+        title: 'Set a New Password',
+        description: 'Set a new password to secure your account.',
       },
       password_validate: {
-        title: 'Confirmer le Mot de Passe',
-        description:
-          'Confirmez votre nouveau mot de passe pour sécuriser votre compte.',
+        title: 'Confirm Password',
+        description: 'Confirm your new password to secure your account.',
       },
       password_forget: {
-        title: 'Récupérer le Mot de Passe',
-        description:
-          'Récupérez votre compte en réinitialisant votre mot de passe.',
+        title: 'Recover Password',
+        description: 'Recover your account by resetting your password.',
       },
       loyalty: {
-        title: 'Programme de Fidélité',
+        title: 'Loyalty Program',
         description:
-          'Rejoignez notre programme de fidélité et gagnez des récompenses pour vos achats.',
+          'Join our loyalty program and earn rewards for your purchases.',
       },
       loyalty_history: {
-        title: 'Historique des Points',
-        description: 'Suivez vos points de fidélité gagnés et utilisés.',
+        title: 'Points History',
+        description: 'Track your earned and used loyalty points.',
       },
       loyalty_events: {
-        title: 'Événements Exclusifs',
+        title: 'Exclusive Events',
         description:
-          'Découvrez des événements et promotions exclusifs de fidélité.',
+          'Discover exclusive loyalty events and promotions.',
       },
       loyalty_myreward: {
-        title: 'Mes Récompenses',
-        description: 'Échangez et consultez vos récompenses gagnées.',
+        title: 'My Rewards',
+        description: 'View and redeem your earned rewards.',
       },
       loyalty_reward_catalog: {
-        title: 'Catalogue de Récompenses',
+        title: 'Rewards Catalog',
         description:
-          'Explorez notre catalogue de récompenses et échangez vos points.',
+          'Explore our rewards catalog and redeem your points.',
       },
       loyalty_reward: {
-        title: 'Détails de la Récompense',
-        description: 'Consultez les détails de la récompense sélectionnée.',
+        title: 'Reward Details',
+        description: 'View the details of the selected reward.',
+      },
+      maintenance: {
+        title: "Maintenance",
+        description: "The site is currently under maintenance.",
+        message: "We are currently updating our site. We will be back shortly. Thank you for your patience.",
       },
     },
   },

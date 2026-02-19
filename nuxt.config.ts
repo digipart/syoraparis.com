@@ -43,6 +43,8 @@ export default defineNuxtConfig({
 
       appLoyalty: process.env.APP_LOYALTY,
       appReferral: process.env.APP_REFERRAL || 'disabled',
+      maintenance: process.env.MAINTENANCE,
+      maintenanceBg: process.env.MAINTENANCE_BG,
     },
   },
   compatibilityDate: '2024-04-03',
@@ -135,9 +137,7 @@ export default defineNuxtConfig({
   apollo: {
     clients: {
       default: {
-        httpEndpoint: `${
-          process.env.STRAPI_URL
-        }/graphql`,
+        httpEndpoint: `${process.env.STRAPI_URL}/graphql`,
       },
     },
   },
