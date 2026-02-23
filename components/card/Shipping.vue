@@ -25,6 +25,7 @@
         <BaseHr spacing="12px" />
         <CardShippingRelayPoint
           @onSelectPointRelay="selectPointRelay($event, relayPoints)"
+          :carrierSelected="carrier"
         />
       </div>
     </div>
@@ -54,7 +55,7 @@ const { hasAddressDelivery, checkoutCustomer } = toRefs(checkoutStore);
 
 const { carrier, carrierType, active } = defineProps({
   carrier: {
-    type: {} as PropType<CarrierGenre>,
+    type: Object as PropType<CarrierGenre>,
   },
   active: {
     type: Boolean,
@@ -96,7 +97,7 @@ const onSelectHandler = async () => {
     await loadRelayPoint();
 
     if (relayPoints.value.length) {
-      relayPointSelected.value = relayPoints.value[0];
+      relayPointSelected.value = relayPoints.value[0] || null;
     }
   } else {
     relayPointSelected.value = null;
@@ -156,7 +157,7 @@ onMounted(() => {
               relayPointSelected.value = rpSelected;
             }
           } else {
-            relayPointSelected.value = relayPoints.value[0];
+            relayPointSelected.value = relayPoints.value[0] || null;
           }
         }
       });

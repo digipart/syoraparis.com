@@ -22,7 +22,7 @@ const {
 
 const shippingStore = useShippingStore();
 const { carrier, toshow, relayPointSelected } = toRefs(shippingStore);
-const { fetchShipping } = shippingStore;
+const { fetchShipping, fetchRelayPoints } = shippingStore;
 
 const cartStore = useCartStore();
 const { updateShipping, fetchCart } = cartStore;
@@ -130,6 +130,45 @@ const loadCarriers = async () => {
   if (options) {
     await fetchShipping(options);
     await loadPayments(options);
+
+    if (carrier.value && !carrierSelected.value) {
+      const groups = ['Home', 'Store', 'RelayPoint'] as const;
+      for (const groupName of groups) {
+        if (displayOptions && displayOptions.includes(groupName)) {
+          const carriersList = carrier.value[groupName as keyof CarrierType];
+          if (carriersList && carriersList.length > 0) {
+            const firstCarrier = carriersList[0] as CarrierGenre;
+
+            let relayPointID = undefined;
+            let relayPointsList: RelayPointType[] = [];
+
+            if (groupName === 'RelayPoint' || groupName === 'Store') {
+              try {
+                if (firstCarrier.IdCarrier) {
+                  const rps = (await fetchRelayPoints({
+                    ...options,
+                    IdCarrier: firstCarrier.IdCarrier,
+                  } as any)) as RelayPointType[];
+                  relayPointsList = rps || [];
+                  if (relayPointsList.length > 0) {
+                    relayPointID = relayPointsList[0]?.Id;
+                  }
+                }
+              } catch (e) {
+                console.error('Failed to load relay points for auto-select', e);
+              }
+            }
+
+            selectShipping({
+              carrier: firstCarrier,
+              relayPointID,
+              relayPoints: relayPointsList,
+            });
+            break;
+          }
+        }
+      }
+    }
   }
 };
 

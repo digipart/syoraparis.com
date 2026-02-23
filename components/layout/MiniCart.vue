@@ -1,19 +1,39 @@
 <script setup lang="ts">
+import CategoryService from '~/services/CategoryService';
+import type { CategoryType } from '~/types/CategoryType';
+
 const appStore = useAppStore();
-const { miniCartVisible, currencyIsoCode } = toRefs(appStore);
+const { miniCartVisible, currencyIsoCode, languageIsoCode } = toRefs(appStore);
 
 const cartStore = useCartStore();
 const { totalToPay, cart, promoCodes, hasUnavailableProducts } =
   toRefs(cartStore);
 
 const localePath = useLocalePath();
+
+const catrgoryInfo = ref<CategoryType | null>(null);
+const categoryService = new CategoryService();
+try {
+  catrgoryInfo.value = await categoryService.products({
+    IdCategory: 261,
+    LanguageIsoCode: languageIsoCode.value,
+    CurrencyIsoCode: currencyIsoCode.value,
+    Offset: 0,
+    Limit: 6,
+  });
+} catch (error) {}
+
+const products = computed(() => {
+  return catrgoryInfo.value?.Products || [];
+});
 </script>
 <template>
   <BaseDrawer v-model="miniCartVisible" size="768px">
     <div
+      v-if="products.length"
       class="absolute top-0 left-0 w-[200px] h-full bg-white -translate-x-full border-x border-black"
     >
-      <ListingRecommendedProducts :shopthelook="false" />
+      <ListingRecommendedProducts :shopthelook="false" :products="products" />
     </div>
     <template #header>
       <div

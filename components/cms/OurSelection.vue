@@ -5,8 +5,12 @@
       :products="catrgoryInfo?.Products"
     >
     </ListingCarouselProducts>
-    <div v-if="data?.category_link" class="flex justify-center mt-5">
+    <div
+      v-if="data?.category_link"
+      class="flex justify-center border-b border-black"
+    >
       <NuxtLink
+        class="block w-full py-2 px-5 text-center"
         :to="
           localePath({
             name: 'categorylink',

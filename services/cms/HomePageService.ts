@@ -121,6 +121,7 @@ export default class HomePageService extends CmsService {
               id
               title
               numberOfProducts
+              category_link
               idCategory
             }
           }

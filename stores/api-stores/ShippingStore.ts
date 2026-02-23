@@ -16,7 +16,6 @@ export const useShippingStore = defineStore('shippingStore', () => {
   const relayPoints = ref<RelayPointType[]>([]);
   const relayPointsSerched = ref<RelayPointType[]>([]);
   const relayPointSelected = ref<RelayPointType | null>(null);
-  
 
   const clear = () => {
     carriers.value = [];
@@ -62,8 +61,12 @@ export const useShippingStore = defineStore('shippingStore', () => {
   };
 
   const fetchRelayPoints = (options: {
-    IdAddress: number;
-    IdCarrier: number;
+    IdAddress?: number;
+    IdCarrier?: number;
+    Postcode?: string;
+    City?: string;
+    Address1?: string;
+    Country?: string;
   }) => {
     const shippingService = new ShippingService();
     return shippingService
