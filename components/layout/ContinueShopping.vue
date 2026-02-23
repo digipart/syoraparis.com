@@ -34,10 +34,13 @@ const catrgoryInfo = ref<CategoryType | null>(null);
 const appStore = useAppStore();
 const { currencyIsoCode, languageIsoCode } = toRefs(appStore);
 
+const config = useRuntimeConfig();
+const defaultCategoryId = config.public.defaultCategoryId;
+
 const categoryService = new CategoryService();
 try {
   catrgoryInfo.value = await categoryService.products({
-    IdCategory: 295,
+    IdCategory: defaultCategoryId,
     LanguageIsoCode: languageIsoCode.value,
     CurrencyIsoCode: currencyIsoCode.value,
     Offset: 0,

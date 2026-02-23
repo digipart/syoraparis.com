@@ -22,6 +22,7 @@ export default defineNuxtConfig({
       shopLogoLight: process.env.SHOP_LOGO_LIGHT,
       shopMapIcon: process.env.SHOP_MAP_ICON,
       defaultLanguage: process.env.DEFAULT_LANGUAGE,
+      defaultCategoryId: process.env.DEFAULT_CATEGORY_ID,
       url: process.env.URL,
       apiUrl: process.env.API_URL,
       googleMapKey: process.env.GOOGLE_MAP_KEY,

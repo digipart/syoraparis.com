@@ -19,7 +19,16 @@ const emit = defineEmits(['onSelectPointRelay']);
 const sideRelayPointsVisible = ref(false);
 
 const term = ref('');
-const relayPointSelectedID = ref(relayPointSelected.value?.Id || '');
+const relayPointSelectedID = ref('');
+
+watch(
+  relayPointSelected,
+  (newVal) => {
+    relayPointSelectedID.value = newVal?.Id || '';
+  },
+  { immediate: true }
+);
+
 const rpSchedulesOpen = ref('');
 
 const selectPointRelay = () => {
