@@ -9,6 +9,9 @@ const checkoutStore = useCheckoutStore();
 const { checkoutCustomer, checkoutCarrier, checkoutDeliveryOption } =
   toRefs(checkoutStore);
 
+const auth = useAuth();
+const { isGuest, isLoggedIn } = toRefs(auth);
+
 const cartStore = useCartStore();
 const {
   totalToPay,
@@ -44,10 +47,39 @@ const ip = useIp();
 const setDelivredOption = async (
   optionType: 'home' | 'relayPoint' | 'store'
 ) => {
+  checkoutDeliveryOption.value = optionType;
   updateShipping({ idCarrier: 0 }).then(() => {
     removeCarrier();
   });
-  checkoutDeliveryOption.value = optionType;
+
+  if (optionType === 'home' && isLoggedIn.value && !isGuest.value) {
+    addressStore.fetchAddresses().then(() => {
+      setCheckouCustomer();
+    });
+  }
+
+  if (isGuest.value) {
+    checkoutCustomer.value.deliveryAddress = {
+      ...checkoutCustomer.value.deliveryAddress,
+      firstname: '',
+      lastname: '',
+      address: '',
+      postalCode: '',
+      city: '',
+      phone: '',
+      country: '',
+    };
+    checkoutCustomer.value.invoiceAddress = {
+      firstname: '',
+      lastname: '',
+      address: '',
+      postalCode: '',
+      city: '',
+      phone: '',
+      country: '',
+    };
+  }
+
   if (optionType === 'relayPoint' && pickupAddress.value) {
     handleSelectPickupAddress(pickupAddress.value);
   }

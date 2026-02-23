@@ -113,13 +113,17 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
     return allValid;
   };
 
-  watch(checkoutCustomer.value.deliveryAddress, () => {
-    hasAddressDelivery.value =
-      checkoutCustomer.value.deliveryAddress.postalCode !== '' &&
-      checkoutCustomer.value.deliveryAddress.country !== '' &&
-      checkoutCustomer.value.deliveryAddress.city !== '' &&
-      checkoutCustomer.value.deliveryAddress.address !== '';
-  });
+  watch(
+    () => checkoutCustomer.value.deliveryAddress,
+    () => {
+      hasAddressDelivery.value =
+        checkoutCustomer.value.deliveryAddress.postalCode !== '' &&
+        checkoutCustomer.value.deliveryAddress.country !== '' &&
+        checkoutCustomer.value.deliveryAddress.city !== '' &&
+        checkoutCustomer.value.deliveryAddress.address !== '';
+    },
+    { deep: true }
+  );
 
   const isCheckoutValid = computed(() => {
     const validation = validateCheckout();
@@ -191,7 +195,7 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
     })
       .then((response) => {
         console.log('add', response);
-        
+
         return response;
       })
       .catch((err) => {

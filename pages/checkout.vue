@@ -48,7 +48,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div>
+  <div v-if="loaded">
     <LayoutContinueShopping v-if="!totalProductQuantity" />
     <template v-else>
       <PageTunnel v-if="isLoggedIn && !isGuest" />
