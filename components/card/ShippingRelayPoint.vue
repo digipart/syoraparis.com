@@ -1,19 +1,18 @@
 <script setup lang="ts">
-import type { RelayPointType } from '~/types/RelayPointsType';
+import type { CarrierGenre } from '~/types/ShippingType';
 
-// const { relayPointSelected, relayPoints } = defineProps({
-//   relayPointSelected: {
-//     type: {} as PropType<RelayPointType>,
-//   },
-//   relayPoints: {
-//     type: Array as PropType<RelayPointType[]>,
-//   },
-// });
+const { carrierSelected } = defineProps({
+  carrierSelected: {
+    type: Object as PropType<CarrierGenre>,
+  },
+});
 
 const shippingStore = useShippingStore();
-const { findRelayPoint } = shippingStore;
-const { relayPointSelected, relayPoints, relayPointsSerched } =
+const { fetchRelayPoints } = shippingStore;
+const { relayPointSelected, relayPoints, relayPointsSerched, carrier } =
   toRefs(shippingStore);
+
+const loading = ref(false);
 
 const emit = defineEmits(['onSelectPointRelay']);
 
@@ -60,8 +59,24 @@ function handleMarkerClick(marker: any) {
   }, 200);
 }
 
-const selectAddress = (details: { postalCode: string; city: string }) => {
-  findRelayPoint({ Postcode: details.postalCode, City: details.city });
+const selectAddress = async (details: {
+  postalCode: string;
+  city: string;
+  country: string;
+  address: string;
+}) => {
+  try {
+    relayPointsSerched.value = [];
+    loading.value = true;
+    await fetchRelayPoints({
+      Postcode: details.postalCode,
+      City: details.city,
+      Country: details.country,
+      Address1: details.address,
+      IdCarrier: carrierSelected?.IdCarrier,
+    });
+  } catch (error) {}
+  loading.value = false;
 };
 
 const onDrawerClosed = () => {
@@ -143,14 +158,20 @@ const onDrawerClosed = () => {
               </template>
             </InputGoogoleAutoComplete>
           </div>
-          <div class="-mx-5 flex-1 border-t border-black -mb-5">
-            <BaseTabs default-tab="tab-list">
+          <div
+            class="-mx-5 flex-1 border-t border-black -mb-5"
+            v-loading="loading"
+          >
+            <BaseTabs
+              v-if="relayPointsSerched.length > 0"
+              default-tab="tab-list"
+            >
               <BaseTabsItem name="tab-list" :label="$t('label.relayPointList')">
                 <div class="relayPoints-list overflow-auto">
                   <div v-for="rp in relayPointsSerched" :key="rp.Id">
                     <div
                       v-if="rp.Id"
-                      class="flex flex-col text-xs border-b border-black p-5 pl-12 relative overflow-hidden"
+                      class="cursor-pointer flex flex-col text-xs border-b border-black p-5 pl-12 relative overflow-hidden"
                       @click="relayPointSelectedID = rp.Id"
                     >
                       <InputRadio
@@ -213,6 +234,7 @@ const onDrawerClosed = () => {
                             v-for="(
                               hour, groupName, index
                             ) in relayPointSelected?.OpeningHours"
+                            :key="groupName"
                             class="flex text-xs border-black"
                             :class="{
                               'border-b':
@@ -261,6 +283,14 @@ const onDrawerClosed = () => {
                 </div>
               </BaseTabsItem>
             </BaseTabs>
+            <div
+              v-if="relayPointsSerched.length === 0 && !loading"
+              class="flex items-center justify-center h-full"
+            >
+              <span class="text-xs font-normal">{{
+                $t('message.no_relay_point_found')
+              }}</span>
+            </div>
           </div>
         </div>
       </BaseDrawer>
