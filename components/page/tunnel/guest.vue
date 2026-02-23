@@ -47,6 +47,27 @@ const setDelivredOption = async (
   updateShipping({ idCarrier: 0 }).then(() => {
     removeCarrier();
   });
+
+  // Clear addresses for guests
+  checkoutCustomer.value.deliveryAddress = {
+    ...checkoutCustomer.value.deliveryAddress,
+    firstname: '',
+    lastname: '',
+    address: '',
+    postalCode: '',
+    city: '',
+    phone: '',
+    country: '',
+  };
+  checkoutCustomer.value.invoiceAddress = {
+    firstname: '',
+    lastname: '',
+    address: '',
+    postalCode: '',
+    city: '',
+    phone: '',
+    country: '',
+  };
 };
 
 const handalFormGuestChange = (state: any) => {

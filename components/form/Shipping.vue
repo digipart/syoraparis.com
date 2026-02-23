@@ -131,7 +131,12 @@ const loadCarriers = async () => {
     await fetchShipping(options);
     await loadPayments(options);
 
-    if (carrier.value && !carrierSelected.value) {
+    if (
+      carrier.value &&
+      (!carrierSelected.value ||
+        displayOptions.includes('RelayPoint') ||
+        displayOptions.includes('Store'))
+    ) {
       const groups = ['Home', 'Store', 'RelayPoint'] as const;
       for (const groupName of groups) {
         if (displayOptions && displayOptions.includes(groupName)) {
@@ -172,9 +177,13 @@ const loadCarriers = async () => {
   }
 };
 
-watch(checkoutCustomer.value.deliveryAddress, () => {
-  loadCarriers();
-});
+watch(
+  () => checkoutCustomer.value.deliveryAddress,
+  () => {
+    loadCarriers();
+  },
+  { deep: true }
+);
 
 const hasCarrierOfType = computed(() => {
   if (!carrier.value || Object.keys(carrier.value).length === 0) {
