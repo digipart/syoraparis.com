@@ -12,7 +12,7 @@ const addressStore = useAddressStore();
 const { addressDelivery, addressInvoice } = toRefs(addressStore);
 
 const shippingStore = useShippingStore();
-const { carrier: allCarriers, toshow } = toRefs(shippingStore);
+const { carrier: allCarriers, toshow, carriers } = toRefs(shippingStore);
 
 const formInvoiceStore = useFormInvoiceStore();
 const { state: invoiceState } = toRefs(formInvoiceStore);
@@ -199,6 +199,7 @@ watch(state.value, () => {
               {{ $t('label.delivery') }} :
             </BaseHeadLine>
             <div
+              v-if="carriers.includes('Home')"
               class="deliveryOptions-item"
               :class="{ selected: checkoutDeliveryOption === 'home' }"
               @click="setDelivredOption('home')"
@@ -215,6 +216,7 @@ watch(state.value, () => {
               <IconDeliveryTruckSpeed :size="2.5" />
             </div>
             <div
+              v-if="carriers.includes('RelayPoint')"
               class="deliveryOptions-item"
               :class="{ selected: checkoutDeliveryOption === 'relayPoint' }"
               @click="setDelivredOption('relayPoint')"
@@ -231,6 +233,7 @@ watch(state.value, () => {
               <IconLocation :size="2.5" />
             </div>
             <div
+              v-if="carriers.includes('Store')"
               class="deliveryOptions-item"
               :class="{ selected: checkoutDeliveryOption === 'store' }"
               @click="setDelivredOption('store')"
@@ -247,13 +250,13 @@ watch(state.value, () => {
               <IconShop :size="2.5" />
             </div>
           </div>
-          <CardShipping
+          <!-- <CardShipping
             v-if="carrier?.IdCarrier"
             :carrier="carrier"
             :radio="false"
             :border="false"
             class="mb-5"
-          />
+          /> -->
 
           <div v-if="checkoutDeliveryOption === 'home'">
             <BaseHeadLine size="md" class="uppercase font-medium mb-3">

@@ -1,4 +1,9 @@
 export default defineEventHandler((event) => {
-  const ip = getRequestHeader(event, 'x-forwarded-for') || getRequestIP(event)
-  event.context.ip = ip
-})
+  let ip = getRequestHeader(event, 'x-forwarded-for') || getRequestIP(event);
+
+  if (!ip || ip === '127.0.0.1' || ip === '::1') {
+    ip = '37.67.159.137';
+  }
+
+  event.context.ip = ip;
+});
