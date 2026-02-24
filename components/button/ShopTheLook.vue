@@ -17,23 +17,6 @@ const loading = ref(false);
 
 const isVisisble = ref(false);
 
-const getLooks = () => {
-  if (product?.IdProduct) {
-    if (!productsAssociation.value.length) {
-      loading.value = true;
-      fetchShopTheLook(product?.IdProduct)
-        .then((data) => {})
-        .catch((error) => {})
-        .finally(() => {
-          loading.value = false;
-        });
-    }
-  }
-};
-
-onMounted(() => {
-  getLooks();
-});
 const open = () => {
   isVisisble.value = true;
 };

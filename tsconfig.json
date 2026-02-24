@@ -2,9 +2,13 @@
   // https://nuxt.com/docs/guide/concepts/typescript
   "extends": "./.nuxt/tsconfig.json",
   "compilerOptions": {
-    "types": ["@types/google.maps"],
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
+    "types": [
+      "@types/google.maps"
+    ],
     "strict": true,
-    "jsx": "preserve",
-    "moduleResolution": "node"
+    "jsx": "preserve"
   }
 }

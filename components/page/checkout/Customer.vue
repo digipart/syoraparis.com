@@ -16,10 +16,8 @@ const shippingStore = useShippingStore();
 const showForm = ref(false);
 const addressFormAdd = ref<HTMLElement | null>(null);
 
-  
 const countryStore = useCountryStore();
 const { countries } = toRefs(countryStore);
-
 
 const auth = useAuth();
 const { customer } = toRefs(auth);
@@ -68,7 +66,6 @@ const handleSelectAddress = (details: {
   city: string;
   countryIso: string;
 }) => {
-
   state.value.courtAddress = details.courtAddress;
   state.value.address = details.courtAddress;
   state.value.postcode = details.postalCode;
@@ -76,47 +73,12 @@ const handleSelectAddress = (details: {
   state.value.city = details.city;
 };
 
-
 const countriesOptions = computed(() => {
   return countries.value.map((country) => ({
     label: country.CountryName,
     value: country.CountryIsoCode,
   }));
 });
-
-
-
-// const setCheckoutCustomer = () => {
-//   checkoutCustomer.value.deliveryAddress.firstname =
-//     addressDelivery.value?.Firstname || '';
-//   checkoutCustomer.value.deliveryAddress.lastname =
-//     addressDelivery.value?.Lastname || '';
-//   checkoutCustomer.value.deliveryAddress.email = customer.value?.Email || '';
-//   checkoutCustomer.value.deliveryAddress.address =
-//     addressDelivery.value?.Address1 || '';
-//   checkoutCustomer.value.deliveryAddress.city =
-//     addressDelivery.value?.City || '';
-//   checkoutCustomer.value.deliveryAddress.phone =
-//     addressDelivery.value?.MobilePhone || '';
-//   checkoutCustomer.value.deliveryAddress.postalCode =
-//     addressDelivery.value?.Postcode || '';
-//   checkoutCustomer.value.deliveryAddress.country =
-//     addressDelivery.value?.CountryIsoCode || '';
-
-//   checkoutCustomer.value.invoiceAddress.firstname =
-//     addressInvoice.value?.Firstname || '';
-//   checkoutCustomer.value.invoiceAddress.lastname =
-//     addressInvoice.value?.Lastname || '';
-//   checkoutCustomer.value.invoiceAddress.address =
-//     addressInvoice.value?.Address1 || '';
-//   checkoutCustomer.value.invoiceAddress.city = addressInvoice.value?.City || '';
-//   checkoutCustomer.value.invoiceAddress.phone =
-//     addressInvoice.value?.MobilePhone || '';
-//   checkoutCustomer.value.invoiceAddress.postalCode =
-//     addressInvoice.value?.Postcode || '';
-//   checkoutCustomer.value.invoiceAddress.country =
-//     addressInvoice.value?.CountryIsoCode || '';
-// };
 
 watch(state.value, () => {
   emit('onFormChange', state.value);
@@ -141,13 +103,12 @@ watch(state.value, () => {
   }
 });
 
-
 onMounted(() => {
   setTimeout(() => {
     if (addresses.value.length === 0) {
       showForm.value = true;
     }
-  }, 100);
+  }, 500);
   // setCheckoutCustomer();
 });
 </script>

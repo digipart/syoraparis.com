@@ -3,7 +3,7 @@ const appStore = useAppStore();
 const { currencyIsoCode } = toRefs(appStore);
 
 const shippingStore = useShippingStore();
-const { carrier: allCarriers, toshow } = toRefs(shippingStore);
+const { carrier: allCarriers, toshow, carriers } = toRefs(shippingStore);
 
 const checkoutStore = useCheckoutStore();
 const { checkoutCustomer, checkoutCarrier, checkoutDeliveryOption } =
@@ -167,6 +167,7 @@ onMounted(() => {
               {{ $t('label.delivery') }} :
             </BaseHeadLine>
             <div
+              v-if="carriers.includes('Home')"
               class="deliveryOptions-item"
               :class="{ selected: checkoutDeliveryOption === 'home' }"
               @click="setDelivredOption('home')"
@@ -184,6 +185,7 @@ onMounted(() => {
             </div>
 
             <div
+              v-if="carriers.includes('RelayPoint')"
               class="deliveryOptions-item"
               :class="{ selected: checkoutDeliveryOption === 'relayPoint' }"
               @click="setDelivredOption('relayPoint')"
@@ -201,6 +203,7 @@ onMounted(() => {
             </div>
 
             <div
+              v-if="carriers.includes('Store')"
               class="deliveryOptions-item"
               :class="{ selected: checkoutDeliveryOption === 'store' }"
               @click="setDelivredOption('store')"

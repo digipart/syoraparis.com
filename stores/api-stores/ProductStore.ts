@@ -37,6 +37,8 @@ export const useProductStore = defineStore('productStore', () => {
     const { currencyIsoCode, languageIsoCode } = useAppStore();
     loading.value = true;
     try {
+      console.log('idProduct', idProduct);
+
       const data = await productService.fetchShopTheLook(idProduct, {
         CurrencyIsoCode: currencyIsoCode,
         LanguageIsoCode: languageIsoCode,
