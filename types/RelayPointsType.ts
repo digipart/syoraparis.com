@@ -23,7 +23,7 @@ export type RelayPointType = {
   City?: string;
   Country?: string;
   Location?: Location;
-  OpeningHours?: OpeningHours;
+  OpeningHours?: OpeningHours[];
 };
 
 export type Location = {
@@ -33,11 +33,11 @@ export type Location = {
 };
 
 export type OpeningHours = {
-  Monday?: string;
-  Tuesday?: string;
-  Wednesday?: string;
-  Thursday?: string;
-  Friday?: string;
-  Saturday?: string;
-  Sunday?: string;
+  Day?: string;
+  TimeSlots?: TimeSlot[];
+};
+
+export type TimeSlot = {
+  TimeSlotStart?: string;
+  TimeSlotEnd?: string;
 };
