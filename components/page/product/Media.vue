@@ -48,6 +48,7 @@ const showZoomMedia = (index: number) => {
 const onSwiper = (swiper: any): void => {
   swiperInstance = swiper;
   activeIndex.value = swiper.activeIndex;
+  swiper.slideTo(0, 0);
 };
 
 const onSlideChange = (): void => {
@@ -56,11 +57,27 @@ const onSlideChange = (): void => {
   }
 };
 
+watch(
+  () => medias,
+  () => {
+    if (swiperInstance) {
+      swiperInstance.slideTo(0, 0);
+    }
+  },
+  { deep: true }
+);
+
 const setActiveSlide = (index: number): void => {
   if (swiperInstance) {
     swiperInstance.slideTo(index);
   }
 };
+
+onActivated(() => {
+  if (swiperInstance) {
+    swiperInstance.slideTo(0, 0);
+  }
+});
 
 const breakpoints: any = {
   '0': {
@@ -142,6 +159,7 @@ const scrollToElement = (index: number) => {
       @swiper="onSwiper"
       @slideChange="onSlideChange"
       :freeMode="windowWidth > 991"
+      :initial-slide="0"
     >
       <swiper-slide
         v-for="(group, groupIndex) in chunkedMedias"

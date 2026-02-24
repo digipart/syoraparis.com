@@ -11,10 +11,14 @@ const error = ref<string | null>(null);
 
 const redirect = route.query?.redirect;
 
-const { onSuccess } = defineProps({
+const { onSuccess, goToRedirect } = defineProps({
   onSuccess: {
     type: Function,
     default: null,
+  },
+  goToRedirect: {
+    type: Boolean,
+    default: true,
   },
 });
 
@@ -31,6 +35,8 @@ const redirectTo = () => {
   }
 };
 
+const emit = defineEmits(['onSuccess']);
+
 const submitForm = async () => {
   const isFormCorrect = await v$.value.$validate();
   if (isFormCorrect) {
@@ -41,9 +47,12 @@ const submitForm = async () => {
       Password: state.password,
     })
       .then(() => {
-        setTimeout(() => {
-          redirectTo();
-        }, 100);
+        if (goToRedirect) {
+          setTimeout(() => {
+            redirectTo();
+          }, 100);
+        }
+        emit('onSuccess');
       })
       .catch((err) => {
         console.log(err);
@@ -146,13 +155,12 @@ $formLogin: '.formLogin';
 
 #{$formLogin} {
   @apply flex items-center pb-[54px] relative;
+  @screen md {
+    @apply border border-black py-10;
+  }
 
   &-form {
     @apply flex  w-full flex-col;
-
-    @screen md {
-      @apply border border-black py-10;
-    }
   }
   &-cta {
     // @apply absolute bottom-0 w-full;
@@ -165,4 +173,3 @@ $formLogin: '.formLogin';
   }
 }
 </style>
-

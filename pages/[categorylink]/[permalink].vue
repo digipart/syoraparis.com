@@ -21,7 +21,7 @@ const { productSViewed } = toRefs(productsViewedStore);
 initProductViewedStore();
 
 const productStore = useProductStore();
-const { fetchProduct } = productStore;
+const { fetchProduct, fetchShopTheLook } = productStore;
 const { productsAssociation } = toRefs(productStore);
 
 const loading = ref(false);
@@ -292,6 +292,20 @@ const loadData = (idCatgory: number) => {
   }
 };
 
+const getLooks = () => {
+  if (product.value?.IdProduct && product.value?.Association) {
+    if (!productsAssociation.value.length) {
+      loading.value = true;
+      fetchShopTheLook(product.value?.IdProduct)
+        .then((data) => {})
+        .catch((error) => {})
+        .finally(() => {
+          loading.value = false;
+        });
+    }
+  }
+};
+
 if (idProduct.value) {
   loading.value = true;
   try {
@@ -321,6 +335,7 @@ if (idProduct.value) {
   } finally {
     loading.value = false;
   }
+  getLooks();
 }
 
 if (idCatgory.value) {
@@ -416,7 +431,7 @@ onDeactivated(() => cleanupObserver());
             </ClientOnly>
 
             <ButtonShopTheLook
-              v-if="product?.Association"
+              v-if="product.Association"
               :product="product"
               class="pageProduct-shopthelook"
             />

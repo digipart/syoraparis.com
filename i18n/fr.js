@@ -71,6 +71,7 @@ const fr = {
     select: 'Sélectionner',
     learnMore: 'en savoir plus',
     view_collection: 'Voir la collection',
+    log_in_to_access_your_loyalty_benefits: 'Connectez-vous pour accéder à vos avantages fidélité',
   },
   link: {
     contact_us: 'Contactez-nous',
