@@ -31,7 +31,8 @@ const { relayPointSelected } = defineProps({
         </template>
         <div class="flex flex-col -m-5" v-if="relayPointSelected?.OpeningHours">
           <div
-            v-for="(hour, groupName, index) in relayPointSelected?.OpeningHours"
+            v-for="(oh, index) in relayPointSelected?.OpeningHours"
+            :key="oh.Day"
             class="flex text-sm border-black"
             :class="{
               'border-b':
@@ -40,10 +41,13 @@ const { relayPointSelected } = defineProps({
             }"
           >
             <span class="min-w-32 font-light border-r border-black py-2 px-5">
-              {{ groupName }} :
+              {{ oh.Day }} :
             </span>
             <span class="font-normal py-2 px-5">
-              {{ hour }}
+              <span v-for="(ts, i2) in oh.TimeSlots" :key="ts.TimeSlotStart">
+                {{ ts.TimeSlotStart }} - {{ ts.TimeSlotEnd }}
+                <i v-if="i2 !== (oh?.TimeSlots?.length || 0) - 1"> | </i>
+              </span>
             </span>
           </div>
         </div>

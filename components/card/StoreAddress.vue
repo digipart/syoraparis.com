@@ -129,8 +129,7 @@ const emit = defineEmits(['onStoreSelected']);
 
 const openHoraire = ref(false);
 
-const selectedShop = () => {
-};
+const selectedShop = () => {};
 </script>
 
 <style lang="scss">

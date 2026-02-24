@@ -241,9 +241,9 @@ const onDrawerClosed = () => {
                         >
                           <div
                             v-for="(
-                              hour, groupName, index
+                              oh, index
                             ) in relayPointSelected?.OpeningHours"
-                            :key="groupName"
+                            :key="oh.Day"
                             class="flex text-xs border-black"
                             :class="{
                               'border-b':
@@ -256,10 +256,20 @@ const onDrawerClosed = () => {
                             <span
                               class="text-xs min-w-32 font-light border-r border-black py-1 px-3"
                             >
-                              {{ groupName }} :
+                              {{ oh.Day }} :
                             </span>
                             <span class="text-xs font-normal py-1 px-3">
-                              {{ hour }}
+                              <span
+                                v-for="(ts, i2) in oh.TimeSlots"
+                                :key="ts.TimeSlotStart"
+                              >
+                                {{ ts.TimeSlotStart }} - {{ ts.TimeSlotEnd }}
+                                <i
+                                  v-if="i2 !== (oh?.TimeSlots?.length || 0) - 1"
+                                >
+                                  |
+                                </i>
+                              </span>
                             </span>
                           </div>
                         </div>
