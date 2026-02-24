@@ -179,7 +179,7 @@ watch(state.value, () => {
       <div class="col-span-12 lg:col-span-6 checkout-left">
         <!-- Delivery Options -->
         <div class="box">
-          <div class="flex gap-3 items-end mb-3 justify-between">
+          <div class="flex flex-wrap gap-x-3 items-end mb-3 justify-between">
             <BaseHeadLine size="md" class="uppercase font-medium">
               {{ $t('label.contact') }} :
             </BaseHeadLine>

@@ -66,7 +66,9 @@ const submitForm = async () => {
 };
 
 const googleSubmit = () => {
-  redirectTo();
+  if (goToRedirect) {
+    redirectTo();
+  }
 };
 </script>
 
@@ -155,12 +157,12 @@ $formLogin: '.formLogin';
 
 #{$formLogin} {
   @apply flex items-center pb-[54px] relative;
-  @screen md {
-    @apply border border-black py-10;
-  }
 
   &-form {
     @apply flex  w-full flex-col;
+    @screen md {
+      @apply border border-black py-10;
+    }
   }
   &-cta {
     // @apply absolute bottom-0 w-full;

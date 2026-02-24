@@ -6,18 +6,24 @@ const isVisible = ref(false);
   <div>
     <span
       @click="isVisible = true"
-      class="text-xs mb-0.5 underline cursor-pointer"
+      class="text-xxs lg:text-xs mb-0.5 underline cursor-pointer leading-tight"
     >
       {{ $t('button.log_in_to_access_your_loyalty_benefits') }}
     </span>
     <BaseModal v-model="isVisible" size="600px" @onClose="isVisible = false">
       <FormLogin
         :goToRedirect="false"
-        class="!pb-10 -m-5 !border-0"
+        class="!pb-0 -m-5 loginModal"
         @onSuccess="isVisible = false"
       />
     </BaseModal>
   </div>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss">
+.loginModal {
+  .formLogin-form {
+    border: none !important;
+  }
+}
+</style>

@@ -45,6 +45,14 @@ onMounted(async () => {
     trackBeginCheckout(cart.value);
   }
 });
+
+watch(isLoggedIn, async (val) => {
+  console.log('isLoggedIn', val);
+  if (val) {
+    await fetchAddresses();
+    await cartStore.fetchCart();
+  }
+});
 </script>
 
 <template>
