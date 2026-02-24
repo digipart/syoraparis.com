@@ -71,6 +71,7 @@ const en = {
     select: 'Select',
     learnMore: 'Learn more',
     view_collection: 'View collection',
+    log_in_to_access_your_loyalty_benefits: 'Log in to access your loyalty benefits',
   },
   link: {
     contact_us: 'Contact-us',

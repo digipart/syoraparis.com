@@ -64,7 +64,7 @@ const beforeEnter = () => {
 const enter = (el: Element, done: () => void) => {
   if (!inside) {
     setHtmlStyle({
-      overflow: 'hidden',
+      // overflow: 'hidden',
     });
   }
 

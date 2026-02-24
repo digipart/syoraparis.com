@@ -122,7 +122,11 @@ const onDrawerClosed = () => {
           v-if="relayPointSelected?.Location?.DistanceFromAddress"
           class="font-normal"
         >
-          {{ relayPointSelected?.Location.DistanceFromAddress }}m
+          {{
+            Number(
+              relayPointSelected?.Location?.DistanceFromAddress || 0
+            ).toFixed(2)
+          }}m
         </span>
 
         <span v-if="relayPointSelected?.OpeningHours" class="font-normal">
