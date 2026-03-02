@@ -198,62 +198,6 @@ export const useAuth = defineStore('useAuthStore', () => {
     }
   }
 
-  // async function registerGuest() {
-  //   const authService = new AuthService();
-
-  //   const cartStore = useCartStore();
-  //   const { removeCartFromCookie } = cartStore;
-  //   const { cartId } = toRefs(cartStore);
-
-  //   const favoriteStore = useFavoritesStore();
-  //   const { removeFavoriteFromCookie } = favoriteStore;
-  //   const { favoriteId } = toRefs(favoriteStore);
-
-  //   const appStore = useAppStore();
-  //   const { currencyIsoCode, countryIsoCode, languageIsoCode } =
-  //     toRefs(appStore);
-
-  //   const formDeliveryStore = useFormDeliveryStore();
-  //   const { state } = toRefs(formDeliveryStore);
-
-  //   const options: CustomerRegisterType = {
-  //     Lastname: state.value.name,
-  //     Firstname: state.value.firstname,
-  //     Email: state.value.email,
-  //     Address1: state.value.address,
-  //     Postcode: state.value.postcode,
-  //     City: state.value.city,
-  //     MobilePhone: state.value.phone,
-  //   };
-
-  //   options.CountryIsoCode = countryIsoCode.value;
-  //   options.CurrencyIsoCode = currencyIsoCode.value;
-  //   options.LanguageIsoCode = languageIsoCode.value;
-  //   options.Guest = true;
-  //   options.IsDelivery = true;
-  //   options.IsInvoice = true;
-
-  //   try {
-  //     if (cartId.value) {
-  //       options.IdCart = Number(cartId.value);
-  //       removeCartFromCookie();
-  //     }
-  //     if (favoriteId.value) {
-  //       options.IdFavorite = Number(favoriteId.value);
-  //       removeFavoriteFromCookie();
-  //     }
-
-  //     const data = await authService.registerGuest(options);
-
-  //     updateAuthData(data);
-  //     initStore();
-
-  //     return data;
-  //   } catch (error) {
-  //     throw error;
-  //   }
-  // }
-
   function logout() {
     token.value = null;
     service.setTokenToCookie(token.value);
@@ -377,6 +321,22 @@ export const useAuth = defineStore('useAuthStore', () => {
     }
   }
 
+  async function loginAuto({ token, email }: { token: string; email: string }) {
+    try {
+      const data = await login('credentials', {
+        Email: email,
+        Password: token,
+      });
+
+      updateAuthData(data);
+      initStore();
+
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  }
+
   return {
     customer,
     token,
@@ -392,5 +352,6 @@ export const useAuth = defineStore('useAuthStore', () => {
     refresh,
     loginWithFacebook,
     customerSaveAddress,
+    loginAuto,
   };
 });
