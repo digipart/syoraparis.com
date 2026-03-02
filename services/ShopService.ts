@@ -141,4 +141,13 @@ export default class ShopService extends Service {
       throw error;
     }
   }
+
+  async shortLink(options: { code: string }) {
+    try {
+      const data = await this.$get<any>(`shortlink`, { options });
+      return data;
+    } catch (error) {
+      throw error;
+    }
+  }
 }
