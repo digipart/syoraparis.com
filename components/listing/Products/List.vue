@@ -48,6 +48,7 @@ const showProductActions = computed(() => {
     <div
       v-for="(product, index) in products"
       :key="product?.IdProduct || '' + '-' + index"
+      :id="`product-${product?.IdProduct}`"
       class="col-span-1"
     >
       <CardProduct

@@ -60,6 +60,7 @@ const typeView = useCookie('CATEGORY_VIEW', {
 });
 
 const isLodingMore = ref(true);
+const alreadyScrolled = ref(false);
 const hasNextPage = ref(true);
 const loadingMoreBtn = ref<HTMLElement | null>(null);
 
@@ -171,6 +172,20 @@ const loadData = () => {
       })
       .finally(() => {
         isLodingMore.value = false;
+
+        if (!alreadyScrolled.value && route.query.id_product) {
+          nextTick(() => {
+            setTimeout(() => {
+              const element = document.getElementById(
+                `product-${route.query.id_product}`
+              );
+              if (element) {
+                element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                alreadyScrolled.value = true;
+              }
+            }, 500);
+          });
+        }
       });
   }
 };
@@ -272,6 +287,21 @@ onMounted(() => {
     setupIntersectionObserver();
   });
 });
+
+watch(
+  () => route.query.id_product,
+  (newVal) => {
+    if (newVal) {
+      const element = document.getElementById(`product-${newVal}`);
+      if (element) {
+        element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        alreadyScrolled.value = true;
+      } else {
+        alreadyScrolled.value = false;
+      }
+    }
+  }
+);
 
 watch(
   () => hasNextPage.value,
