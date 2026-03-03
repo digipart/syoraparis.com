@@ -20,7 +20,10 @@ const price = computed(() => {
 });
 
 const reduction = computed(() => {
-  return price.value?.Reduction;
+  if (price.value?.Reduction && price.value?.Reduction.Label != '0%') {
+    return price.value?.Reduction;
+  }
+  return null;
 });
 
 const regularPrice = computed(() => {

@@ -45,7 +45,7 @@ const isDrawer = computed(() => {
 });
 
 const isGiftCard = computed(() => {
-  return product?.ProductType === 'e-giftcard';
+  return product?.Type === 'e-giftcard';
 });
 
 const selectVariant = (index: number, variant: Variant) => {

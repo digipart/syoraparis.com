@@ -232,7 +232,7 @@ $googleAutoComplete: '.googleAutoComplete';
     }
   }
   &-error {
-    @apply absolute bottom-0 translate-y-full normal-case;
+    @apply absolute -bottom-0.5 left-0 translate-y-full normal-case;
     span {
       @apply text-red-500 text-xxs flex flex-col;
     }
