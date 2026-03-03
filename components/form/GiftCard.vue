@@ -23,15 +23,35 @@
             </div>
             <div>
               <InputText
-                id="fullName"
-                v-model="state.fullName"
+                id="firstName"
+                v-model="state.firstName"
                 type="text"
-                :errors="v$.fullName?.$errors"
-                :label="$t('label.recipient_name')"
+                :errors="v$.firstName?.$errors"
+                :label="$t('label.recipient_firstname')"
                 border
               />
             </div>
-            <div class="-mb-2">
+            <div>
+              <InputText
+                id="lastName"
+                v-model="state.lastName"
+                type="text"
+                :errors="v$.lastName?.$errors"
+                :label="$t('label.recipient_lastname')"
+                border
+              />
+            </div>
+            <div>
+              <InputText
+                id="mobilePhone"
+                v-model="state.mobilePhone"
+                type="tel"
+                :errors="v$.mobilePhone?.$errors"
+                :label="$t('label.recipient_phone')"
+                border
+              />
+            </div>
+            <div class="-mb-2 relative">
               <InputText
                 id="message"
                 v-model="state.message"
@@ -41,7 +61,9 @@
                 :maxlength="300"
                 border
               />
-              <div class="text-right text-xs text-gray-500">
+              <div
+                class="text-right text-xxs text-gray-500 absolute right-0 -bottom-1"
+              >
                 {{ state.message.length }}/300
               </div>
             </div>
@@ -97,13 +119,17 @@ const customCard = ref(false);
 
 const state = ref<GiftCardPayload>({
   email: '',
-  fullName: '',
+  firstName: '',
+  lastName: '',
+  mobilePhone: '',
   message: '',
   dateSend: '',
 });
 
 const rules = {
   email: { required, email },
+  firstName: { required },
+  lastName: { required },
 };
 
 const v$ = useVuelidate(rules, state);
@@ -127,7 +153,9 @@ const submitForm = async () => {
       // For now, we'll just simulate success
       const payload = {
         email: state.value.email,
-        fullName: state.value.fullName,
+        firstName: state.value.firstName,
+        lastName: state.value.lastName,
+        mobilePhone: state.value.mobilePhone,
         message: state.value.message,
         dateSend: state.value.dateSend,
       };

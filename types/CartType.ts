@@ -68,7 +68,9 @@ export type CartRules = {
 
 export type GiftCardPayload = {
   email: string;
-  fullName: string;
+  firstName: string;
+  lastName: string;
+  mobilePhone: string;
   message: string;
   dateSend: string;
   productType?: string;

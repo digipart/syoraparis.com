@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const checkoutStore = useCheckoutStore();
-const { checkoutCustomer, checkoutDeliveryOption } = toRefs(checkoutStore);
+const { checkoutCustomer, checkoutDeliveryOption, fetchPaymentMethods } =
+  toRefs(checkoutStore);
 
 const formDeliveryStore = useFormDeliveryStore();
 const { state, v$ } = toRefs(formDeliveryStore);
@@ -18,8 +19,13 @@ const formInvoiceStore = useFormInvoiceStore();
 const { state: invoiceState } = toRefs(formInvoiceStore);
 
 const cartStore = useCartStore();
-const { totalToPay, carrier, totalProductQuantity, hasUnavailableProducts } =
-  toRefs(cartStore);
+const {
+  totalToPay,
+  carrier,
+  totalProductQuantity,
+  hasUnavailableProducts,
+  isDigitalOnly,
+} = toRefs(cartStore);
 const { updateShipping, removeCarrier } = cartStore;
 
 const paymentRefreshing = ref(false);
@@ -28,7 +34,9 @@ const pickupAddress = ref('');
 
 const valide = computed(() => {
   return (
-    totalProductQuantity.value && carrier.value && !hasUnavailableProducts.value
+    totalProductQuantity.value &&
+    (isDigitalOnly.value || carrier.value) &&
+    !hasUnavailableProducts.value
   );
 });
 
@@ -132,6 +140,10 @@ onMounted(() => {
   updateShipping({ idCarrier: 0 }).then(() => {
     removeCarrier();
   });
+  if (isDigitalOnly.value) {
+    const ip = useIp();
+    checkoutStore.fetchPaymentMethods({ IP: ip.value });
+  }
 });
 
 watch(checkoutCustomer.value.invoiceAddress, () => {
@@ -198,7 +210,7 @@ watch(state.value, () => {
             />
           </div>
 
-          <div class="deliveryOptions mb-5">
+          <div v-if="!isDigitalOnly" class="deliveryOptions mb-5">
             <BaseHeadLine size="md" class="uppercase font-medium mb-3">
               {{ $t('label.delivery') }} :
             </BaseHeadLine>
@@ -264,7 +276,12 @@ watch(state.value, () => {
 
           <div v-if="checkoutDeliveryOption === 'home'">
             <BaseHeadLine size="md" class="uppercase font-medium mb-3">
-              {{ $t('label.address_delivery') }} :
+              {{
+                isDigitalOnly
+                  ? $t('titles.my_informations')
+                  : $t('label.address_delivery')
+              }}
+              :
             </BaseHeadLine>
             <PageCheckoutGuest
               class="mb-5"
@@ -272,10 +289,12 @@ watch(state.value, () => {
               @onFormChange="handalFormGuestChange($event)"
             />
             <!-- Shipping option -->
-            <BaseHeadLine size="md" class="uppercase font-medium">
-              {{ $t('label.shippingOption.title') }} :
-            </BaseHeadLine>
-            <FormShipping :displayOptions="'Home'" />
+            <template v-if="!isDigitalOnly">
+              <BaseHeadLine size="md" class="uppercase font-medium">
+                {{ $t('label.shippingOption.title') }} :
+              </BaseHeadLine>
+              <FormShipping :displayOptions="'Home'" />
+            </template>
           </div>
 
           <div v-if="checkoutDeliveryOption !== 'home'">
