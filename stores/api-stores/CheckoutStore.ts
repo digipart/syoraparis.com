@@ -1,9 +1,10 @@
+import PaymentService from '~/services/PaymentService';
 import { defineStore } from 'pinia';
 import { useFormDeliveryStore } from '../form-stores/formDeliveryStore';
 import { useFormInvoiceStore } from '../form-stores/formInvoiceStore';
 import type { PaymentMethodType } from '~/types/PaymentType';
 import type { RelayPointType } from '~/types/RelayPointsType';
-import type { CarrierType } from '~/types/ShippingType';
+import type { CarrierGenre, CarrierType } from '~/types/ShippingType';
 
 type CheckoutCustomer = {
   deliveryAddress: {
@@ -28,7 +29,7 @@ type CheckoutCustomer = {
 };
 
 type CheckoutCarrier = {
-  carrier: CarrierType | null;
+  carrier: CarrierGenre | null;
   relayPoint?: RelayPointType | null;
 };
 
@@ -72,6 +73,8 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
   const { registerGuest } = auth;
 
   const validateCheckoutBeforePayment = async (): Promise<boolean> => {
+    const cartStore = useCartStore();
+    const { isDigitalOnly } = toRefs(cartStore);
     const formDeliveryStore = useFormDeliveryStore();
     const formInvoiceStore = useFormInvoiceStore();
 
@@ -79,6 +82,7 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
 
     if (!isLoggedIn.value) {
       if (
+        !isDigitalOnly.value &&
         checkoutDeliveryOption.value === 'home' &&
         !checkoutCarrier.value.carrier
       ) {
@@ -132,11 +136,13 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
   });
 
   const validateCheckout = () => {
+    const cartStore = useCartStore();
+    const { isDigitalOnly } = toRefs(cartStore);
     const errors: { field: string; message: string }[] = [];
     const customer = checkoutCustomer.value;
     const carrier = checkoutCarrier.value;
 
-    if (!carrier || !carrier.carrier) {
+    if (!isDigitalOnly.value && (!carrier || !carrier.carrier)) {
       errors.push({ field: 'carrier', message: 'Carrier is not selected' });
     }
 
@@ -203,6 +209,22 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
       });
   };
 
+  const fetchPaymentMethods = async (options: any) => {
+    const { locale } = useI18n();
+    const paymentService = new PaymentService();
+    try {
+      const data = await paymentService.paymentMethods({
+        ...options,
+        LanguageIsoCode: locale.value,
+      });
+      checkoutPaymentMethods.value = data.PaymentMethods || [];
+      return data.PaymentMethods;
+    } catch (error) {
+      console.error('Failed to fetch payment methods', error);
+      throw error;
+    }
+  };
+
   return {
     checkoutCustomer,
     checkoutCarrier,
@@ -216,5 +238,6 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
     validateCheckout,
     createClientGuest,
     validateCheckoutBeforePayment,
+    fetchPaymentMethods,
   };
 });

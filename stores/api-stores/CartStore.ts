@@ -13,13 +13,14 @@ type RequestQuery = {
   IdProductAttribute?: number;
   Quantity?: number;
   NewIdProductAttribute?: number;
-
-  FullName?: string;
+  Firstname?: string;
+  Lastname?: string;
+  MobilePhone?: string;
   Email?: string;
   Message?: string;
   DateSend?: string;
   LanguageIsoCode?: string;
-  ProductType?: string;
+  Type?: string;
 };
 
 export const useCartStore = defineStore('cartStore', () => {
@@ -45,6 +46,16 @@ export const useCartStore = defineStore('cartStore', () => {
         const selectedVariant = product.Variant?.find((v) => v.Selected);
         return selectedVariant && !selectedVariant.Available;
       }) || false
+    );
+  });
+  const isDigitalOnly = computed(() => {
+    return (
+      ((cart.value?.Products?.length || 0) > 0 &&
+        cart.value?.Products?.every(
+          (product) =>
+            product.Type === 'digital' || product.Type === 'e-giftcard'
+        )) ||
+      false
     );
   });
 
@@ -134,7 +145,9 @@ export const useCartStore = defineStore('cartStore', () => {
     idProduct,
     idProductAttribute,
     quantity = 1,
-    fullName,
+    firstName,
+    lastName,
+    mobilePhone,
     email,
     message,
     dateSend,
@@ -145,8 +158,9 @@ export const useCartStore = defineStore('cartStore', () => {
     idProduct: number;
     idProductAttribute: number;
     quantity?: number;
-
-    fullName?: string;
+    firstName?: string;
+    lastName?: string;
+    mobilePhone?: string;
     email?: string;
     message?: string;
     dateSend?: string;
@@ -167,13 +181,15 @@ export const useCartStore = defineStore('cartStore', () => {
 
     if (productType === 'e-giftcard') {
       // Only add defined values to the request
-      if (fullName !== undefined) options.FullName = fullName;
+      if (firstName !== undefined) options.Firstname = firstName;
+      if (lastName !== undefined) options.Lastname = lastName;
+      if (mobilePhone !== undefined) options.MobilePhone = mobilePhone;
       if (email !== undefined) options.Email = email;
       if (message !== undefined) options.Message = message;
       if (dateSend !== undefined) options.DateSend = dateSend;
       if (languageIsoCode !== undefined)
         options.LanguageIsoCode = languageIsoCode;
-      options.ProductType = productType; // Always include product type
+      options.Type = productType; // Always include product type
     }
 
     if (cartId.value) {
@@ -311,6 +327,7 @@ export const useCartStore = defineStore('cartStore', () => {
     promoCodes,
     totalDiscount,
     hasUnavailableProducts,
+    isDigitalOnly,
     loaded,
     clear,
     initIdCart,

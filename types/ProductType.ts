@@ -11,7 +11,7 @@ export type ProductType = {
   Brand?: BrandType;
   Delivery?: Delivery;
   Description?: Description;
-  ProductType?: 'e-giftcard' | 'physical';
+  Type?: 'e-giftcard' | 'physical' | 'digital';
   Media?: Media;
   Price?: Price;
   SEO?: ProductSEO[] | ProductSEO;

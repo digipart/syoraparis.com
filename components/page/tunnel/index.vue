@@ -6,8 +6,12 @@ const shippingStore = useShippingStore();
 const { carrier: allCarriers, toshow, carriers } = toRefs(shippingStore);
 
 const checkoutStore = useCheckoutStore();
-const { checkoutCustomer, checkoutCarrier, checkoutDeliveryOption } =
-  toRefs(checkoutStore);
+const {
+  checkoutCustomer,
+  checkoutCarrier,
+  checkoutDeliveryOption,
+  fetchPaymentMethods,
+} = toRefs(checkoutStore);
 
 const auth = useAuth();
 const { isGuest, isLoggedIn } = toRefs(auth);
@@ -19,6 +23,7 @@ const {
   totalProductQuantity,
   cart,
   hasUnavailableProducts,
+  isDigitalOnly,
 } = toRefs(cartStore);
 const { updateShipping, removeCarrier } = cartStore;
 
@@ -33,7 +38,9 @@ const pickupAddress = ref('');
 
 const valide = computed(() => {
   return (
-    totalProductQuantity.value && carrier.value && !hasUnavailableProducts.value
+    totalProductQuantity.value &&
+    (isDigitalOnly.value || carrier.value) &&
+    !hasUnavailableProducts.value
   );
 });
 
@@ -146,6 +153,9 @@ const setCheckouCustomer = () => {
 
 onMounted(() => {
   setCheckouCustomer();
+  if (isDigitalOnly.value) {
+    checkoutStore.fetchPaymentMethods({ IP: ip.value });
+  }
 });
 </script>
 
@@ -162,7 +172,7 @@ onMounted(() => {
       <div class="col-span-12 lg:col-span-6 checkout-left">
         <!-- Delivery Options -->
         <div class="box">
-          <div class="deliveryOptions mb-5">
+          <div v-if="!isDigitalOnly" class="deliveryOptions mb-5">
             <BaseHeadLine size="md" class="uppercase font-medium mb-3">
               {{ $t('label.delivery') }} :
             </BaseHeadLine>
@@ -222,15 +232,22 @@ onMounted(() => {
           </div>
 
           <BaseHeadLine size="md" class="uppercase font-medium mb-3 mt-5">
-            {{ $t('label.address_delivery') }} :
+            {{
+              isDigitalOnly
+                ? $t('titles.my_informations')
+                : $t('label.address_delivery')
+            }}
+            :
           </BaseHeadLine>
           <div v-if="checkoutDeliveryOption === 'home'">
             <PageCheckoutCustomer />
             <!-- Shipping option -->
-            <BaseHeadLine size="md" class="uppercase font-medium mt-5">
-              {{ $t('label.shippingOption.title') }} :
-            </BaseHeadLine>
-            <FormShipping :displayOptions="'Home'" />
+            <template v-if="!isDigitalOnly">
+              <BaseHeadLine size="md" class="uppercase font-medium mt-5">
+                {{ $t('label.shippingOption.title') }} :
+              </BaseHeadLine>
+              <FormShipping :displayOptions="'Home'" />
+            </template>
           </div>
 
           <div v-if="checkoutDeliveryOption !== 'home'">
