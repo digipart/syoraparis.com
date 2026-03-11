@@ -10,6 +10,9 @@ export type AddressType = {
   City?: string;
   Country?: string;
   CountryIsoCode?: string;
+  StateName?: string;
+  StateCode?: string;
+  StateIsoCode?: string;
   MobilePhone?: string;
   Phone?: string;
   IsInvoice?: boolean;

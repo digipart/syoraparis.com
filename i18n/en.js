@@ -149,6 +149,7 @@ const en = {
     postcode: 'Postcode',
     city: 'City',
     country: 'Country',
+    state: 'State/Province',
     prefix: 'Prefix',
     phone: 'Phone',
     enter_address_manually: 'Enter address manually',
