@@ -14,6 +14,9 @@ export const useFormAddressValidation = () => {
     postcode: '',
     city: '',
     country: '',
+    stateName: '',
+    stateCode: '',
+    stateIsoCode: '',
     prefix: '',
     phone: '',
   });

@@ -39,6 +39,9 @@ const createAddress = () => {
   address.Postcode = state.postcode;
   address.City = state.city;
   address.CountryIsoCode = state.country;
+  address.StateName = state.stateName;
+  address.StateCode = state.stateCode;
+  address.StateIsoCode = state.stateIsoCode;
   address.MobilePhone = state.phone;
   address.IsDelivery = true;
   address.IsInvoice = true;
@@ -58,6 +61,9 @@ const editAddress = () => {
   newAddress.Postcode = state.postcode;
   newAddress.City = state.city;
   newAddress.CountryIsoCode = state.country;
+  newAddress.StateName = state.stateName;
+  newAddress.StateCode = state.stateCode;
+  newAddress.StateIsoCode = state.stateIsoCode;
   newAddress.MobilePhone = state.phone;
   newAddress.IsDelivery = address?.IsDelivery;
   newAddress.IsInvoice = address?.IsInvoice;
@@ -74,6 +80,9 @@ if (address) {
   state.courtAddress = address.Address1 || '';
   state.city = address.City || '';
   state.country = address.CountryIsoCode || '';
+  state.stateName = address.StateName || '';
+  state.stateCode = address.StateCode || '';
+  state.stateIsoCode = address.StateIsoCode || '';
   state.firstname = address.Firstname || '';
   state.name = address.Lastname || '';
   state.phone = address.MobilePhone || '';
@@ -109,6 +118,9 @@ const handleSelect = (details: {
   country: string;
   city: string;
   countryIso: string;
+  stateName: string;
+  stateCode: string;
+  stateIsoCode: string;
 }) => {
   showFields();
 
@@ -117,6 +129,9 @@ const handleSelect = (details: {
   state.postcode = details.postalCode;
   state.country = details.countryIso;
   state.city = details.city;
+  state.stateName = details.stateName;
+  state.stateCode = details.stateCode;
+  state.stateIsoCode = details.stateIsoCode;
 };
 
 defineExpose({
@@ -127,6 +142,7 @@ defineExpose({
 <template>
   <div class="formAddress">
     <form class="formAddress-form" @submit.prevent="submitForm">
+      {{ state }}
       <div class="grid grid-cols-12 gap-x-5">
         <div class="col-span-12">
           <InputText
@@ -194,7 +210,7 @@ defineExpose({
             :border="inputBorder"
           />
         </div>
-        <div class="col-span-12">
+        <div class="col-span-12 md:col-span-6">
           <InputSelect
             id="country"
             v-model="state.country"
@@ -206,6 +222,20 @@ defineExpose({
             :key="state.country"
             :border="inputBorder"
             searchable
+          />
+        </div>
+        <div class="col-span-12 md:col-span-6">
+          <InputText
+            id="stateName"
+            v-model="state.stateName"
+            @input="
+              state.stateCode = '';
+              state.stateIsoCode = '';
+            "
+            type="text"
+            :label="$t('label.state')"
+            :border="inputBorder"
+            :required="false"
           />
         </div>
 
