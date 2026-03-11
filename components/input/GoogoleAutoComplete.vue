@@ -84,6 +84,9 @@ const pushTestValue = () => {
     country: 'France',
     city: 'Paris',
     countryIso: 'FR',
+    stateName: 'Île-de-France',
+    stateCode: 'IDF',
+    stateIsoCode: 'FR-IDF',
     latitude: 48.8840838,
     longitude: 2.3900098,
   });
@@ -93,7 +96,6 @@ onMounted(() => {
   if (autocompleteInput.value) {
     const initAutocomplete = () => {
       const options: google.maps.places.AutocompleteOptions = {
-        componentRestrictions: { country: countryIsoCode.value || '' }, // Restrict to specified country
         types: ['address'],
       };
 
@@ -138,21 +140,35 @@ onMounted(() => {
           addressComponents.find((ac) => ac.types.includes('country'))
             ?.short_name || '';
 
+        // Extract state (administrative_area_level_1)
+        const stateComponent = addressComponents.find((ac) =>
+          ac.types.includes('administrative_area_level_1')
+        );
+        const stateName = stateComponent?.long_name || '';
+        const stateCode = stateComponent?.short_name || '';
+        const stateIsoCode =
+          countryIso && stateCode ? `${countryIso}-${stateCode}` : '';
+
         // Extract latitude and longitude
         const latitude = place.geometry?.location?.lat() || null;
         const longitude = place.geometry?.location?.lng() || null;
+
+        const courtAddress = [streetNumber, route].filter(Boolean).join(', ');
 
         // Emit the full data, including street number, route, and coordinates
         emit('update:modelValue', address);
         emit('onSelect', {
           address,
-          courtAddress: `${streetNumber}, ${route}`,
+          courtAddress,
           streetNumber, // Include street number
           route, // Include route (street name)
           postalCode,
           country,
           city,
           countryIso,
+          stateName,
+          stateCode,
+          stateIsoCode,
           latitude, // Include latitude
           longitude, // Include longitude
         });

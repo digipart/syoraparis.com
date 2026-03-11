@@ -150,6 +150,7 @@ const fr = {
     postcode: 'Code postal',
     city: 'Ville',
     country: 'Pays',
+    state: 'État/Province',
     prefix: 'Préfixe',
     phone: 'Téléphone',
     enter_address_manually: "Saisir l'adresse manuellement",
