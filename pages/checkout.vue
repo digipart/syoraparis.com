@@ -59,7 +59,8 @@ watch(isLoggedIn, async (val) => {
     <!-- ══ LEFT COLUMN ══ -->
     <div class="col-span-12 lg:col-span-6 checkout-left">
       <div class="box">
-        <CheckoutCustomer />
+        <CheckoutCustomer v-if="isLoggedIn && !isGuest" />
+        <CheckoutGuest v-else />
       </div>
     </div>
 
