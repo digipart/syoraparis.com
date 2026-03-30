@@ -15,6 +15,8 @@ export const useFormInvoiceStore = defineStore('formInvoiceStore', () => {
     email: '',
     prefix: '',
     phone: '',
+    company: '',
+    state: '',
   });
 
   const rules = computed(() => {

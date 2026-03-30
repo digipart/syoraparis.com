@@ -72,6 +72,7 @@ const en = {
     learnMore: 'Learn more',
     view_collection: 'View collection',
     log_in_to_access_your_loyalty_benefits: 'Log in to access your loyalty benefits',
+    sign_in: 'Sign in',
   },
   link: {
     contact_us: 'Contact-us',
@@ -156,6 +157,14 @@ const en = {
     address_invoice: 'Invoice address',
     address_delivery: 'Delivery address',
     delivery: 'Delivery',
+    enter_your_email: 'Enter your email',
+    phone_mobile: 'Mobile phone',
+    use_different_billing_address: 'Use a different billing address',
+    select_delivery_mode: 'Select a shipping method',
+    provide_address_to_see_shipping: 'Please provide your shipping address to see available delivery methods.',
+    estimated_delivery: 'Estimated delivery',
+    choose_carrier: 'Choose a carrier',
+    logo: 'Logo',
     contact: 'Contact',
     article: 'Article(s)',
     shipping: 'Shipping',
@@ -570,6 +579,9 @@ const en = {
       title: 'Paiement Sécurisé',
       description:
         'Finalisez votre achat et vérifiez les détails de votre commande.',
+      newsletter: 'Receive our special offers by email',
+      email_already_registered:
+        'This email address is already registered. Sign in to fully enjoy your loyalty program and benefits.',
     },
     contactus: {
       title: 'Nous Contacter',
@@ -729,6 +741,7 @@ const en = {
     prefix_required: 'Required.',
     codepromo_invalid:
       'Sorry, this promo code is not valid. Please check and try again.',
+    carrier_required: 'Please select a shipping method.',
     recaptcha_required: 'Please complete the reCAPTCHA verification.',
   },
 

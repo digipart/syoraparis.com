@@ -16,6 +16,8 @@ type CheckoutCustomer = {
     city: string;
     phone: string;
     country: string;
+    company?: string;
+    state?: string;
   };
   invoiceAddress: {
     firstname: string;
@@ -25,6 +27,8 @@ type CheckoutCustomer = {
     city: string;
     phone: string;
     country: string;
+    company?: string;
+    state?: string;
   };
 };
 
@@ -47,6 +51,8 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
       city: '',
       phone: '',
       country: '',
+      company: '',
+      state: '',
     },
     invoiceAddress: {
       firstname: '',
@@ -56,6 +62,8 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
       city: '',
       phone: '',
       country: '',
+      company: '',
+      state: '',
     },
   });
   const checkoutCarrier = ref<CheckoutCarrier>({
@@ -142,8 +150,31 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
     const customer = checkoutCustomer.value;
     const carrier = checkoutCarrier.value;
 
+    const getRequiredFieldMessage = (field: string) => {
+      switch (field) {
+        case 'email':
+          return t('error.email_required');
+        case 'firstname':
+          return t('error.firstname_required');
+        case 'lastname':
+          return t('error.field_required');
+        case 'address':
+          return t('error.address_required');
+        case 'postalCode':
+          return t('error.postcode_required');
+        case 'city':
+          return t('error.city_required');
+        case 'country':
+          return t('error.country_required');
+        case 'phone':
+          return t('error.phone_required');
+        default:
+          return t('error.field_required');
+      }
+    };
+
     if (!isDigitalOnly.value && (!carrier || !carrier.carrier)) {
-      errors.push({ field: 'carrier', message: 'Carrier is not selected' });
+      errors.push({ field: 'carrier', message: t('error.carrier_required') });
     }
 
     const requiredDeliveryFields: (keyof typeof customer.deliveryAddress)[] = [
@@ -157,7 +188,7 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
       if (!customer.deliveryAddress[field]) {
         errors.push({
           field: `deliveryAddress.${field}`,
-          message: `Delivery ${field} is required`,
+          message: getRequiredFieldMessage(field),
         });
       }
     }
@@ -180,7 +211,7 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
         if (!customer.invoiceAddress[field]) {
           errors.push({
             field: `invoiceAddress.${field}`,
-            message: `Invoice ${field} is required`,
+            message: getRequiredFieldMessage(field),
           });
         }
       }
@@ -192,12 +223,14 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
   const createClientGuest = () => {
     return registerGuest({
       Lastname: checkoutCustomer.value.deliveryAddress.lastname,
-      Firstname: checkoutCustomer.value.deliveryAddress.lastname,
-      Email: checkoutCustomer.value.deliveryAddress.lastname,
-      Address1: checkoutCustomer.value.deliveryAddress.lastname,
-      Postcode: checkoutCustomer.value.deliveryAddress.lastname,
-      City: checkoutCustomer.value.deliveryAddress.lastname,
-      MobilePhone: checkoutCustomer.value.deliveryAddress.lastname,
+      Firstname: checkoutCustomer.value.deliveryAddress.firstname,
+      Email: checkoutCustomer.value.deliveryAddress.email,
+      Address1: checkoutCustomer.value.deliveryAddress.address,
+      Postcode: checkoutCustomer.value.deliveryAddress.postalCode,
+      City: checkoutCustomer.value.deliveryAddress.city,
+      MobilePhone: checkoutCustomer.value.deliveryAddress.phone,
+      Company: checkoutCustomer.value.deliveryAddress.company,
+      StateName: checkoutCustomer.value.deliveryAddress.state,
     })
       .then((response) => {
         console.log('add', response);

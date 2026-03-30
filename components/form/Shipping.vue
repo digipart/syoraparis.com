@@ -4,6 +4,7 @@ import PaymentService from '~/services/PaymentService';
 import type { RelayPointType } from '~/types/RelayPointsType';
 import type { CarrierGenre, CarrierType } from '~/types/ShippingType';
 
+const emit = defineEmits(['onSelect']);
 const { displayOptions } = defineProps({
   displayOptions: {
     type: String as PropType<'Home' | 'Store' | 'RelayPoint'>,
@@ -88,6 +89,7 @@ const selectShipping = (event: {
           checkoutCarrier.value.carrier = cart.value.Shipping?.Carrier;
         }
         trackAddShippingInfo(cart.value, event.carrier?.Name || '');
+        emit('onSelect');
       });
     })
     .finally(() => {
