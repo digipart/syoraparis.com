@@ -6,12 +6,16 @@ const { disabled } = defineProps<{
 }>();
 
 const checkoutStore = useCheckoutStore();
+const { scheduleRefreshPaymentMethods } = checkoutStore;
 const {
   checkoutCustomer,
   checkoutPaymentMethods,
   checkoutDeliveryOption,
   hasSameAddressForShipping,
 } = toRefs(checkoutStore);
+
+const cartStore = useCartStore();
+const { carrier: cartCarrier } = toRefs(cartStore);
 
 const addressStore = useAddressStore();
 const { addressDelivery, addressInvoice, addresses } = toRefs(addressStore);
@@ -103,6 +107,14 @@ const setAddresse = (event: Event) => {
 };
 
 const config = useRuntimeConfig();
+
+watch(
+  () => [cartCarrier.value?.IdCarrier, cartCarrier.value?.IdRelayPoint],
+  () => {
+    scheduleRefreshPaymentMethods(0);
+  },
+  { immediate: true }
+);
 </script>
 
 <template>
@@ -130,6 +142,7 @@ const config = useRuntimeConfig();
           :index="index + 1"
           :closeOthers="true"
           :hideArrow="true"
+          :key="pm.PaymentCode"
         >
           <template #header>
             <div class="flex justify-between w-full items-center">

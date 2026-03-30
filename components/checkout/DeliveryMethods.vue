@@ -1,5 +1,7 @@
 <script setup lang="ts">
+import PaymentService from '~/services/PaymentService';
 import type { RelayPointType } from '~/types/RelayPointsType';
+
 const checkoutStore = useCheckoutStore();
 const {
   checkoutDeliveryOption,
@@ -7,7 +9,9 @@ const {
   checkoutCustomer,
   checkoutCarrier,
   hasSameAddressForShipping,
+  checkoutPaymentMethods,
 } = toRefs(checkoutStore);
+const { refreshPaymentMethods, scheduleRefreshPaymentMethods } = checkoutStore;
 
 const shippingStore = useShippingStore();
 const {
@@ -20,7 +24,7 @@ const { fetchShipping, fetchRelayPoints } = shippingStore;
 
 const cartStore = useCartStore();
 const { removeCarrier, updateShipping } = cartStore;
-const { carrier: carrierSelected, cart, cartId } = toRefs(cartStore);
+const { carrier: carrierSelected, cart, cartId, isDigitalOnly } = toRefs(cartStore);
 
 const isDrawerOpen = ref(false);
 const relayPointDrawerVisible = ref(false);
@@ -30,6 +34,7 @@ const ip = useIp();
 const reloadTimer = ref<ReturnType<typeof setTimeout> | null>(null);
 const lastAddressKey = ref('');
 const { locale } = useI18n();
+const paymentService = new PaymentService();
 
 const options = computed(() =>
   [
@@ -94,6 +99,7 @@ const setDelivredOption = async (
     }
 
     await selectFirstCarrierForType(carrierType, shippingOptions);
+    await loadPaymentMethods();
   } finally {
     loading.value = false;
   }
@@ -122,9 +128,12 @@ const onRelayPointSelected = async (rpId: string) => {
     await cartStore.fetchCart();
     checkoutCarrier.value.carrier = cart.value.Shipping?.Carrier || null;
 
-    const rpSelected = (relayPoints.value as RelayPointType[]).find((rp) => rp.Id === rpId) || null;
+    const rpSelected =
+      (relayPoints.value as RelayPointType[]).find((rp) => rp.Id === rpId) ||
+      null;
     relayPointSelected.value = rpSelected;
     checkoutCarrier.value.relayPoint = rpSelected;
+    await loadPaymentMethods();
   } finally {
     loading.value = false;
   }
@@ -142,7 +151,6 @@ const getCarrierImage = (carrier: any) => {
   return '';
 };
 
-// Mock date or compute it
 const estimatedDate = computed(() => {
   const d = new Date();
   d.setDate(d.getDate() + 3);
@@ -157,7 +165,22 @@ const nearbyRelayCount = computed(() => {
   return Math.max(relayPoints.value.length - 1, 0);
 });
 
-const getPaymentOptions = () => {
+const mapCarrierTypeToOption = (carrierType: string) => {
+  if (carrierType === 'Home') return 'home';
+  if (carrierType === 'RelayPoint') return 'relayPoint';
+  if (carrierType === 'Store') return 'store';
+  return 'home';
+};
+
+const mapOptionToCarrierType = (
+  optionType: 'home' | 'relayPoint' | 'store'
+): 'Home' | 'RelayPoint' | 'Store' => {
+  if (optionType === 'relayPoint') return 'RelayPoint';
+  if (optionType === 'store') return 'Store';
+  return 'Home';
+};
+
+const buildPaymentOptions = () => {
   const delivery = checkoutCustomer.value.deliveryAddress;
 
   if (
@@ -178,19 +201,28 @@ const getPaymentOptions = () => {
   return { IP: ip.value as string };
 };
 
-const mapCarrierTypeToOption = (carrierType: string) => {
-  if (carrierType === 'Home') return 'home';
-  if (carrierType === 'RelayPoint') return 'relayPoint';
-  if (carrierType === 'Store') return 'store';
-  return 'home';
-};
+const loadPaymentMethods = async () => {
+  const paymentOptions = buildPaymentOptions();
 
-const mapOptionToCarrierType = (
-  optionType: 'home' | 'relayPoint' | 'store'
-): 'Home' | 'RelayPoint' | 'Store' => {
-  if (optionType === 'relayPoint') return 'RelayPoint';
-  if (optionType === 'store') return 'Store';
-  return 'Home';
+  try {
+    const data = await paymentService.paymentMethods({
+      ...paymentOptions,
+      LanguageIsoCode: locale.value,
+    });
+    checkoutPaymentMethods.value = data.PaymentMethods || [];
+  } catch (_error) {
+    await refreshPaymentMethods(paymentOptions).catch(() => {
+      // keep checkout usable if payment endpoint fails
+    });
+  }
+
+  if (checkoutPaymentMethods.value.length === 0) {
+    await refreshPaymentMethods(paymentOptions).catch(() => {
+      // keep checkout usable if payment endpoint fails
+    });
+  }
+
+  scheduleRefreshPaymentMethods(0);
 };
 
 const selectFirstCarrierForType = async (
@@ -258,6 +290,7 @@ const reloadShippingAndAutoSelectFirst = async () => {
   ].join('|');
 
   if (requestKey === lastAddressKey.value && carrierSelected.value) {
+    await loadPaymentMethods();
     return;
   }
 
@@ -302,9 +335,38 @@ const reloadShippingAndAutoSelectFirst = async () => {
       | 'store';
 
     await selectFirstCarrierForType(targetCarrierType, options);
+    await loadPaymentMethods();
   } finally {
     loading.value = false;
   }
+};
+
+const shouldFetchPaymentMethods = computed(() => {
+  const delivery = checkoutCustomer.value.deliveryAddress;
+  const hasAddress =
+    !!delivery.address &&
+    !!delivery.postalCode &&
+    !!delivery.city &&
+    !!delivery.country;
+  const hasCarrier =
+    !!carrierSelected.value?.IdCarrier || !!checkoutCarrier.value.carrier?.IdCarrier;
+
+  return !!cart.value?.Products?.length && hasAddress && (isDigitalOnly.value || hasCarrier);
+});
+
+const ensureInitialPaymentMethods = async () => {
+  if (!shouldFetchPaymentMethods.value) {
+    return;
+  }
+
+  await loadPaymentMethods();
+
+  if (checkoutPaymentMethods.value.length > 0) {
+    return;
+  }
+
+  lastAddressKey.value = '';
+  await reloadShippingAndAutoSelectFirst();
 };
 
 watch(
@@ -317,7 +379,7 @@ watch(
     iPostalCode: checkoutCustomer.value.invoiceAddress.postalCode,
     iCity: checkoutCustomer.value.invoiceAddress.city,
     iCountry: checkoutCustomer.value.invoiceAddress.country,
-    same: hasSameAddressForShipping.value
+    same: hasSameAddressForShipping.value,
   }),
   () => {
     if (reloadTimer.value) {
@@ -335,6 +397,27 @@ onBeforeUnmount(() => {
     clearTimeout(reloadTimer.value);
   }
 });
+
+onMounted(async () => {
+  await ensureInitialPaymentMethods();
+});
+
+watch(
+  () => ({
+    shouldFetch: shouldFetchPaymentMethods.value,
+    paymentCount: checkoutPaymentMethods.value.length,
+    carrierId:
+      carrierSelected.value?.IdCarrier || checkoutCarrier.value.carrier?.IdCarrier || 0,
+  }),
+  async ({ shouldFetch, paymentCount }) => {
+    if (!shouldFetch || paymentCount > 0) {
+      return;
+    }
+
+    await loadPaymentMethods();
+  },
+  { immediate: true }
+);
 </script>
 
 <template>
@@ -347,37 +430,21 @@ onBeforeUnmount(() => {
           class="delivery-group"
           :class="{ 'is-active': checkoutDeliveryOption === opt.id }"
         >
-          <!-- Row header -->
-          <div
-            class="delivery-group__header"
-            @click="setDelivredOption(opt.id as any)"
-          >
+          <div class="delivery-group__header" @click="setDelivredOption(opt.id as any)">
             <div class="flex items-center gap-3">
               <div
                 class="radio-dot"
-                :class="{
-                  'radio-dot--active': checkoutDeliveryOption === opt.id,
-                }"
+                :class="{ 'radio-dot--active': checkoutDeliveryOption === opt.id }"
               >
-                <div
-                  v-if="checkoutDeliveryOption === opt.id"
-                  class="radio-dot__inner"
-                />
+                <div v-if="checkoutDeliveryOption === opt.id" class="radio-dot__inner" />
               </div>
-              <span class="text-sm font-medium uppercase">{{
-                $t(opt.label)
-              }}</span>
+              <span class="text-sm font-medium uppercase">{{ $t(opt.label) }}</span>
             </div>
             <component :is="opt.icon" :size="20" class="text-zinc-400" />
           </div>
 
-          <!-- Expanded content -->
           <transition name="slide-down">
-            <div
-              v-if="checkoutDeliveryOption === opt.id"
-              class="delivery-group__content"
-            >
-              <!-- If we have a carrier selected in the cart that matches this mode -->
+            <div v-if="checkoutDeliveryOption === opt.id" class="delivery-group__content">
               <div v-if="carrierSelected" class="selected-carrier-card">
                 <div class="carrier-info">
                   <div class="carrier-logo-wrapper">
@@ -401,7 +468,7 @@ onBeforeUnmount(() => {
                     </div>
                   </div>
                   <div class="carrier-price text-sm font-bold">
-                    {{ carrierSelected.Price?.TaxIncl?.toFixed(2) }} €
+                    {{ carrierSelected.Price?.TaxIncl?.toFixed(2) }} EUR
                   </div>
                   <BaseButton
                     class="modifier-btn"
@@ -414,11 +481,7 @@ onBeforeUnmount(() => {
                   </BaseButton>
                 </div>
 
-                <!-- Special info if Relay Point -->
-                <div
-                  v-if="opt.id === 'relayPoint' && relayPointSelected"
-                  class="relay-info-box mt-3"
-                >
+                <div v-if="opt.id === 'relayPoint' && relayPointSelected" class="relay-info-box mt-3">
                   <div class="relay-info-main">
                     <div class="relay-info-left">
                       <div class="relay-name">{{ relayPointSelected.Name }}</div>
@@ -458,11 +521,7 @@ onBeforeUnmount(() => {
               </div>
 
               <div v-else class="text-center py-2">
-                <BaseButton
-                  type="primary"
-                  plain
-                  @click.stop="openDrawer(opt.type)"
-                >
+                <BaseButton type="primary" plain @click.stop="openDrawer(opt.type)">
                   {{ $t('label.choose_carrier') }}
                 </BaseButton>
               </div>
@@ -471,7 +530,6 @@ onBeforeUnmount(() => {
         </div>
       </div>
 
-      <!-- Drawer for selection -->
       <BaseDrawer v-model="isDrawerOpen" position="right" size="500px">
         <template #header>
           <span class="uppercase font-bold tracking-wider">{{
@@ -494,7 +552,6 @@ onBeforeUnmount(() => {
       />
     </div>
 
-    <!-- Alert if address is missing -->
     <div v-else class="mt-4">
       <BaseAlert type="warning" :closeButton="false" fill>
         <template #icon>
@@ -602,6 +659,7 @@ onBeforeUnmount(() => {
   overflow: hidden;
   max-height: 600px;
 }
+
 .slide-down-enter-from,
 .slide-down-leave-to {
   max-height: 0;

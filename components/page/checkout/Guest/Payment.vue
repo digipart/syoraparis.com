@@ -1,6 +1,7 @@
 <script setup lang="ts">
 const cartStore = useCartStore();
-const { carrier, totalProductQuantity, hasUnavailableProducts, isDigitalOnly } = toRefs(cartStore);
+const { carrier, totalProductQuantity, hasUnavailableProducts, isDigitalOnly } =
+  toRefs(cartStore);
 
 const props = defineProps<{
   refreshing?: boolean;
@@ -8,10 +9,11 @@ const props = defineProps<{
 
 const paymentRefreshing = toRef(props, 'refreshing');
 
-const valide = computed(() =>
-  totalProductQuantity.value &&
-  (isDigitalOnly.value || carrier.value) &&
-  !hasUnavailableProducts.value
+const valide = computed(
+  () =>
+    totalProductQuantity.value &&
+    (isDigitalOnly.value || carrier.value) &&
+    !hasUnavailableProducts.value
 );
 </script>
 

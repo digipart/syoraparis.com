@@ -4,7 +4,7 @@ import { useFormDeliveryStore } from '../form-stores/formDeliveryStore';
 import { useFormInvoiceStore } from '../form-stores/formInvoiceStore';
 import type { PaymentMethodType } from '~/types/PaymentType';
 import type { RelayPointType } from '~/types/RelayPointsType';
-import type { CarrierGenre, CarrierType } from '~/types/ShippingType';
+import type { CarrierGenre } from '~/types/ShippingType';
 
 type CheckoutCustomer = {
   deliveryAddress: {
@@ -73,12 +73,41 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
   const checkoutPaymentMethods = ref<PaymentMethodType[]>([]);
   const checkoutErrors = ref<{ field: string; message: string }[]>([]);
   const hasAddressDelivery = ref(false);
+  const paymentRefreshTimer = ref<ReturnType<typeof setTimeout> | null>(null);
+
+  const cartStore = useCartStore();
+  const { cart, carrier: cartCarrier, isDigitalOnly } = toRefs(cartStore);
 
   const { t } = useI18n();
 
   const auth = useAuth();
   const { isLoggedIn } = toRefs(auth);
   const { registerGuest } = auth;
+
+  const buildPaymentMethodOptions = () => {
+    const ip = useIp();
+    const delivery = checkoutCustomer.value.deliveryAddress;
+
+    const hasCompleteDeliveryAddress =
+      !!delivery.postalCode &&
+      !!delivery.city &&
+      !!delivery.address &&
+      !!delivery.country;
+
+    if (hasCompleteDeliveryAddress) {
+      return {
+        Postcode: delivery.postalCode,
+        City: delivery.city,
+        Address1: delivery.address,
+        Country: delivery.country,
+        IP: (ip.value as string) || '',
+      };
+    }
+
+    return {
+      IP: (ip.value as string) || '',
+    };
+  };
 
   const validateCheckoutBeforePayment = async (): Promise<boolean> => {
     const cartStore = useCartStore();
@@ -133,6 +162,67 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
         checkoutCustomer.value.deliveryAddress.country !== '' &&
         checkoutCustomer.value.deliveryAddress.city !== '' &&
         checkoutCustomer.value.deliveryAddress.address !== '';
+    },
+    { deep: true }
+  );
+
+  const refreshPaymentMethods = async (customOptions?: any) => {
+    return fetchPaymentMethods(customOptions || buildPaymentMethodOptions());
+  };
+
+  const scheduleRefreshPaymentMethods = (delay = 300) => {
+    if (paymentRefreshTimer.value) {
+      clearTimeout(paymentRefreshTimer.value);
+    }
+
+    paymentRefreshTimer.value = setTimeout(() => {
+      refreshPaymentMethods().catch(() => {
+        // keep checkout responsive even if payment methods endpoint fails
+      });
+    }, delay);
+  };
+
+  watch(
+    () => ({
+      address: checkoutCustomer.value.deliveryAddress.address,
+      postalCode: checkoutCustomer.value.deliveryAddress.postalCode,
+      city: checkoutCustomer.value.deliveryAddress.city,
+      country: checkoutCustomer.value.deliveryAddress.country,
+    }),
+    () => {
+      scheduleRefreshPaymentMethods();
+    },
+    { deep: true }
+  );
+
+  watch(
+    () => checkoutCarrier.value.carrier,
+    () => {
+      scheduleRefreshPaymentMethods(0);
+    }
+  );
+
+  watch(
+    () => ({
+      cartCarrierId: cartCarrier.value?.IdCarrier || 0,
+      checkoutCarrierId: checkoutCarrier.value.carrier?.IdCarrier || 0,
+      promoCodes: JSON.stringify(cart.value?.Discounts?.PromoCodes || []),
+      cartRules: JSON.stringify(cart.value?.Discounts?.CartRules || []),
+      totalToPay: cart.value?.Total?.ToPay?.TaxIncl || 0,
+      shippingTotal: cart.value?.Total?.Shipping?.TaxIncl || 0,
+      discountTotal: cart.value?.Total?.Discount?.TaxIncl || 0,
+      hasAddressDelivery: hasAddressDelivery.value,
+      deliveryAddress: JSON.stringify(checkoutCustomer.value.deliveryAddress),
+      digitalOnly: isDigitalOnly.value,
+    }),
+    ({ hasAddressDelivery, digitalOnly, cartCarrierId, checkoutCarrierId }) => {
+      const hasCarrier = !!cartCarrierId || !!checkoutCarrierId;
+
+      if (!hasAddressDelivery || (!digitalOnly && !hasCarrier)) {
+        return;
+      }
+
+      scheduleRefreshPaymentMethods(0);
     },
     { deep: true }
   );
@@ -272,5 +362,7 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
     createClientGuest,
     validateCheckoutBeforePayment,
     fetchPaymentMethods,
+    refreshPaymentMethods,
+    scheduleRefreshPaymentMethods,
   };
 });

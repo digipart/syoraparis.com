@@ -6,7 +6,20 @@ const countryStore = useCountryStore();
 const { countries } = toRefs(countryStore);
 
 const cartStore = useCartStore();
-const { isDigitalOnly } = toRefs(cartStore);
+const { isDigitalOnly, cartId } = toRefs(cartStore);
+const { updateShipping, removeCarrier } = cartStore;
+
+const checkoutStore = useCheckoutStore();
+const { checkoutCustomer, checkoutCarrier, checkoutDeliveryOption } =
+  toRefs(checkoutStore);
+const { refreshPaymentMethods, scheduleRefreshPaymentMethods } = checkoutStore;
+
+const shippingStore = useShippingStore();
+const { carrier: allCarriers, carriers: shippingCarriers, relayPointSelected } =
+  toRefs(shippingStore);
+const { fetchShipping, fetchRelayPoints } = shippingStore;
+
+const ip = useIp();
 
 const countriesOptions = computed(() =>
   countries.value.map((c) => ({
@@ -17,17 +30,117 @@ const countriesOptions = computed(() =>
 
 const isDrawerOpen = ref(false);
 
-const handleSelectAddress = (details: {
+const resolveFirstCarrier = () => {
+  const firstShippingType = shippingCarriers.value?.[0] as
+    | 'Home'
+    | 'RelayPoint'
+    | 'Store'
+    | undefined;
+
+  if (!firstShippingType) {
+    return null;
+  }
+
+  const firstCarrier = allCarriers.value[firstShippingType]?.[0];
+  if (!firstCarrier?.IdCarrier) {
+    return null;
+  }
+
+  return { type: firstShippingType, carrier: firstCarrier };
+};
+
+const handleSelectAddress = async (details: {
   courtAddress: string;
   postalCode: string;
   countryIso: string;
   city: string;
+  stateName?: string;
+  stateCode?: string;
+  stateIsoCode?: string;
 }) => {
   state.value.courtAddress = details.courtAddress;
   state.value.address = details.courtAddress;
   state.value.postcode = details.postalCode;
   state.value.country = details.countryIso;
   state.value.city = details.city;
+  state.value.state = details.stateName || details.stateCode || '';
+
+  checkoutCustomer.value.deliveryAddress.address = details.courtAddress;
+  checkoutCustomer.value.deliveryAddress.postalCode = details.postalCode;
+  checkoutCustomer.value.deliveryAddress.country = details.countryIso;
+  checkoutCustomer.value.deliveryAddress.city = details.city;
+  checkoutCustomer.value.deliveryAddress.state =
+    details.stateName || details.stateCode || '';
+
+  if (isDigitalOnly.value) {
+    return;
+  }
+
+  try {
+    if (!cartId.value) {
+      await cartStore.fetchCart();
+    }
+
+    if (!cartId.value) {
+      return;
+    }
+
+    const options = {
+      Postcode: details.postalCode,
+      City: details.city,
+      Address1: details.courtAddress,
+      Country: details.countryIso,
+      IP: ip.value,
+    };
+
+    await fetchShipping(options);
+
+    const firstCarrierData = resolveFirstCarrier();
+
+    if (!firstCarrierData) {
+      await updateShipping({ idCarrier: 0 });
+      removeCarrier();
+      checkoutCarrier.value.carrier = null;
+      return;
+    }
+
+    const firstCarrierType = firstCarrierData.type;
+    const firstCarrier = firstCarrierData.carrier;
+
+    checkoutDeliveryOption.value =
+      firstCarrierType === 'RelayPoint'
+        ? 'relayPoint'
+        : firstCarrierType === 'Store'
+          ? 'store'
+          : 'home';
+
+    const updateOptions: { idCarrier: number; IdRelayPoint?: string } = {
+      idCarrier: firstCarrier.IdCarrier,
+    };
+
+    if (firstCarrierType === 'RelayPoint' || firstCarrierType === 'Store') {
+      const relayPoints = await fetchRelayPoints({
+        ...options,
+        IdCarrier: firstCarrier.IdCarrier,
+      });
+      const firstRelayPoint = relayPoints?.[0];
+      if (firstRelayPoint?.Id) {
+        updateOptions.IdRelayPoint = firstRelayPoint.Id;
+        relayPointSelected.value = firstRelayPoint;
+        checkoutCarrier.value.relayPoint = firstRelayPoint;
+      }
+    }
+
+    await updateShipping(updateOptions);
+    await cartStore.fetchCart();
+    checkoutCarrier.value.carrier = cartStore.cart?.Shipping?.Carrier || null;
+    await refreshPaymentMethods(options);
+    scheduleRefreshPaymentMethods(0);
+  } catch (_error) {
+    await updateShipping({ idCarrier: 0 });
+    removeCarrier();
+    checkoutCarrier.value.carrier = null;
+  }
 };
 
 const openDrawer = () => {

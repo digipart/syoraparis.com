@@ -4,6 +4,7 @@ import type { AddressType } from '~/types/AddressType';
 const checkoutStore = useCheckoutStore();
 const { checkoutCustomer, checkoutDeliveryOption, hasSameAddressForShipping } =
   toRefs(checkoutStore);
+const { scheduleRefreshPaymentMethods } = checkoutStore;
 
 const authStore = useAuth();
 const { isLoggedIn, isGuest } = toRefs(authStore);
@@ -158,11 +159,14 @@ onMounted(() => {
   if (isDigitalOnly.value) {
     checkoutStore.fetchPaymentMethods({ IP: ip.value });
   }
+
+  scheduleRefreshPaymentMethods();
 });
 
 // Sync form state → checkoutStore
 watch(state.value, () => {
   syncCheckoutCustomerFromForms();
+  scheduleRefreshPaymentMethods();
   paymentRefreshing.value = true;
   setTimeout(() => {
     paymentRefreshing.value = false;
@@ -228,7 +232,7 @@ watch(
             <h2 class="section-title mb-4">
               {{ $t('label.select_delivery_mode') }} :
             </h2>
-            <PageCheckoutGuestDeliverySelection />
+            <CheckoutDeliveryMethods />
           </div>
 
           <!-- 5. PAYMENT -->
@@ -236,7 +240,7 @@ watch(
             <h2 class="section-title mb-4">
               {{ $t('tunnel.payment.title') }} :
             </h2>
-            <PageCheckoutGuestPayment :refreshing="paymentRefreshing" />
+            <CheckoutPaymentMethods :refreshing="paymentRefreshing" />
           </div>
 
           <PageTunnelFooter class="hidden lg:block" />

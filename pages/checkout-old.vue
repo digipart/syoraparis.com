@@ -47,6 +47,7 @@ onMounted(async () => {
 });
 
 watch(isLoggedIn, async (val) => {
+  console.log('isLoggedIn', val);
   if (val) {
     await fetchAddresses();
     await cartStore.fetchCart();
@@ -55,20 +56,12 @@ watch(isLoggedIn, async (val) => {
 </script>
 
 <template>
-  <div class="grid grid-cols-11 items-start">
-    <!-- ══ LEFT COLUMN ══ -->
-    <div class="col-span-12 lg:col-span-6 checkout-left">
-      <div class="box">
-        <CheckoutCustomer />
-      </div>
-    </div>
-
-    <!-- ══ RIGHT COLUMN: ORDER SUMMARY ══ -->
-    <div class="col-span-12 lg:col-span-5 checkout-right">
-      <div class="box">
-        <CheckoutRightSummary />
-      </div>
-    </div>
+  <div v-if="loaded">
+    <LayoutContinueShopping v-if="!totalProductQuantity" />
+    <template v-else>
+      <PageTunnel v-if="isLoggedIn && !isGuest" />
+      <PageTunnelGuest v-if="!isLoggedIn || isGuest" />
+    </template>
   </div>
 </template>
 

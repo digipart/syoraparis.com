@@ -24,7 +24,7 @@
       <div v-if="carrierType === 'RelayPoint' && active && relayPointSelected">
         <BaseHr spacing="12px" />
         <CardShippingRelayPoint
-          @onSelectPointRelay="selectPointRelay($event, relayPoints)"
+          @onSelectPointRelay="selectPointRelay($event)"
           :carrierSelected="carrier"
         />
       </div>
@@ -165,7 +165,7 @@ onMounted(() => {
   }
 });
 
-const selectPointRelay = (rpId: string, relayPoints: RelayPointType[]) => {
+const selectPointRelay = (rpId: string) => {
   emit('onSelect', {
     carrier,
     relayPointID: rpId,

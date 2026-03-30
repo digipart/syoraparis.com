@@ -200,6 +200,7 @@ const fr = {
     search: 'Recherche...',
     relayPointList: 'liste des points relais',
     relayPointMap: 'Location on map',
+    relay_points_nearby: '{count} autre points relais a proximite',
     Home: 'Accueil',
     Store: 'Boutique',
     stores: 'Boutiques',

@@ -198,6 +198,7 @@ const en = {
     search: 'Search...',
     relayPointList: 'list of relay points',
     relayPointMap: 'localisation sur la carte',
+    relay_points_nearby: '{count} other relay points nearby',
     Home: 'Home',
     Store: 'Store',
     stores: 'Boutiques',
