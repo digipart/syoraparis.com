@@ -1,44 +1,148 @@
 <script setup lang="ts">
-const checkoutStore = useCheckoutStore();
-const { checkoutCustomer, checkoutDeliveryOption, fetchPaymentMethods } =
-  toRefs(checkoutStore);
+import type { AddressType } from '~/types/AddressType';
 
-const formDeliveryStore = useFormDeliveryStore();
-const { state, v$ } = toRefs(formDeliveryStore);
+const checkoutStore = useCheckoutStore();
+const { checkoutCustomer, checkoutDeliveryOption, hasSameAddressForShipping } =
+  toRefs(checkoutStore);
+const { scheduleRefreshPaymentMethods } = checkoutStore;
+
+const authStore = useAuth();
+const { isLoggedIn, isGuest } = toRefs(authStore);
+
+const addressStore = useAddressStore();
+const { addressDelivery, addressInvoice } = toRefs(addressStore);
+const { updateShipping, removeCarrier } = useCartStore();
+
+const cartStore = useCartStore();
+const { totalToPay, isDigitalOnly } = toRefs(cartStore);
 
 const appStore = useAppStore();
 const { currencyIsoCode } = toRefs(appStore);
 
-const addressStore = useAddressStore();
-const { addressDelivery, addressInvoice } = toRefs(addressStore);
-
 const shippingStore = useShippingStore();
-const { carrier: allCarriers, toshow, carriers } = toRefs(shippingStore);
+
+const formDeliveryStore = useFormDeliveryStore();
+const { state, v$ } = toRefs(formDeliveryStore);
 
 const formInvoiceStore = useFormInvoiceStore();
 const { state: invoiceState } = toRefs(formInvoiceStore);
 
-const cartStore = useCartStore();
-const {
-  totalToPay,
-  carrier,
-  totalProductQuantity,
-  hasUnavailableProducts,
-  isDigitalOnly,
-} = toRefs(cartStore);
-const { updateShipping, removeCarrier } = cartStore;
+const countryStore = useCountryStore();
+const { countries } = toRefs(countryStore);
 
 const paymentRefreshing = ref(false);
+const GUEST_CHECKOUT_STORAGE_KEY = 'syora_guest_checkout_data';
 
-const pickupAddress = ref('');
+const syncCheckoutCustomerFromForms = () => {
+  checkoutCustomer.value.deliveryAddress.firstname = state.value.firstname;
+  checkoutCustomer.value.deliveryAddress.lastname = state.value.name;
+  checkoutCustomer.value.deliveryAddress.email = state.value.email;
+  checkoutCustomer.value.deliveryAddress.address = state.value.address;
+  checkoutCustomer.value.deliveryAddress.city = state.value.city;
+  checkoutCustomer.value.deliveryAddress.phone = state.value.phone;
+  checkoutCustomer.value.deliveryAddress.postalCode = state.value.postcode;
+  checkoutCustomer.value.deliveryAddress.country = state.value.country;
+  checkoutCustomer.value.deliveryAddress.company = state.value.company;
+  checkoutCustomer.value.deliveryAddress.state = state.value.state;
 
-const valide = computed(() => {
-  return (
-    totalProductQuantity.value &&
-    (isDigitalOnly.value || carrier.value) &&
-    !hasUnavailableProducts.value
-  );
-});
+  if (hasSameAddressForShipping.value) {
+    checkoutCustomer.value.invoiceAddress.firstname = state.value.firstname;
+    checkoutCustomer.value.invoiceAddress.lastname = state.value.name;
+    checkoutCustomer.value.invoiceAddress.address = state.value.address;
+    checkoutCustomer.value.invoiceAddress.city = state.value.city;
+    checkoutCustomer.value.invoiceAddress.phone = state.value.phone;
+    checkoutCustomer.value.invoiceAddress.postalCode = state.value.postcode;
+    checkoutCustomer.value.invoiceAddress.country = state.value.country;
+    checkoutCustomer.value.invoiceAddress.company = state.value.company;
+    checkoutCustomer.value.invoiceAddress.state = state.value.state;
+  } else {
+    checkoutCustomer.value.invoiceAddress.firstname =
+      invoiceState.value.firstname;
+    checkoutCustomer.value.invoiceAddress.lastname = invoiceState.value.name;
+    checkoutCustomer.value.invoiceAddress.address = invoiceState.value.address;
+    checkoutCustomer.value.invoiceAddress.city = invoiceState.value.city;
+    checkoutCustomer.value.invoiceAddress.phone = invoiceState.value.phone;
+    checkoutCustomer.value.invoiceAddress.postalCode =
+      invoiceState.value.postcode;
+    checkoutCustomer.value.invoiceAddress.country = invoiceState.value.country;
+    checkoutCustomer.value.invoiceAddress.company = invoiceState.value.company;
+    checkoutCustomer.value.invoiceAddress.state = invoiceState.value.state;
+  }
+};
+
+const persistGuestCheckout = () => {
+  if (!process.client) {
+    return;
+  }
+
+  const payload = {
+    deliveryState: { ...state.value },
+    invoiceState: { ...invoiceState.value },
+    hasSameAddressForShipping: hasSameAddressForShipping.value,
+    checkoutDeliveryOption: checkoutDeliveryOption.value,
+  };
+
+  localStorage.setItem(GUEST_CHECKOUT_STORAGE_KEY, JSON.stringify(payload));
+};
+
+const hydrateGuestCheckout = () => {
+  if (!process.client) {
+    return;
+  }
+
+  const rawValue = localStorage.getItem(GUEST_CHECKOUT_STORAGE_KEY);
+  if (!rawValue) {
+    return;
+  }
+
+  try {
+    const parsed = JSON.parse(rawValue);
+
+    if (parsed?.deliveryState) {
+      Object.assign(state.value, parsed.deliveryState);
+    }
+
+    if (parsed?.invoiceState) {
+      Object.assign(invoiceState.value, parsed.invoiceState);
+    }
+
+    if (typeof parsed?.hasSameAddressForShipping === 'boolean') {
+      hasSameAddressForShipping.value = parsed.hasSameAddressForShipping;
+    }
+
+    if (
+      parsed?.checkoutDeliveryOption === 'home' ||
+      parsed?.checkoutDeliveryOption === 'relayPoint' ||
+      parsed?.checkoutDeliveryOption === 'store'
+    ) {
+      checkoutDeliveryOption.value = parsed.checkoutDeliveryOption;
+    }
+
+    syncCheckoutCustomerFromForms();
+  } catch (_error) {
+    localStorage.removeItem(GUEST_CHECKOUT_STORAGE_KEY);
+  }
+};
+
+const countriesOptions = computed(() =>
+  countries.value.map((c) => ({
+    label: c.CountryName,
+    value: c.CountryIsoCode,
+  }))
+);
+
+const handleSelectAddress = (details: {
+  courtAddress: string;
+  postalCode: string;
+  countryIso: string;
+  city: string;
+}) => {
+  state.value.courtAddress = details.courtAddress;
+  state.value.address = details.courtAddress;
+  state.value.postcode = details.postalCode;
+  state.value.country = details.countryIso;
+  state.value.city = details.city;
+};
 
 const refreshCodePromo = () => {
   paymentRefreshing.value = true;
@@ -47,356 +151,152 @@ const refreshCodePromo = () => {
   }, 100);
 };
 
-const setDelivredOption = async (
-  optionType: 'home' | 'relayPoint' | 'store'
-) => {
-  allCarriers.value = {};
-  checkoutDeliveryOption.value = optionType;
-  updateShipping({ idCarrier: 0 }).then(() => {
-    removeCarrier();
-  });
+onMounted(() => {
+  hydrateGuestCheckout();
+  updateShipping({ idCarrier: 0 }).then(() => removeCarrier());
+  const ip = useIp();
+  shippingStore.fetchShipping({ IP: ip.value });
+  if (isDigitalOnly.value) {
+    checkoutStore.fetchPaymentMethods({ IP: ip.value });
+  }
 
-  // Clear addresses for guests
-  checkoutCustomer.value.deliveryAddress = {
-    ...checkoutCustomer.value.deliveryAddress,
-    firstname: '',
-    lastname: '',
-    address: '',
-    postalCode: '',
-    city: '',
-    phone: '',
-    country: '',
-  };
-  checkoutCustomer.value.invoiceAddress = {
-    firstname: '',
-    lastname: '',
-    address: '',
-    postalCode: '',
-    city: '',
-    phone: '',
-    country: '',
-  };
-};
+  scheduleRefreshPaymentMethods();
+});
 
-const handalFormGuestChange = (state: any) => {
+// Sync form state → checkoutStore
+watch(state.value, () => {
+  syncCheckoutCustomerFromForms();
+  scheduleRefreshPaymentMethods();
   paymentRefreshing.value = true;
   setTimeout(() => {
     paymentRefreshing.value = false;
   }, 100);
-};
+});
 
-const handleSelectPickupAddress = async (e: any) => {
-  checkoutCustomer.value.deliveryAddress.address = e.address;
-  checkoutCustomer.value.deliveryAddress.city = e.city;
-  checkoutCustomer.value.deliveryAddress.postalCode = e.postalCode;
-  checkoutCustomer.value.deliveryAddress.country = e.country;
+watch(
+  [state, invoiceState, hasSameAddressForShipping, checkoutDeliveryOption],
+  () => {
+    persistGuestCheckout();
+  },
+  { deep: true }
+);
 
-  invoiceState.value.address = e.address;
-  invoiceState.value.city = e.city;
-  invoiceState.value.postcode = e.postalCode;
-  invoiceState.value.country = e.country;
-};
-
-const setCheckouCustomer = () => {
-  if (checkoutDeliveryOption.value === 'home') {
-    if (addressDelivery.value) {
-      checkoutCustomer.value.deliveryAddress.address =
-        addressDelivery.value.Address1 || '';
-      checkoutCustomer.value.deliveryAddress.city =
-        addressDelivery.value.City || '';
-      checkoutCustomer.value.deliveryAddress.postalCode =
-        addressDelivery.value.Postcode || '';
-      checkoutCustomer.value.deliveryAddress.country =
-        addressDelivery.value.CountryIsoCode || '';
-      checkoutCustomer.value.deliveryAddress.firstname =
-        addressDelivery.value.Firstname || '';
-      checkoutCustomer.value.deliveryAddress.lastname =
-        addressDelivery.value.Lastname || '';
-      checkoutCustomer.value.deliveryAddress.phone =
-        addressDelivery.value.MobilePhone || '';
+watch(
+  [isLoggedIn, isGuest],
+  ([loggedIn, guest]) => {
+    if (process.client && loggedIn && !guest) {
+      localStorage.removeItem(GUEST_CHECKOUT_STORAGE_KEY);
     }
-
-    if (addressInvoice.value) {
-      checkoutCustomer.value.invoiceAddress.address =
-        addressInvoice.value.Address1 || '';
-      checkoutCustomer.value.invoiceAddress.city =
-        addressInvoice.value.City || '';
-      checkoutCustomer.value.invoiceAddress.postalCode =
-        addressInvoice.value.Postcode || '';
-      checkoutCustomer.value.invoiceAddress.country =
-        addressInvoice.value.CountryIsoCode || '';
-      checkoutCustomer.value.invoiceAddress.firstname =
-        addressInvoice.value.Firstname || '';
-      checkoutCustomer.value.invoiceAddress.lastname =
-        addressInvoice.value.Lastname || '';
-      checkoutCustomer.value.invoiceAddress.phone =
-        addressInvoice.value.MobilePhone || '';
-    }
-  }
-};
-
-onMounted(() => {
-  setCheckouCustomer();
-  updateShipping({ idCarrier: 0 }).then(() => {
-    removeCarrier();
-  });
-  if (isDigitalOnly.value) {
-    const ip = useIp();
-    checkoutStore.fetchPaymentMethods({ IP: ip.value });
-  }
-});
-
-watch(checkoutCustomer.value.invoiceAddress, () => {
-  if (checkoutDeliveryOption.value !== 'home') {
-    checkoutCustomer.value.deliveryAddress.address =
-      checkoutCustomer.value.invoiceAddress.address;
-
-    checkoutCustomer.value.deliveryAddress.city =
-      checkoutCustomer.value.invoiceAddress.city;
-
-    checkoutCustomer.value.deliveryAddress.postalCode =
-      checkoutCustomer.value.invoiceAddress.postalCode;
-
-    checkoutCustomer.value.deliveryAddress.country =
-      checkoutCustomer.value.invoiceAddress.country;
-
-    checkoutCustomer.value.deliveryAddress.phone =
-      checkoutCustomer.value.invoiceAddress.phone;
-
-    checkoutCustomer.value.deliveryAddress.firstname =
-      checkoutCustomer.value.invoiceAddress.firstname;
-
-    checkoutCustomer.value.deliveryAddress.lastname =
-      checkoutCustomer.value.invoiceAddress.lastname;
-  }
-});
-
-watch(state.value, () => {
-  if (checkoutDeliveryOption.value !== 'home') {
-    checkoutCustomer.value.deliveryAddress.email = state.value.email;
-  }
-});
+  },
+  { immediate: true }
+);
 </script>
 
 <template>
   <div>
-    <!-- <NuxtLink
-      to="/"
-      class="hidden lg:inline-flex items-center cursor-pointer text-sm mb-2"
-    >
-      <IconChevronLeft :size="1.3" class="mr-2" />
-      {{ t('label.continue_shopping') }}
-    </NuxtLink> -->
     <div class="grid grid-cols-11 items-start">
+      <!-- ══ LEFT COLUMN ══ -->
       <div class="col-span-12 lg:col-span-6 checkout-left">
-        <!-- Delivery Options -->
         <div class="box">
-          <div class="flex flex-wrap gap-x-3 items-end mb-3 justify-between">
-            <BaseHeadLine size="md" class="uppercase font-medium">
-              {{ $t('label.contact') }} :
-            </BaseHeadLine>
-            <ModalLogin />
+          <!-- 1. EMAIL -->
+          <div class="checkout-box">
+            <PageCheckoutGuestContact />
           </div>
 
-          <div>
-            <InputText
-              id="email"
-              v-model="state.email"
-              type="email"
-              :errors="v$.email?.$errors"
-              :required="true"
-              :label="$t('label.email')"
-              border
-            />
-          </div>
+          <!-- 2. DELIVERY ADDRESS -->
+          <PageCheckoutGuestDeliveryAddress />
 
-          <div v-if="!isDigitalOnly" class="deliveryOptions mb-5">
-            <BaseHeadLine size="md" class="uppercase font-medium mb-3">
-              {{ $t('label.delivery') }} :
-            </BaseHeadLine>
-            <div
-              v-if="carriers.includes('Home')"
-              class="deliveryOptions-item"
-              :class="{ selected: checkoutDeliveryOption === 'home' }"
-              @click="setDelivredOption('home')"
+          <!-- 3. BILLING ADDRESS TOGGLE -->
+          <div v-if="!isDigitalOnly" class="checkout-box">
+            <InputCheckBox
+              id="same_address_for_shipping"
+              v-model="hasSameAddressForShipping"
             >
-              <InputRadio
-                id="do-home"
-                value="home"
-                v-model="checkoutDeliveryOption"
-                class="!absolute top-4 left-4"
-              />
-              <span>
-                {{ $t('tunnel.delivery.home') }}
-              </span>
-              <IconDeliveryTruckSpeed :size="2.5" />
-            </div>
-            <div
-              v-if="carriers.includes('RelayPoint')"
-              class="deliveryOptions-item"
-              :class="{ selected: checkoutDeliveryOption === 'relayPoint' }"
-              @click="setDelivredOption('relayPoint')"
-            >
-              <InputRadio
-                id="do-relayPoint"
-                value="relayPoint"
-                v-model="checkoutDeliveryOption"
-                class="!absolute top-4 left-4"
-              />
-              <span>
-                {{ $t('tunnel.delivery.relayPoint') }}
-              </span>
-              <IconLocation :size="2.5" />
-            </div>
-            <div
-              v-if="carriers.includes('Store')"
-              class="deliveryOptions-item"
-              :class="{ selected: checkoutDeliveryOption === 'store' }"
-              @click="setDelivredOption('store')"
-            >
-              <InputRadio
-                id="do-store"
-                value="store"
-                v-model="checkoutDeliveryOption"
-                class="!absolute top-4 left-4"
-              />
-              <span>
-                {{ $t('tunnel.delivery.store') }}
-              </span>
-              <IconShop :size="2.5" />
-            </div>
-          </div>
-          <!-- <CardShipping
-            v-if="carrier?.IdCarrier"
-            :carrier="carrier"
-            :radio="false"
-            :border="false"
-            class="mb-5"
-          /> -->
+              <span class="text-sm">{{
+                $t('label.use_different_billing_address')
+              }}</span>
+            </InputCheckBox>
 
-          <div v-if="checkoutDeliveryOption === 'home'">
-            <BaseHeadLine size="md" class="uppercase font-medium mb-3">
-              {{
-                isDigitalOnly
-                  ? $t('titles.my_informations')
-                  : $t('label.address_delivery')
-              }}
-              :
-            </BaseHeadLine>
-            <PageCheckoutGuest
-              class="mb-5"
-              hideEmail
-              @onFormChange="handalFormGuestChange($event)"
-            />
-            <!-- Shipping option -->
-            <template v-if="!isDigitalOnly">
-              <BaseHeadLine size="md" class="uppercase font-medium">
-                {{ $t('label.shippingOption.title') }} :
-              </BaseHeadLine>
-              <FormShipping :displayOptions="'Home'" />
-            </template>
+            <transition name="slide">
+              <div
+                v-if="!hasSameAddressForShipping"
+                class="mt-5 pt-5 border-t border-zinc-100"
+              >
+                <PageCheckoutGuestBillingAddress />
+              </div>
+            </transition>
           </div>
 
-          <div v-if="checkoutDeliveryOption !== 'home'">
-            <BaseHeadLine size="md" class="uppercase font-medium mb-3">
-              {{ $t('label.address') }} :
-            </BaseHeadLine>
-            <InputGoogoleAutoComplete
-              v-model="pickupAddress"
-              id="autocompletePickup"
-              :label="$t('label.address')"
-              @onSelect="handleSelectPickupAddress"
-              border
-            />
-
-            <FormShipping
-              :displayOptions="
-                checkoutDeliveryOption === 'relayPoint' ? 'RelayPoint' : 'Store'
-              "
-            />
+          <!-- 4. DELIVERY MODE ACCORDION -->
+          <div v-if="!isDigitalOnly" class="checkout-box">
+            <h2 class="section-title mb-4">
+              {{ $t('label.select_delivery_mode') }} :
+            </h2>
+            <CheckoutDeliveryMethods />
           </div>
 
-          <div class="mt-5">
-            <div v-if="valide && !paymentRefreshing">
-              <BaseHeadLine size="md" class="uppercase font-medium mb-3">
-                {{ $t('tunnel.payment.title') }} :
-              </BaseHeadLine>
-              <FormPayment />
-            </div>
-            <BaseAlert
-              v-else
-              fill
-              :type="hasUnavailableProducts ? 'danger' : 'default'"
-              :closeButton="false"
-            >
-              <span class="text-sm">
-                <template v-if="hasUnavailableProducts">
-                  {{ $t('cart.has_unavailable_products') }}
-                </template>
-                <template v-else>
-                  {{ $t('label.payment.noPayment') }}
-                </template>
-              </span>
-
-              <template #icon>
-                <IconPayment v-if="!hasUnavailableProducts" />
-                <IconInfo v-else />
-              </template>
-            </BaseAlert>
+          <!-- 5. PAYMENT -->
+          <div class="checkout-box">
+            <h2 class="section-title mb-4">
+              {{ $t('tunnel.payment.title') }} :
+            </h2>
+            <CheckoutPaymentMethods :refreshing="paymentRefreshing" />
           </div>
 
           <PageTunnelFooter class="hidden lg:block" />
         </div>
       </div>
 
+      <!-- ══ RIGHT COLUMN: ORDER SUMMARY ══ -->
       <div class="col-span-12 lg:col-span-5 checkout-right">
         <div class="box">
-          <ListingCartItems
-            :editable="false"
-            :mini="true"
-            @onCodePromoRemoved="refreshCodePromo"
-            checkout
-          />
-          <PageCheckoutMyRewards
-            @onCodePromoApplied="refreshCodePromo"
-            class="mt-4"
-          />
-          <div class="mt-4">
-            <FormCodePromo @onCodePromoApplied="refreshCodePromo" />
-          </div>
-          <hr class="mb-5" />
-          <PageTunnelOrderSummary />
-
-          <PageTunnelFooter class="lg:hidden" />
+          <PageCheckoutGuestSidebar @promoRefresh="refreshCodePromo" />
         </div>
       </div>
     </div>
+
+    <!-- Mobile sticky total -->
     <Teleport to="body">
       <div
-        class="flex lg:hidden fixed bottom-0 w-full border-t border-black bg-white py-3 px-5 z-10"
+        class="lg:hidden fixed bottom-0 w-full border-t border-zinc-200 bg-white py-3 px-5 z-40 flex items-center justify-between"
       >
-        <div class="flex-1 flex items-center font-normal justify-end text-sm">
-          <span class="ml-5 mr-2 uppercase">{{ $t('cart.total') }} : </span>
-          <span class="font-normal text-base">
-            {{ totalToPay }} {{ currencyIsoCode }}</span
-          >
-        </div>
+        <span class="uppercase text-xs text-zinc-500">{{
+          $t('cart.total')
+        }}</span>
+        <span class="font-medium text-base"
+          >{{ totalToPay }} {{ currencyIsoCode }}</span
+        >
       </div>
     </Teleport>
   </div>
 </template>
 
-<style scoped lang="scss">
-.deliveryOptions {
-  @apply flex flex-col;
-  &-item {
-    @apply relative border border-zinc-300 bg-white z-[1] 
-    flex justify-between gap-3 items-center cursor-pointer;
-    @apply mb-[-1px] pl-12 py-3 pr-5;
-    @apply text-sm;
-    &.selected {
-      @apply border-black bg-zinc-50  z-[2];
-    }
-  }
+<style lang="scss">
+.guest-checkout-wrapper {
+  @apply pt-6;
+}
+
+.checkout-box {
+  @apply bg-white border border-zinc-200 p-6 flex flex-col gap-0;
+}
+
+.section-header {
+  @apply flex items-center justify-between mb-4;
+}
+
+.section-title {
+  @apply font-semibold text-sm uppercase tracking-wide;
+}
+
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 0.3s ease;
+  overflow: hidden;
+  max-height: 600px;
+}
+.slide-enter-from,
+.slide-leave-to {
+  max-height: 0;
+  opacity: 0;
 }
 </style>

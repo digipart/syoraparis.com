@@ -32,6 +32,8 @@ export type CustomerRegisterType = {
   City?: string;
   CountryIsoCode?: string;
   MobilePhone?: string;
+  Company?: string;
+  StateName?: string;
   IsInvoice?: boolean;
   IsDelivery?: boolean;
   LanguageIsoCode?: string;

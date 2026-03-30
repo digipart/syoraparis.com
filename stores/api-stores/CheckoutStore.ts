@@ -4,7 +4,7 @@ import { useFormDeliveryStore } from '../form-stores/formDeliveryStore';
 import { useFormInvoiceStore } from '../form-stores/formInvoiceStore';
 import type { PaymentMethodType } from '~/types/PaymentType';
 import type { RelayPointType } from '~/types/RelayPointsType';
-import type { CarrierGenre, CarrierType } from '~/types/ShippingType';
+import type { CarrierGenre } from '~/types/ShippingType';
 
 type CheckoutCustomer = {
   deliveryAddress: {
@@ -16,6 +16,8 @@ type CheckoutCustomer = {
     city: string;
     phone: string;
     country: string;
+    company?: string;
+    state?: string;
   };
   invoiceAddress: {
     firstname: string;
@@ -25,6 +27,8 @@ type CheckoutCustomer = {
     city: string;
     phone: string;
     country: string;
+    company?: string;
+    state?: string;
   };
 };
 
@@ -47,6 +51,8 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
       city: '',
       phone: '',
       country: '',
+      company: '',
+      state: '',
     },
     invoiceAddress: {
       firstname: '',
@@ -56,6 +62,8 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
       city: '',
       phone: '',
       country: '',
+      company: '',
+      state: '',
     },
   });
   const checkoutCarrier = ref<CheckoutCarrier>({
@@ -65,12 +73,41 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
   const checkoutPaymentMethods = ref<PaymentMethodType[]>([]);
   const checkoutErrors = ref<{ field: string; message: string }[]>([]);
   const hasAddressDelivery = ref(false);
+  const paymentRefreshTimer = ref<ReturnType<typeof setTimeout> | null>(null);
+
+  const cartStore = useCartStore();
+  const { cart, carrier: cartCarrier, isDigitalOnly } = toRefs(cartStore);
 
   const { t } = useI18n();
 
   const auth = useAuth();
   const { isLoggedIn } = toRefs(auth);
   const { registerGuest } = auth;
+
+  const buildPaymentMethodOptions = () => {
+    const ip = useIp();
+    const delivery = checkoutCustomer.value.deliveryAddress;
+
+    const hasCompleteDeliveryAddress =
+      !!delivery.postalCode &&
+      !!delivery.city &&
+      !!delivery.address &&
+      !!delivery.country;
+
+    if (hasCompleteDeliveryAddress) {
+      return {
+        Postcode: delivery.postalCode,
+        City: delivery.city,
+        Address1: delivery.address,
+        Country: delivery.country,
+        IP: (ip.value as string) || '',
+      };
+    }
+
+    return {
+      IP: (ip.value as string) || '',
+    };
+  };
 
   const validateCheckoutBeforePayment = async (): Promise<boolean> => {
     const cartStore = useCartStore();
@@ -129,6 +166,67 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
     { deep: true }
   );
 
+  const refreshPaymentMethods = async (customOptions?: any) => {
+    return fetchPaymentMethods(customOptions || buildPaymentMethodOptions());
+  };
+
+  const scheduleRefreshPaymentMethods = (delay = 300) => {
+    if (paymentRefreshTimer.value) {
+      clearTimeout(paymentRefreshTimer.value);
+    }
+
+    paymentRefreshTimer.value = setTimeout(() => {
+      refreshPaymentMethods().catch(() => {
+        // keep checkout responsive even if payment methods endpoint fails
+      });
+    }, delay);
+  };
+
+  watch(
+    () => ({
+      address: checkoutCustomer.value.deliveryAddress.address,
+      postalCode: checkoutCustomer.value.deliveryAddress.postalCode,
+      city: checkoutCustomer.value.deliveryAddress.city,
+      country: checkoutCustomer.value.deliveryAddress.country,
+    }),
+    () => {
+      scheduleRefreshPaymentMethods();
+    },
+    { deep: true }
+  );
+
+  watch(
+    () => checkoutCarrier.value.carrier,
+    () => {
+      scheduleRefreshPaymentMethods(0);
+    }
+  );
+
+  watch(
+    () => ({
+      cartCarrierId: cartCarrier.value?.IdCarrier || 0,
+      checkoutCarrierId: checkoutCarrier.value.carrier?.IdCarrier || 0,
+      promoCodes: JSON.stringify(cart.value?.Discounts?.PromoCodes || []),
+      cartRules: JSON.stringify(cart.value?.Discounts?.CartRules || []),
+      totalToPay: cart.value?.Total?.ToPay?.TaxIncl || 0,
+      shippingTotal: cart.value?.Total?.Shipping?.TaxIncl || 0,
+      discountTotal: cart.value?.Total?.Discount?.TaxIncl || 0,
+      hasAddressDelivery: hasAddressDelivery.value,
+      deliveryAddress: JSON.stringify(checkoutCustomer.value.deliveryAddress),
+      digitalOnly: isDigitalOnly.value,
+    }),
+    ({ hasAddressDelivery, digitalOnly, cartCarrierId, checkoutCarrierId }) => {
+      const hasCarrier = !!cartCarrierId || !!checkoutCarrierId;
+
+      if (!hasAddressDelivery || (!digitalOnly && !hasCarrier)) {
+        return;
+      }
+
+      scheduleRefreshPaymentMethods(0);
+    },
+    { deep: true }
+  );
+
   const isCheckoutValid = computed(() => {
     const validation = validateCheckout();
     checkoutErrors.value = validation.errors;
@@ -142,8 +240,31 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
     const customer = checkoutCustomer.value;
     const carrier = checkoutCarrier.value;
 
+    const getRequiredFieldMessage = (field: string) => {
+      switch (field) {
+        case 'email':
+          return t('error.email_required');
+        case 'firstname':
+          return t('error.firstname_required');
+        case 'lastname':
+          return t('error.field_required');
+        case 'address':
+          return t('error.address_required');
+        case 'postalCode':
+          return t('error.postcode_required');
+        case 'city':
+          return t('error.city_required');
+        case 'country':
+          return t('error.country_required');
+        case 'phone':
+          return t('error.phone_required');
+        default:
+          return t('error.field_required');
+      }
+    };
+
     if (!isDigitalOnly.value && (!carrier || !carrier.carrier)) {
-      errors.push({ field: 'carrier', message: 'Carrier is not selected' });
+      errors.push({ field: 'carrier', message: t('error.carrier_required') });
     }
 
     const requiredDeliveryFields: (keyof typeof customer.deliveryAddress)[] = [
@@ -157,7 +278,7 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
       if (!customer.deliveryAddress[field]) {
         errors.push({
           field: `deliveryAddress.${field}`,
-          message: `Delivery ${field} is required`,
+          message: getRequiredFieldMessage(field),
         });
       }
     }
@@ -180,7 +301,7 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
         if (!customer.invoiceAddress[field]) {
           errors.push({
             field: `invoiceAddress.${field}`,
-            message: `Invoice ${field} is required`,
+            message: getRequiredFieldMessage(field),
           });
         }
       }
@@ -192,12 +313,14 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
   const createClientGuest = () => {
     return registerGuest({
       Lastname: checkoutCustomer.value.deliveryAddress.lastname,
-      Firstname: checkoutCustomer.value.deliveryAddress.lastname,
-      Email: checkoutCustomer.value.deliveryAddress.lastname,
-      Address1: checkoutCustomer.value.deliveryAddress.lastname,
-      Postcode: checkoutCustomer.value.deliveryAddress.lastname,
-      City: checkoutCustomer.value.deliveryAddress.lastname,
-      MobilePhone: checkoutCustomer.value.deliveryAddress.lastname,
+      Firstname: checkoutCustomer.value.deliveryAddress.firstname,
+      Email: checkoutCustomer.value.deliveryAddress.email,
+      Address1: checkoutCustomer.value.deliveryAddress.address,
+      Postcode: checkoutCustomer.value.deliveryAddress.postalCode,
+      City: checkoutCustomer.value.deliveryAddress.city,
+      MobilePhone: checkoutCustomer.value.deliveryAddress.phone,
+      Company: checkoutCustomer.value.deliveryAddress.company,
+      StateName: checkoutCustomer.value.deliveryAddress.state,
     })
       .then((response) => {
         console.log('add', response);
@@ -239,5 +362,7 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
     createClientGuest,
     validateCheckoutBeforePayment,
     fetchPaymentMethods,
+    refreshPaymentMethods,
+    scheduleRefreshPaymentMethods,
   };
 });

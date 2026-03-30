@@ -4,10 +4,15 @@ import PaymentService from '~/services/PaymentService';
 import type { RelayPointType } from '~/types/RelayPointsType';
 import type { CarrierGenre, CarrierType } from '~/types/ShippingType';
 
-const { displayOptions } = defineProps({
+const emit = defineEmits(['onSelect']);
+const { displayOptions, autoLoad } = defineProps({
   displayOptions: {
     type: String as PropType<'Home' | 'Store' | 'RelayPoint'>,
     default: 'Home',
+  },
+  autoLoad: {
+    type: Boolean,
+    default: true,
   },
 });
 
@@ -40,6 +45,22 @@ watch(
   }
 );
 const { t } = useI18n();
+
+const getPaymentOptions = () => {
+  if (hasAddressDelivery.value) {
+    return {
+      Postcode: checkoutCustomer.value.deliveryAddress.postalCode,
+      City: checkoutCustomer.value.deliveryAddress.city,
+      Address1: checkoutCustomer.value.deliveryAddress.address,
+      Country: checkoutCustomer.value.deliveryAddress.country,
+      IP: ip.value,
+    };
+  }
+
+  return {
+    IP: ip.value,
+  };
+};
 
 const findCarrierLocation = (): keyof CarrierType | null => {
   for (const location in carrier.value) {
@@ -87,7 +108,9 @@ const selectShipping = (event: {
         if (carrier.value) {
           checkoutCarrier.value.carrier = cart.value.Shipping?.Carrier;
         }
+        loadPayments(getPaymentOptions());
         trackAddShippingInfo(cart.value, event.carrier?.Name || '');
+        emit('onSelect');
       });
     })
     .finally(() => {
@@ -180,7 +203,9 @@ const loadCarriers = async () => {
 watch(
   () => checkoutCustomer.value.deliveryAddress,
   () => {
-    loadCarriers();
+    if (autoLoad) {
+      loadCarriers();
+    }
   },
   { deep: true }
 );
@@ -200,7 +225,9 @@ const hasCarrierOfType = computed(() => {
 });
 
 onMounted(() => {
-  loadCarriers();
+  if (autoLoad) {
+    loadCarriers();
+  }
   findCarrierLocation();
 });
 </script>

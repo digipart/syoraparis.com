@@ -17,6 +17,8 @@ export const useFormDeliveryStore = defineStore('formDeliveryStore', () => {
     email: '',
     prefix: '',
     phone: '',
+    company: '',
+    state: '',
   });
 
   const rules = {

@@ -13,8 +13,12 @@ const shippingStore = useShippingStore();
 const addressFormAdd = ref<HTMLElement | null>(null);
 
 const listAddressVisible = ref(false);
-const { hideEmail } = defineProps({
+const { hideEmail, invoice } = defineProps({
   hideEmail: {
+    type: Boolean,
+    default: false,
+  },
+  invoice: {
     type: Boolean,
     default: false,
   },
@@ -104,24 +108,21 @@ const handleSelectAddress = (details: {
 
 watch(state.value, () => {
   emit('onFormChange', state.value);
-  checkoutCustomer.value.deliveryAddress.firstname = state.value.firstname;
-  checkoutCustomer.value.deliveryAddress.lastname = state.value.name;
-  checkoutCustomer.value.deliveryAddress.email = state.value.email;
-  checkoutCustomer.value.deliveryAddress.address = state.value.address;
-  checkoutCustomer.value.deliveryAddress.city = state.value.city;
-  checkoutCustomer.value.deliveryAddress.phone = state.value.phone;
-  checkoutCustomer.value.deliveryAddress.postalCode = state.value.postcode;
-  checkoutCustomer.value.deliveryAddress.country = state.value.country;
+  
+  const target = invoice ? checkoutCustomer.value.invoiceAddress : checkoutCustomer.value.deliveryAddress;
+  
+  target.firstname = state.value.firstname;
+  target.lastname = state.value.name;
+  if (!invoice && 'email' in target) (target as any).email = state.value.email;
+  target.address = state.value.address;
+  target.city = state.value.city;
+  target.phone = state.value.phone;
+  target.postalCode = state.value.postcode;
+  target.country = state.value.country;
 
-  checkoutCustomer.value.invoiceAddress.firstname = state.value.firstname;
-  checkoutCustomer.value.invoiceAddress.lastname = state.value.name;
-  checkoutCustomer.value.invoiceAddress.address = state.value.address;
-  checkoutCustomer.value.invoiceAddress.city = state.value.city;
-  checkoutCustomer.value.invoiceAddress.phone = state.value.phone;
-  checkoutCustomer.value.invoiceAddress.postalCode = state.value.postcode;
-  checkoutCustomer.value.invoiceAddress.country = state.value.country;
-
-  if (state.value.country && state.value.postcode && state.value.city) {
+  if (!invoice && checkoutStore.hasSameAddressForShipping) {
+    Object.assign(checkoutCustomer.value.invoiceAddress, target);
+    delete (checkoutCustomer.value.invoiceAddress as any).email;
   }
 });
 
