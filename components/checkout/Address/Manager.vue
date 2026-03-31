@@ -671,7 +671,6 @@ onMounted(() => {
               :label="t('label.country')"
               :selectOptions="countriesOptions"
               :required="true"
-              :key="state.country"
               border
               searchable
             />
@@ -680,7 +679,7 @@ onMounted(() => {
           <InputText
             id="company-drawer"
             v-model="state.company"
-            label="Company"
+            :label="t('label.company')"
             border
           />
 
