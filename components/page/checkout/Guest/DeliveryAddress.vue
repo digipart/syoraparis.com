@@ -215,7 +215,7 @@ const openDrawer = () => {
     <BaseDrawer v-model="isDrawerOpen" position="left" size="500px">
       <template #header>
         <div class="drawer-title uppercase font-bold text-lg">
-          {{ $t('label.address_delivery') }} (RUE ET NUMÉRO)
+          {{ $t('label.address_delivery') }} ({{ $t('label.main_address') }})
         </div>
       </template>
 
@@ -224,7 +224,7 @@ const openDrawer = () => {
           v-model="state.address"
           id="address-drawer"
           :errors="v$.address?.$errors || []"
-          label="Adresse principale (rue et numéro)*"
+          :label="$t('label.main_address')"
           :required="true"
           @onSelect="handleSelectAddress"
           border
@@ -236,7 +236,7 @@ const openDrawer = () => {
             v-model="state.city"
             :errors="v$.city?.$errors"
             :required="true"
-            label="Ville *"
+            :label="$t('label.city')"
             border
           />
           <InputText
@@ -244,7 +244,7 @@ const openDrawer = () => {
             v-model="state.postcode"
             :errors="v$.postcode?.$errors"
             :required="true"
-            label="Code postal *"
+            :label="$t('label.postcode')"
             border
           />
         </div>
@@ -253,15 +253,14 @@ const openDrawer = () => {
           <InputText
             id="state-drawer"
             v-model="state.state"
-            label="État/Province"
+            :label="$t('label.state')"
             border
           />
           <InputSelect
-            v-if="state.country"
             id="country-drawer"
             v-model="state.country"
             :errors="v$.country?.$errors"
-            label="Pays *"
+            :label="$t('label.country')"
             :selectOptions="countriesOptions"
             :required="true"
             :key="state.country"
@@ -273,7 +272,7 @@ const openDrawer = () => {
         <InputText
           id="company-drawer"
           v-model="state.company"
-          label="Entreprise"
+          :label="$t('label.company')"
           border
         />
         <div class="flex gap-4 w-full">
