@@ -6,12 +6,16 @@ const { disabled } = defineProps<{
 }>();
 
 const checkoutStore = useCheckoutStore();
+const { scheduleRefreshPaymentMethods } = checkoutStore;
 const {
   checkoutCustomer,
   checkoutPaymentMethods,
   checkoutDeliveryOption,
   hasSameAddressForShipping,
 } = toRefs(checkoutStore);
+
+const cartStore = useCartStore();
+const { carrier: cartCarrier } = toRefs(cartStore);
 
 const addressStore = useAddressStore();
 const { addressDelivery, addressInvoice, addresses } = toRefs(addressStore);
@@ -103,70 +107,18 @@ const setAddresse = (event: Event) => {
 };
 
 const config = useRuntimeConfig();
+
+watch(
+  () => [cartCarrier.value?.IdCarrier, cartCarrier.value?.IdRelayPoint],
+  () => {
+    scheduleRefreshPaymentMethods(0);
+  },
+  { immediate: true }
+);
 </script>
 
 <template>
   <div class="formPayment">
-    <div>
-      <InputCheckBox
-        v-if="checkoutDeliveryOption === 'home'"
-        id="same_address_for_shipping"
-        v-model="hasSameAddressForShipping"
-        @change="setAddresse($event)"
-      >
-        {{ t('label.same_as_delivery_address') }}
-      </InputCheckBox>
-      <div
-        v-if="!hasSameAddressForShipping || checkoutDeliveryOption !== 'home'"
-        class="mb-5"
-      >
-        <transition name="slide">
-          <div v-show="!showForm && !listAddressVisible">
-            <div>
-              <span class="text-xs">
-                {{ t('titles.invoice_address') }}
-              </span>
-              <PageCheckoutInvoiceAddressSelected />
-            </div>
-            <span
-              class="underline text-xs cursor-pointer"
-              @click="listAddressVisible = !listAddressVisible"
-              v-if="addresses.length > 0"
-            >
-              {{ t('button.select_another_address') }}
-            </span>
-          </div>
-        </transition>
-        <transition name="slide">
-          <div v-if="!showForm && listAddressVisible">
-            <div class="flex justify-end mt-3 mb-3">
-              <span
-                class="underline text-xs cursor-pointer"
-                @click="displayForm()"
-              >
-                {{ $t('button.add_new_address') }}
-              </span>
-            </div>
-            <PerfectScrollbar class="max-h-96 mb-5">
-              <ListingAccountAddresses
-                activeType="Delivery"
-                @onAddressSelected="setAddresseInvoice($event)"
-              />
-            </PerfectScrollbar>
-          </div>
-        </transition>
-        <transition name="slide">
-          <div v-show="showForm" ref="addressFormAdd">
-            <FormAddress
-              @cancel="showForm = !showForm"
-              @onAddressCreated="setAddresseInvoice($event)"
-              inputBorder
-            />
-          </div>
-        </transition>
-      </div>
-    </div>
-
     <BaseCollapsible
       v-if="checkoutPaymentMethods.length > 0"
       :index-active="[1]"
@@ -190,6 +142,7 @@ const config = useRuntimeConfig();
           :index="index + 1"
           :closeOthers="true"
           :hideArrow="true"
+          :key="pm.PaymentCode"
         >
           <template #header>
             <div class="flex justify-between w-full items-center">

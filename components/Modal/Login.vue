@@ -1,14 +1,22 @@
 <script setup lang="ts">
+const { labelKey, linkClass } = withDefaults(
+  defineProps<{
+    labelKey?: string;
+    linkClass?: string;
+  }>(),
+  {
+    labelKey: 'button.log_in_to_access_your_loyalty_benefits',
+    linkClass: 'text-xxs lg:text-xs mb-0.5 underline cursor-pointer leading-tight',
+  }
+);
+
 const isVisible = ref(false);
 </script>
 
 <template>
-  <div>
-    <span
-      @click="isVisible = true"
-      class="text-xxs lg:text-xs mb-0.5 underline cursor-pointer leading-tight"
-    >
-      {{ $t('button.log_in_to_access_your_loyalty_benefits') }}
+  <div class="inline">
+    <span @click="isVisible = true" :class="linkClass">
+      {{ $t(labelKey) }}
     </span>
     <BaseModal v-model="isVisible" size="600px" @onClose="isVisible = false">
       <FormLogin

@@ -1,37 +1,22 @@
 <script setup lang="ts">
-import type { AddressType } from '~/types/AddressType';
-
 const checkoutStore = useCheckoutStore();
 const { checkoutCustomer, checkoutDeliveryOption, hasSameAddressForShipping } =
   toRefs(checkoutStore);
 const { scheduleRefreshPaymentMethods } = checkoutStore;
 
-const authStore = useAuth();
-const { isLoggedIn, isGuest } = toRefs(authStore);
-
-const addressStore = useAddressStore();
-const { addressDelivery, addressInvoice } = toRefs(addressStore);
-const { updateShipping, removeCarrier } = useCartStore();
-
 const cartStore = useCartStore();
-const { totalToPay, isDigitalOnly } = toRefs(cartStore);
-
-const appStore = useAppStore();
-const { currencyIsoCode } = toRefs(appStore);
-
-const shippingStore = useShippingStore();
+const { isDigitalOnly } = toRefs(cartStore);
 
 const formDeliveryStore = useFormDeliveryStore();
-const { state, v$ } = toRefs(formDeliveryStore);
+const { state } = toRefs(formDeliveryStore);
 
 const formInvoiceStore = useFormInvoiceStore();
 const { state: invoiceState } = toRefs(formInvoiceStore);
 
-const countryStore = useCountryStore();
-const { countries } = toRefs(countryStore);
+const authStore = useAuth();
+const { isLoggedIn, isGuest } = toRefs(authStore);
 
-const paymentRefreshing = ref(false);
-const GUEST_CHECKOUT_STORAGE_KEY = 'syora_guest_checkout_data';
+const GUEST_CHECKOUT_STORAGE_KEY = 'syora_checkout_guest_data';
 
 const syncCheckoutCustomerFromForms = () => {
   checkoutCustomer.value.deliveryAddress.firstname = state.value.firstname;
@@ -124,54 +109,22 @@ const hydrateGuestCheckout = () => {
   }
 };
 
-const countriesOptions = computed(() =>
-  countries.value.map((c) => ({
-    label: c.CountryName,
-    value: c.CountryIsoCode,
-  }))
-);
-
-const handleSelectAddress = (details: {
-  courtAddress: string;
-  postalCode: string;
-  countryIso: string;
-  city: string;
-}) => {
-  state.value.courtAddress = details.courtAddress;
-  state.value.address = details.courtAddress;
-  state.value.postcode = details.postalCode;
-  state.value.country = details.countryIso;
-  state.value.city = details.city;
-};
-
-const refreshCodePromo = () => {
-  paymentRefreshing.value = true;
-  setTimeout(() => {
-    paymentRefreshing.value = false;
-  }, 100);
-};
-
 onMounted(() => {
   hydrateGuestCheckout();
-  updateShipping({ idCarrier: 0 }).then(() => removeCarrier());
-  const ip = useIp();
-  shippingStore.fetchShipping({ IP: ip.value });
-  if (isDigitalOnly.value) {
-    checkoutStore.fetchPaymentMethods({ IP: ip.value });
+  if (!state.value.email) {
+    hasSameAddressForShipping.value = true;
   }
-
-  scheduleRefreshPaymentMethods();
-});
-
-// Sync form state → checkoutStore
-watch(state.value, () => {
   syncCheckoutCustomerFromForms();
-  scheduleRefreshPaymentMethods();
-  paymentRefreshing.value = true;
-  setTimeout(() => {
-    paymentRefreshing.value = false;
-  }, 100);
 });
+
+watch(
+  [state, invoiceState, hasSameAddressForShipping],
+  () => {
+    syncCheckoutCustomerFromForms();
+    scheduleRefreshPaymentMethods(0);
+  },
+  { deep: true }
+);
 
 watch(
   [state, invoiceState, hasSameAddressForShipping, checkoutDeliveryOption],
@@ -193,107 +146,59 @@ watch(
 </script>
 
 <template>
-  <div>
-    <div class="grid grid-cols-11 items-start">
-      <!-- ══ LEFT COLUMN ══ -->
-      <div class="col-span-12 lg:col-span-6 checkout-left">
-        <div class="box">
-          <!-- 1. EMAIL -->
-          <div class="checkout-box">
-            <PageCheckoutGuestContact />
-          </div>
-
-          <!-- 2. DELIVERY ADDRESS -->
-          <PageCheckoutGuestDeliveryAddress />
-
-          <!-- 3. BILLING ADDRESS TOGGLE -->
-          <div v-if="!isDigitalOnly" class="checkout-box">
-            <InputCheckBox
-              id="same_address_for_shipping"
-              v-model="hasSameAddressForShipping"
-            >
-              <span class="text-sm">{{
-                $t('label.use_different_billing_address')
-              }}</span>
-            </InputCheckBox>
-
-            <transition name="slide">
-              <div
-                v-if="!hasSameAddressForShipping"
-                class="mt-5 pt-5 border-t border-zinc-100"
-              >
-                <PageCheckoutGuestBillingAddress />
-              </div>
-            </transition>
-          </div>
-
-          <!-- 4. DELIVERY MODE ACCORDION -->
-          <div v-if="!isDigitalOnly" class="checkout-box">
-            <h2 class="section-title mb-4">
-              {{ $t('label.select_delivery_mode') }} :
-            </h2>
-            <CheckoutDeliveryMethods />
-          </div>
-
-          <!-- 5. PAYMENT -->
-          <div class="checkout-box">
-            <h2 class="section-title mb-4">
-              {{ $t('tunnel.payment.title') }} :
-            </h2>
-            <CheckoutPaymentMethods :refreshing="paymentRefreshing" />
-          </div>
-
-          <PageTunnelFooter class="hidden lg:block" />
-        </div>
-      </div>
-
-      <!-- ══ RIGHT COLUMN: ORDER SUMMARY ══ -->
-      <div class="col-span-12 lg:col-span-5 checkout-right">
-        <div class="box">
-          <PageCheckoutGuestSidebar @promoRefresh="refreshCodePromo" />
-        </div>
-      </div>
+  <div class="space-y-4">
+    <div>
+      <CheckoutGuestContact />
     </div>
 
-    <!-- Mobile sticky total -->
-    <Teleport to="body">
-      <div
-        class="lg:hidden fixed bottom-0 w-full border-t border-zinc-200 bg-white py-3 px-5 z-40 flex items-center justify-between"
+    <div>
+      <PageCheckoutGuestDeliveryAddress />
+    </div>
+
+    <div v-if="!isDigitalOnly">
+      <InputCheckBox
+        id="same_address_for_shipping"
+        v-model="hasSameAddressForShipping"
       >
-        <span class="uppercase text-xs text-zinc-500">{{
-          $t('cart.total')
+        <span class="text-xs lg:text-sm">{{
+          $t('label.use_different_billing_address')
         }}</span>
-        <span class="font-medium text-base"
-          >{{ totalToPay }} {{ currencyIsoCode }}</span
+      </InputCheckBox>
+
+      <transition name="slide">
+        <div
+          v-if="!hasSameAddressForShipping"
+          class="mt-5 pt-5 border-t border-zinc-100"
         >
-      </div>
-    </Teleport>
+          <PageCheckoutGuestBillingAddress />
+        </div>
+      </transition>
+    </div>
+
+    <div v-if="!isDigitalOnly">
+      <h2 class="font-semibold text-sm uppercase mb-4">
+        {{ $t('label.select_delivery_mode') }} :
+      </h2>
+      <CheckoutDeliveryMethods />
+    </div>
+
+    <div>
+      <h2 class="font-semibold text-sm uppercase mb-4">
+        {{ $t('tunnel.payment.title') }} :
+      </h2>
+      <CheckoutPaymentMethods />
+    </div>
   </div>
 </template>
 
-<style lang="scss">
-.guest-checkout-wrapper {
-  @apply pt-6;
-}
-
-.checkout-box {
-  @apply bg-white border border-zinc-200 p-6 flex flex-col gap-0;
-}
-
-.section-header {
-  @apply flex items-center justify-between mb-4;
-}
-
-.section-title {
-  @apply font-semibold text-sm uppercase tracking-wide;
-}
-
+<style scoped lang="scss">
 .slide-enter-active,
 .slide-leave-active {
   transition: all 0.3s ease;
   overflow: hidden;
   max-height: 600px;
 }
+
 .slide-enter-from,
 .slide-leave-to {
   max-height: 0;

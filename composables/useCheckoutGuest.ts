@@ -8,6 +8,10 @@ export const useCheckoutGuest = () => {
   const { isLoggedIn } = toRefs(authStore);
   const { registerGuest } = authStore;
 
+  const router = useRouter();
+  const localePath = useLocalePath();
+  const route = useRoute();
+
   const checkoutStore = useCheckoutStore();
   const { checkoutCustomer, hasSameAddressForShipping } = toRefs(checkoutStore);
 
@@ -15,12 +19,8 @@ export const useCheckoutGuest = () => {
   const { addAddress } = addressStore;
 
   const registerAndPrepareGuestAddress = async () => {
-    console.log('isLoggedIn', isLoggedIn.value);
-
     if (!isLoggedIn.value) {
       try {
-        console.log('her 1');
-        
         await registerGuest({
           Email: checkoutCustomer.value.deliveryAddress.email,
           Firstname: checkoutCustomer.value.deliveryAddress.firstname,
@@ -35,11 +35,7 @@ export const useCheckoutGuest = () => {
           IsDelivery: true,
         });
 
-        
-        console.log('her 2');
-
         if (!hasSameAddressForShipping.value) {
-          console.log('her 3');
           const address = {} as AddressType;
           address.Firstname = checkoutCustomer.value.invoiceAddress.firstname;
           address.Lastname = checkoutCustomer.value.invoiceAddress.lastname;
@@ -52,12 +48,29 @@ export const useCheckoutGuest = () => {
           address.IsDelivery = false;
           address.IsInvoice = true;
           await addAddress(address);
-          console.log('her 4');
         }
+
+        return true;
       } catch (error) {
-        console.log('registerAndPrepareGuestAddress', error);
+        const statusCode =
+          (error as any)?.statusCode ||
+          (error as any)?.response?.status ||
+          (error as any)?.status;
+
+        if (statusCode === 409) {
+          await router.push(
+            localePath({
+              path: '/account/login',
+              query: { redirect: route.fullPath },
+            })
+          );
+        }
+
+        throw error;
       }
     }
+
+    return true;
   };
 
   return { registerAndPrepareGuestAddress };

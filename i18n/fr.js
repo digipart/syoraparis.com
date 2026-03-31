@@ -71,7 +71,8 @@ const fr = {
     select: 'Sélectionner',
     learnMore: 'en savoir plus',
     view_collection: 'Voir la collection',
-    log_in_to_access_your_loyalty_benefits: 'Connectez-vous pour accéder à vos avantages fidélité',
+    log_in_to_access_your_loyalty_benefits: 'Connectez-vous',
+    sign_in: 'Se connecter',
   },
   link: {
     contact_us: 'Contactez-nous',
@@ -157,6 +158,14 @@ const fr = {
     address_invoice: 'Adresse de facturation',
     address_delivery: 'Adresse de livraison',
     delivery: 'Livraison',
+    enter_your_email: 'Saisir votre email',
+    phone_mobile: 'Téléphone mobile',
+    use_different_billing_address: 'Utiliser une autre adresse pour la facturation',
+    select_delivery_mode: 'Sélectionner un mode de livraison',
+    provide_address_to_see_shipping: 'Veuillez renseigner votre adresse pour voir les modes de livraison disponibles.',
+    estimated_delivery: 'Livraison estimée',
+    choose_carrier: 'Choisir un transporteur',
+    logo: 'Logo',
     contact: 'Contact',
     article: 'Article(s)',
     shipping: 'Livraison',
@@ -191,6 +200,7 @@ const fr = {
     search: 'Recherche...',
     relayPointList: 'liste des points relais',
     relayPointMap: 'Location on map',
+    relay_points_nearby: '{count} autre points relais a proximite',
     Home: 'Accueil',
     Store: 'Boutique',
     stores: 'Boutiques',
@@ -260,6 +270,7 @@ const fr = {
     privacy_policy: 'Politique de Confidentialité',
     terms_and_conditions: 'Conditions Générales de Vente',
     contact_us: 'Contactez-nous',
+    free_delivery: 'Livraison gratuite',
   },
   component: {
     faq: {
@@ -581,6 +592,9 @@ const fr = {
       title: 'Paiement Sécurisé',
       description:
         'Finalisez votre achat et vérifiez les détails de votre commande.',
+      newsletter: 'Recevoir nos offres spéciales par email',
+      email_already_registered:
+        'Cette adresse email est déjà enregistrée. Connectez-vous pour profiter pleinement de votre programme de fidélité et de vos avantages.',
     },
     contactus: {
       title: 'Nous Contacter',
@@ -743,6 +757,7 @@ const fr = {
     prefix_required: 'Requis.',
     codepromo_invalid:
       "Désolé, ce code promo n'est pas valide. Veuillez vérifier et réessayer.",
+    carrier_required: 'Veuillez selectionner un mode de livraison.',
     recaptcha_required: 'Veuillez valider le reCAPTCHA.',
   },
 
