@@ -195,7 +195,7 @@ watch(
 
 <style scoped lang="scss">
 .address-selector {
-  @apply border border-zinc-200 rounded-sm  cursor-pointer 
+  @apply border border-gray-888 bg-white rounded-sm  cursor-pointer 
   flex items-center justify-between transition-colors 
   p-[11px_12px] h-[44px];
 

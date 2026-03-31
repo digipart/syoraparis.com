@@ -71,7 +71,7 @@ const fr = {
     select: 'Sélectionner',
     learnMore: 'en savoir plus',
     view_collection: 'Voir la collection',
-    log_in_to_access_your_loyalty_benefits: 'Connectez-vous pour accéder à vos avantages fidélité',
+    log_in_to_access_your_loyalty_benefits: 'Connectez-vous',
     sign_in: 'Se connecter',
   },
   link: {
@@ -270,6 +270,7 @@ const fr = {
     privacy_policy: 'Politique de Confidentialité',
     terms_and_conditions: 'Conditions Générales de Vente',
     contact_us: 'Contactez-nous',
+    free_delivery: 'Livraison gratuite',
   },
   component: {
     faq: {

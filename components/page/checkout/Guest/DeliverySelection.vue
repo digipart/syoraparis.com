@@ -122,7 +122,9 @@ const onRelayPointSelected = async (rpId: string) => {
     await cartStore.fetchCart();
     checkoutCarrier.value.carrier = cart.value.Shipping?.Carrier || null;
 
-    const rpSelected = (relayPoints.value as RelayPointType[]).find((rp) => rp.Id === rpId) || null;
+    const rpSelected =
+      (relayPoints.value as RelayPointType[]).find((rp) => rp.Id === rpId) ||
+      null;
     relayPointSelected.value = rpSelected;
     checkoutCarrier.value.relayPoint = rpSelected;
   } finally {
@@ -317,7 +319,7 @@ watch(
     iPostalCode: checkoutCustomer.value.invoiceAddress.postalCode,
     iCity: checkoutCustomer.value.invoiceAddress.city,
     iCountry: checkoutCustomer.value.invoiceAddress.country,
-    same: hasSameAddressForShipping.value
+    same: hasSameAddressForShipping.value,
   }),
   () => {
     if (reloadTimer.value) {
@@ -421,10 +423,15 @@ onBeforeUnmount(() => {
                 >
                   <div class="relay-info-main">
                     <div class="relay-info-left">
-                      <div class="relay-name">{{ relayPointSelected.Name }}</div>
-                      <div class="relay-address">{{ relayPointSelected.Address1 }}</div>
+                      <div class="relay-name">
+                        {{ relayPointSelected.Name }}
+                      </div>
                       <div class="relay-address">
-                        {{ relayPointSelected.Postcode }} {{ relayPointSelected.City }}
+                        {{ relayPointSelected.Address1 }}
+                      </div>
+                      <div class="relay-address">
+                        {{ relayPointSelected.Postcode }}
+                        {{ relayPointSelected.City }}
                       </div>
                       <div
                         v-if="relayPointSelected.Location?.DistanceFromAddress"

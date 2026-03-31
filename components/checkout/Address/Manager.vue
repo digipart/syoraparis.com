@@ -9,8 +9,26 @@ const { addresses, addressDelivery, addressInvoice } = toRefs(addressStore);
 const { addAddress, updateAddress } = addressStore;
 
 const checkoutStore = useCheckoutStore();
-const { checkoutCustomer, checkoutCarrier, hasSameAddressForShipping } = toRefs(checkoutStore);
+const {
+  checkoutCustomer,
+  checkoutCarrier,
+  checkoutDeliveryOption,
+  hasSameAddressForShipping,
+} = toRefs(checkoutStore);
 const { refreshPaymentMethods } = checkoutStore;
+
+const shippingStore = useShippingStore();
+const {
+  carrier: allCarriers,
+  carriers: shippingCarriers,
+  relayPointSelected,
+} = toRefs(shippingStore);
+const { fetchShipping, fetchRelayPoints } = shippingStore;
+
+const cartStore = useCartStore();
+const { cartId, cart, isDigitalOnly } = toRefs(cartStore);
+const { updateShipping, removeCarrier } = cartStore;
+const ip = useIp();
 
 const formDeliveryStore = useFormDeliveryStore();
 const { state, v$ } = toRefs(formDeliveryStore);
@@ -22,11 +40,8 @@ const auth = useAuth();
 const { customer } = toRefs(auth);
 
 const oneCheckoutStore = useOneCheckoutStore();
-const {
-  selectedAddressId,
-  isAddressFormOpen,
-  isAddressListOpen,
-} = toRefs(oneCheckoutStore);
+const { selectedAddressId, isAddressFormOpen, isAddressListOpen } =
+  toRefs(oneCheckoutStore);
 const {
   initializeAddressState,
   selectAddress,
@@ -112,7 +127,8 @@ const hydrateInvoiceAddressFromAddress = (address: AddressType) => {
 const populateFormDefaults = () => {
   state.value.firstname = customer.value?.Firstname || '';
   state.value.name = customer.value?.Lastname || '';
-  state.value.email = customer.value?.Email || checkoutCustomer.value.deliveryAddress.email || '';
+  state.value.email =
+    customer.value?.Email || checkoutCustomer.value.deliveryAddress.email || '';
   state.value.phone = '';
   state.value.address = '';
   state.value.courtAddress = '';
@@ -140,6 +156,103 @@ const handleSelectAddress = (details: {
   state.value.state = details.stateName || details.stateCode || '';
 };
 
+const mapCarrierTypeToOption = (
+  carrierType: 'Home' | 'RelayPoint' | 'Store'
+) => {
+  if (carrierType === 'RelayPoint') return 'relayPoint';
+  if (carrierType === 'Store') return 'store';
+  return 'home';
+};
+
+const loadFirstCarrierForSelectedAddress = async () => {
+  if (isDigitalOnly.value) {
+    return;
+  }
+
+  const delivery = checkoutCustomer.value.deliveryAddress;
+  if (
+    !delivery.address ||
+    !delivery.postalCode ||
+    !delivery.city ||
+    !delivery.country
+  ) {
+    return;
+  }
+
+  if (!cartId.value) {
+    await cartStore.fetchCart();
+  }
+
+  if (!cartId.value) {
+    return;
+  }
+
+  const shippingOptions = {
+    Postcode: delivery.postalCode,
+    City: delivery.city,
+    Address1: delivery.address,
+    Country: delivery.country,
+    IP: (ip.value as string) || '',
+  };
+
+  await fetchShipping(shippingOptions);
+
+  const firstCarrierType = shippingCarriers.value?.[0] as
+    | 'Home'
+    | 'RelayPoint'
+    | 'Store'
+    | undefined;
+
+  if (!firstCarrierType) {
+    await updateShipping({ idCarrier: 0 });
+    removeCarrier();
+    checkoutCarrier.value.carrier = null;
+    checkoutCarrier.value.relayPoint = null;
+    relayPointSelected.value = null;
+    return;
+  }
+
+  const firstCarrier = allCarriers.value[firstCarrierType]?.[0];
+  if (!firstCarrier?.IdCarrier) {
+    await updateShipping({ idCarrier: 0 });
+    removeCarrier();
+    checkoutCarrier.value.carrier = null;
+    checkoutCarrier.value.relayPoint = null;
+    relayPointSelected.value = null;
+    return;
+  }
+
+  checkoutDeliveryOption.value = mapCarrierTypeToOption(firstCarrierType);
+
+  const updateOptions: { idCarrier: number; IdRelayPoint?: string } = {
+    idCarrier: firstCarrier.IdCarrier,
+  };
+
+  if (firstCarrierType === 'RelayPoint' || firstCarrierType === 'Store') {
+    const relayPoints = await fetchRelayPoints({
+      ...shippingOptions,
+      IdCarrier: firstCarrier.IdCarrier,
+    });
+    const firstRelayPoint = relayPoints?.[0];
+    if (firstRelayPoint?.Id) {
+      updateOptions.IdRelayPoint = firstRelayPoint.Id;
+      relayPointSelected.value = firstRelayPoint;
+      checkoutCarrier.value.relayPoint = firstRelayPoint;
+    }
+  } else {
+    relayPointSelected.value = null;
+    checkoutCarrier.value.relayPoint = null;
+  }
+
+  await updateShipping(updateOptions);
+  await cartStore.fetchCart();
+  checkoutCarrier.value.carrier = cart.value?.Shipping?.Carrier || null;
+
+  await refreshPaymentMethods(shippingOptions).catch(() => {
+    // keep checkout usable if payment endpoint fails
+  });
+};
+
 const setDeliveryAddress = async (address: AddressType) => {
   if (!address.IdAddress) {
     return;
@@ -155,6 +268,8 @@ const setDeliveryAddress = async (address: AddressType) => {
   if (!useDifferentBillingAddress.value) {
     hydrateInvoiceAddressFromAddress(address);
   }
+
+  await loadFirstCarrierForSelectedAddress();
 };
 
 const selectedInvoiceAddress = computed(() => {
@@ -225,6 +340,8 @@ const saveAddress = async () => {
   if (!useDifferentBillingAddress.value) {
     hydrateInvoiceAddressFromAddress(addressToCreate);
   }
+
+  await loadFirstCarrierForSelectedAddress();
 };
 
 watch(
@@ -270,7 +387,11 @@ watch(useDifferentBillingAddress, (enabled) => {
 });
 
 watch(
-  () => [addresses.value, addressDelivery.value?.IdAddress, addressInvoice.value?.IdAddress],
+  () => [
+    addresses.value,
+    addressDelivery.value?.IdAddress,
+    addressInvoice.value?.IdAddress,
+  ],
   () => {
     initializeAddressState(addresses.value, addressDelivery.value?.IdAddress);
 
@@ -305,50 +426,78 @@ onMounted(() => {
 
 <template>
   <div class="space-y-4">
-    <div
-      v-if="selectedAddress && !isAddressFormOpen"
-      class="border border-zinc-200 rounded-md p-4 bg-white"
-    >
-      <h2 class="font-semibold text-sm uppercase mb-3">{{ t('label.address_delivery') }}</h2>
-      <p class="font-medium text-sm">
-        {{ fullName(selectedAddress) }}
-      </p>
-      <p class="text-sm text-zinc-700">
-        {{ selectedAddress.Address1 }}
-      </p>
-      <p class="text-sm text-zinc-700">
-        {{ selectedAddress.Postcode }} {{ selectedAddress.City }}
-      </p>
-      <p class="text-sm text-zinc-700">
-        {{ selectedAddress.Country || selectedAddress.CountryIsoCode }}
-      </p>
-
-      <div class="flex gap-4 mt-4">
+    <div v-if="selectedAddress && !isAddressFormOpen">
+      <div class="flex items-center justify-between mb-1">
+        <h2 class="font-bold text-lg lowercase first-letter:uppercase">
+          {{ t('label.address_delivery') }} :
+        </h2>
         <button
           type="button"
-          class="underline text-xs"
-          @click="toggleAddressList"
-          v-if="addresses.length > 1"
+          class="underline text-sm font-semibold hover:text-black transition-colors"
+          @click="openAddressForm"
         >
-          {{ t('button.select_another_address') }}
-        </button>
-        <button type="button" class="underline text-xs" @click="openAddressForm">
           {{ t('button.add_new_address') }}
         </button>
       </div>
-    </div>
 
-    <div v-if="selectedAddress && !isAddressFormOpen" class="border border-zinc-200 rounded-md p-4 bg-white">
-      <InputCheckBox id="different-billing-address" v-model="useDifferentBillingAddress">
-        <span class="text-sm">{{ t('label.use_different_billing_address') }}</span>
-      </InputCheckBox>
+      <div
+        class="border border-zinc-200 p-4 bg-white flex flex-wrap sm:flex-nowrap justify-between items-center sm:items-end"
+      >
+        <div class="space-y-0.5">
+          <p class="font-bold text-sm">
+            {{ fullName(selectedAddress) }}
+          </p>
+          <p class="text-sm text-zinc-900">
+            {{ selectedAddress.Address1 }}
+          </p>
+          <p class="text-sm text-zinc-900">
+            {{ selectedAddress.Postcode }}
+          </p>
+          <p class="text-sm text-zinc-900 capitalize">
+            {{ selectedAddress.Country || selectedAddress.CountryIsoCode }}
+          </p>
+        </div>
+        <button
+          type="button"
+          class="w-full sm:w-auto mt-3 sm:mt-0 px-4 py-2 bg-zinc-200 sm:bg-transparent underline sm:no-underline text-sm font-bold hover:text-zinc-600 transition-colors rounded-sm text-center"
+          @click="toggleAddressList"
+        >
+          {{ t('button.modify') }}
+        </button>
+      </div>
+
+      <button
+        v-if="addresses.length > 1"
+        type="button"
+        class="underline text-xs block hover:text-zinc-600 transition-colors mt-1"
+        @click="toggleAddressList"
+      >
+        {{ t('button.select_another_address') }}
+      </button>
+
+      <div class="pt-1 mt-3">
+        <InputCheckBox
+          id="different-billing-address"
+          v-model="useDifferentBillingAddress"
+        >
+          <span class="text-sm text-zinc-600">{{
+            t('label.use_different_billing_address')
+          }}</span>
+        </InputCheckBox>
+      </div>
 
       <transition name="slide">
         <div v-if="useDifferentBillingAddress" class="mt-4 space-y-3">
-          <div class="border border-zinc-200 rounded-md p-3">
-            <h3 class="font-semibold text-sm uppercase mb-2">{{ t('titles.invoice_address') }}</h3>
+          <div class="border border-zinc-200 p-4 bg-white">
+            <h3 class="font-bold text-sm mb-2">
+              {{ t('titles.invoice_address') }} :
+            </h3>
             <p class="font-medium text-sm">
-              {{ selectedInvoiceAddress ? fullName(selectedInvoiceAddress) : fullName(selectedAddress) }}
+              {{
+                selectedInvoiceAddress
+                  ? fullName(selectedInvoiceAddress)
+                  : fullName(selectedAddress)
+              }}
             </p>
             <p class="text-sm text-zinc-700">
               {{ (selectedInvoiceAddress || selectedAddress)?.Address1 }}
@@ -361,7 +510,7 @@ onMounted(() => {
 
           <button
             type="button"
-            class="underline text-xs"
+            class="underline text-xs font-bold"
             v-if="addresses.length > 1"
             @click="isInvoiceAddressListOpen = !isInvoiceAddressListOpen"
           >
@@ -373,7 +522,7 @@ onMounted(() => {
               v-for="address in addresses"
               :key="`invoice-${address.IdAddress}`"
               type="button"
-              class="w-full text-left border rounded px-3 py-2 text-sm hover:border-black transition-colors"
+              class="w-full text-left border border-zinc-200 bg-white px-3 py-2 text-sm hover:border-black transition-colors"
               @click="setInvoiceAddress(address)"
             >
               <p class="font-medium">{{ fullName(address) }}</p>
@@ -402,7 +551,10 @@ onMounted(() => {
       </button>
     </div>
 
-    <div v-if="isAddressFormOpen" class="border border-zinc-200 rounded-md p-4 bg-white">
+    <div
+      v-if="isAddressFormOpen"
+      class="border border-zinc-200 rounded-md p-4 bg-white"
+    >
       <div class="grid grid-cols-2 gap-x-4">
         <InputText
           id="checkout-address-firstname"
@@ -436,7 +588,10 @@ onMounted(() => {
 
       <div
         class="address-selector"
-        :class="{ 'has-errors': v$.address?.$error, 'has-value': state.address }"
+        :class="{
+          'has-errors': v$.address?.$error,
+          'has-value': state.address,
+        }"
         @click="isDrawerOpen = true"
       >
         <div v-if="state.address" class="selected-address">
@@ -452,7 +607,12 @@ onMounted(() => {
       </div>
 
       <div class="flex gap-4 w-full mt-4">
-        <BaseButton class="flex-1" type="primary" plain @click="closeAddressForm">
+        <BaseButton
+          class="flex-1"
+          type="primary"
+          plain
+          @click="closeAddressForm"
+        >
           {{ t('button.cancel') }}
         </BaseButton>
         <BaseButton class="flex-1" type="primary" @click="saveAddress">
@@ -498,7 +658,12 @@ onMounted(() => {
           </div>
 
           <div class="grid grid-cols-2 gap-4">
-            <InputText id="state-drawer" v-model="state.state" :label="t('label.state')" border />
+            <InputText
+              id="state-drawer"
+              v-model="state.state"
+              :label="t('label.state')"
+              border
+            />
             <InputSelect
               id="country-drawer"
               v-model="state.country"
@@ -512,13 +677,27 @@ onMounted(() => {
             />
           </div>
 
-          <InputText id="company-drawer" v-model="state.company" label="Company" border />
+          <InputText
+            id="company-drawer"
+            v-model="state.company"
+            label="Company"
+            border
+          />
 
           <div class="flex gap-4 w-full">
-            <BaseButton class="flex-1" type="primary" plain @click="isDrawerOpen = false">
+            <BaseButton
+              class="flex-1"
+              type="primary"
+              plain
+              @click="isDrawerOpen = false"
+            >
               {{ t('button.cancel') }}
             </BaseButton>
-            <BaseButton class="flex-1" type="primary" @click="isDrawerOpen = false">
+            <BaseButton
+              class="flex-1"
+              type="primary"
+              @click="isDrawerOpen = false"
+            >
               {{ t('button.save') }}
             </BaseButton>
           </div>
@@ -530,7 +709,7 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .address-selector {
-  @apply border border-zinc-200 rounded-sm cursor-pointer
+  @apply border border-gray-888 bg-white rounded-sm cursor-pointer
   flex items-center justify-between transition-colors
   p-[11px_12px] h-[44px];
 

@@ -15,8 +15,11 @@ const { checkoutCustomer, checkoutCarrier, checkoutDeliveryOption } =
 const { refreshPaymentMethods, scheduleRefreshPaymentMethods } = checkoutStore;
 
 const shippingStore = useShippingStore();
-const { carrier: allCarriers, carriers: shippingCarriers, relayPointSelected } =
-  toRefs(shippingStore);
+const {
+  carrier: allCarriers,
+  carriers: shippingCarriers,
+  relayPointSelected,
+} = toRefs(shippingStore);
 const { fetchShipping, fetchRelayPoints } = shippingStore;
 
 const ip = useIp();
@@ -150,7 +153,7 @@ const openDrawer = () => {
 
 <template>
   <div class="checkout-box">
-    <h2 class="section-title mb-4">
+    <h2 class="section-title mb-4 font-semibold text-sm uppercase mb-4">
       {{
         isDigitalOnly
           ? $t('titles.my_informations')
@@ -297,7 +300,7 @@ const openDrawer = () => {
 
 <style scoped lang="scss">
 .address-selector {
-  @apply border border-zinc-200 rounded-sm  cursor-pointer 
+  @apply border border-gray-888  bg-white rounded-sm  cursor-pointer 
   flex items-center justify-between transition-colors 
   p-[11px_12px] h-[44px];
 
