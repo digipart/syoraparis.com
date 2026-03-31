@@ -155,6 +155,8 @@ const fr = {
     prefix: 'Préfixe',
     phone: 'Téléphone',
     enter_address_manually: "Saisir l'adresse manuellement",
+    main_address: 'Adresse principale (rue et numéro)',
+    company: 'Entreprise',
     address_invoice: 'Adresse de facturation',
     address_delivery: 'Adresse de livraison',
     delivery: 'Livraison',

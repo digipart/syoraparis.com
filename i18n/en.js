@@ -154,6 +154,8 @@ const en = {
     prefix: 'Prefix',
     phone: 'Phone',
     enter_address_manually: 'Enter address manually',
+    main_address: 'Main address (street and number)',
+    company: 'Company',
     address_invoice: 'Invoice address',
     address_delivery: 'Delivery address',
     delivery: 'Delivery',
