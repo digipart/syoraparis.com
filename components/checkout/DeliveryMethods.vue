@@ -24,7 +24,12 @@ const { fetchShipping, fetchRelayPoints } = shippingStore;
 
 const cartStore = useCartStore();
 const { removeCarrier, updateShipping } = cartStore;
-const { carrier: carrierSelected, cart, cartId, isDigitalOnly } = toRefs(cartStore);
+const {
+  carrier: carrierSelected,
+  cart,
+  cartId,
+  isDigitalOnly,
+} = toRefs(cartStore);
 
 const isDrawerOpen = ref(false);
 const relayPointDrawerVisible = ref(false);
@@ -42,21 +47,21 @@ const options = computed(() =>
       id: 'home',
       type: 'Home',
       label: 'tunnel.delivery.home',
-      icon: 'IconHome',
+      icon: resolveComponent('IconHome'),
       visible: shippingCarriers.value.includes('Home'),
     },
     {
       id: 'relayPoint',
       type: 'RelayPoint',
       label: 'tunnel.delivery.relayPoint',
-      icon: 'IconLocation',
+      icon: resolveComponent('IconLocation'),
       visible: shippingCarriers.value.includes('RelayPoint'),
     },
     {
       id: 'store',
       type: 'Store',
       label: 'tunnel.delivery.store',
-      icon: 'IconShop',
+      icon: resolveComponent('IconShop'),
       visible: shippingCarriers.value.includes('Store'),
     },
   ].filter((o) => o.visible)
@@ -349,9 +354,14 @@ const shouldFetchPaymentMethods = computed(() => {
     !!delivery.city &&
     !!delivery.country;
   const hasCarrier =
-    !!carrierSelected.value?.IdCarrier || !!checkoutCarrier.value.carrier?.IdCarrier;
+    !!carrierSelected.value?.IdCarrier ||
+    !!checkoutCarrier.value.carrier?.IdCarrier;
 
-  return !!cart.value?.Products?.length && hasAddress && (isDigitalOnly.value || hasCarrier);
+  return (
+    !!cart.value?.Products?.length &&
+    hasAddress &&
+    (isDigitalOnly.value || hasCarrier)
+  );
 });
 
 const ensureInitialPaymentMethods = async () => {
@@ -407,7 +417,9 @@ watch(
     shouldFetch: shouldFetchPaymentMethods.value,
     paymentCount: checkoutPaymentMethods.value.length,
     carrierId:
-      carrierSelected.value?.IdCarrier || checkoutCarrier.value.carrier?.IdCarrier || 0,
+      carrierSelected.value?.IdCarrier ||
+      checkoutCarrier.value.carrier?.IdCarrier ||
+      0,
   }),
   async ({ shouldFetch, paymentCount }) => {
     if (!shouldFetch || paymentCount > 0) {
@@ -430,21 +442,32 @@ watch(
           class="delivery-group"
           :class="{ 'is-active': checkoutDeliveryOption === opt.id }"
         >
-          <div class="delivery-group__header" @click="setDelivredOption(opt.id as any)">
+          <div
+            class="delivery-group__header"
+            @click="setDelivredOption(opt.id as any)"
+          >
             <div class="flex items-center gap-3">
               <div
                 class="radio-dot"
-                :class="{ 'radio-dot--active': checkoutDeliveryOption === opt.id }"
+                :class="{
+                  'radio-dot--active': checkoutDeliveryOption === opt.id,
+                }"
               >
-                <div v-if="checkoutDeliveryOption === opt.id" class="radio-dot__inner" />
+                <div
+                  v-if="checkoutDeliveryOption === opt.id"
+                  class="radio-dot__inner"
+                />
               </div>
-              <span class="text-sm font-medium uppercase">{{ $t(opt.label) }}</span>
+              <span class="text-sm font-medium">{{ $t(opt.label) }}</span>
             </div>
-            <component :is="opt.icon" :size="20" class="text-zinc-400" />
+            <component :is="opt.icon" :size="1.8" class="text-zinc-600" />
           </div>
 
           <transition name="slide-down">
-            <div v-if="checkoutDeliveryOption === opt.id" class="delivery-group__content">
+            <div
+              v-if="checkoutDeliveryOption === opt.id"
+              class="delivery-group__content"
+            >
               <div v-if="carrierSelected" class="selected-carrier-card">
                 <div class="carrier-info">
                   <div class="carrier-logo-wrapper">
@@ -460,34 +483,46 @@ watch(
                   </div>
                   <div class="carrier-details">
                     <div class="carrier-name">{{ carrierSelected.Name }}</div>
-                    <div class="carrier-mode-label text-zinc-400 text-xs">
+                    <div class="carrier-mode-label">
                       {{ $t(opt.label) }}
                     </div>
-                    <div class="carrier-eta text-zinc-400 text-[11px] mt-1">
+                  </div>
+                  <div class="carrier-status-eta text-right px-4">
+                    <div class="carrier-price">
+                      {{
+                        carrierSelected.Price?.TaxIncl === 0
+                          ? $t('label.free_delivery')
+                          : `${carrierSelected.Price?.TaxIncl?.toFixed(2)} EUR`
+                      }}
+                    </div>
+                    <div class="carrier-eta">
                       {{ $t('label.estimated_delivery') }} : {{ estimatedDate }}
                     </div>
                   </div>
-                  <div class="carrier-price text-sm font-bold">
-                    {{ carrierSelected.Price?.TaxIncl?.toFixed(2) }} EUR
-                  </div>
-                  <BaseButton
-                    class="modifier-btn"
-                    type="primary"
-                    plain
-                    size="small"
+                  <button
+                    type="button"
+                    class="modifier-btn-gray"
                     @click.stop="openDrawer(opt.type)"
                   >
                     {{ $t('button.modify') }}
-                  </BaseButton>
+                  </button>
                 </div>
 
-                <div v-if="opt.id === 'relayPoint' && relayPointSelected" class="relay-info-box mt-3">
+                <div
+                  v-if="opt.id === 'relayPoint' && relayPointSelected"
+                  class="relay-info-box mt-3"
+                >
                   <div class="relay-info-main">
                     <div class="relay-info-left">
-                      <div class="relay-name">{{ relayPointSelected.Name }}</div>
-                      <div class="relay-address">{{ relayPointSelected.Address1 }}</div>
+                      <div class="relay-name">
+                        {{ relayPointSelected.Name }}
+                      </div>
                       <div class="relay-address">
-                        {{ relayPointSelected.Postcode }} {{ relayPointSelected.City }}
+                        {{ relayPointSelected.Address1 }}
+                      </div>
+                      <div class="relay-address">
+                        {{ relayPointSelected.Postcode }}
+                        {{ relayPointSelected.City }}
                       </div>
                       <div
                         v-if="relayPointSelected.Location?.DistanceFromAddress"
@@ -498,10 +533,10 @@ watch(
                     </div>
                     <div class="relay-info-right">
                       <button type="button" class="relay-link">
-                        <IconClock :size="1.3" class="inline mb-0.5 mr-1" />
+                        <IconTime :size="1.3" class="inline mb-0.5 mr-1" />
                         {{ $t('reservation_store.hours_and_info') }}
                       </button>
-                      <div class="relay-nearby">
+                      <div class="relay-nearby mb-3">
                         {{
                           $t('label.relay_points_nearby', {
                             count: nearbyRelayCount,
@@ -521,7 +556,11 @@ watch(
               </div>
 
               <div v-else class="text-center py-2">
-                <BaseButton type="primary" plain @click.stop="openDrawer(opt.type)">
+                <BaseButton
+                  type="primary"
+                  plain
+                  @click.stop="openDrawer(opt.type)"
+                >
                   {{ $t('label.choose_carrier') }}
                 </BaseButton>
               </div>
@@ -574,11 +613,11 @@ watch(
   @apply border-b border-zinc-200 last:border-b-0;
 
   &__header {
-    @apply flex items-center justify-between px-5 py-4 cursor-pointer hover:bg-zinc-50 transition-colors bg-white;
+    @apply flex items-center justify-between px-5 py-3 cursor-pointer hover:bg-zinc-50 transition-colors bg-white;
   }
 
   &__content {
-    @apply border-t border-zinc-100 p-4 bg-white;
+    @apply border-t border-zinc-100 p-3 bg-white;
   }
 
   &.is-active {
@@ -599,38 +638,55 @@ watch(
 }
 
 .selected-carrier-card {
-  @apply border border-zinc-100 rounded p-4 bg-zinc-50;
+  @apply border border-zinc-200 rounded-sm p-3 bg-zinc-50;
 
   .carrier-info {
-    @apply flex items-center gap-4;
+    @apply flex flex-wrap sm:flex-nowrap items-center gap-2 sm:gap-4;
   }
 
   .carrier-logo-wrapper {
-    @apply bg-white border border-zinc-200 rounded p-2 h-16 w-16 flex items-center justify-center flex-shrink-0;
+    @apply bg-white border border-zinc-100 rounded-sm p-0.5 h-12 w-12 sm:h-16 sm:w-16 flex items-center justify-center flex-shrink-0;
   }
 
   .carrier-details {
-    @apply flex-1 min-w-0;
+    @apply flex-1 min-w-0 pl-2 sm:pl-6;
     .carrier-name {
-      @apply font-bold text-sm uppercase;
+      @apply font-bold text-xs sm:text-sm;
     }
+    .carrier-mode-label {
+      @apply text-zinc-500 text-[10px] sm:text-xs;
+    }
+  }
+
+  .carrier-status-eta {
+    @apply text-right px-2 sm:px-4;
+    .carrier-price {
+      @apply font-bold text-xs sm:text-sm mb-0.5;
+    }
+    .carrier-eta {
+      @apply text-zinc-500 text-[9px] sm:text-[10px];
+    }
+  }
+
+  .modifier-btn-gray {
+    @apply bg-zinc-200 text-black px-4 py-2 text-xs sm:text-sm font-semibold rounded-sm hover:bg-zinc-300 transition-colors h-10 w-full sm:w-24 mt-3 sm:mt-0 flex items-center justify-center flex-shrink-0;
   }
 }
 
 .relay-info-box {
-  @apply border border-zinc-200 bg-white p-3;
+  @apply border border-zinc-200 bg-white p-2 sm:p-3;
 }
 
 .relay-info-main {
-  @apply flex items-start justify-between gap-4;
+  @apply flex items-start justify-between gap-2 sm:gap-4;
 }
 
 .relay-info-left {
-  @apply text-xs text-zinc-600;
+  @apply text-[10px] sm:text-xs text-zinc-600;
 }
 
 .relay-name {
-  @apply text-sm font-medium text-zinc-800 uppercase;
+  @apply text-xs sm:text-sm font-medium text-zinc-800 uppercase;
 }
 
 .relay-address {
@@ -642,7 +698,7 @@ watch(
 }
 
 .relay-info-right {
-  @apply text-right text-xs text-zinc-600;
+  @apply text-right text-[10px] sm:text-xs text-zinc-600 flex flex-col gap-1 sm:gap-2;
 }
 
 .relay-nearby {

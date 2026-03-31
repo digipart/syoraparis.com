@@ -62,7 +62,9 @@ onBeforeUnmount(() => {
 <template>
   <div>
     <div class="section-header">
-      <h2 class="section-title">{{ $t('label.enter_your_email') }} :</h2>
+      <h2 class="section-title font-semibold text-sm uppercase">
+        {{ $t('label.enter_your_email') }} :
+      </h2>
       <ModalLogin
         link-class="text-xs underline text-zinc-500 hover:text-black transition-colors"
       />
@@ -101,6 +103,6 @@ onBeforeUnmount(() => {
 
 <style scoped lang="scss">
 .section-header {
-  @apply flex items-center justify-between mb-4;
+  @apply flex items-center justify-between mb-2;
 }
 </style>

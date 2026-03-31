@@ -71,7 +71,7 @@ const en = {
     select: 'Select',
     learnMore: 'Learn more',
     view_collection: 'View collection',
-    log_in_to_access_your_loyalty_benefits: 'Log in to access your loyalty benefits',
+    log_in_to_access_your_loyalty_benefits: 'Log in',
     sign_in: 'Sign in',
   },
   link: {
@@ -268,6 +268,7 @@ const en = {
     privacy_policy: 'Privacy Policy',
     terms_and_conditions: 'Terms and Conditions',
     contact_us: 'Contact Us',
+    free_delivery: 'Free delivery',
   },
   component: {
     faq: {
