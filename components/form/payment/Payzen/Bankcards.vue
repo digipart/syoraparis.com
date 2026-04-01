@@ -28,6 +28,7 @@ const addressStore = useAddressStore();
 const { addressDelivery } = toRefs(addressStore);
 
 const checkoutStore = useCheckoutStore();
+const { registerAndPrepareGuestAddress } = useCheckoutGuest();
 
 const props = defineProps<{
   disabled?: boolean;
@@ -209,6 +210,8 @@ const initializePayzen = () => {
               firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
               return;
             }
+
+            await registerAndPrepareGuestAddress();
 
             // If validation passes, manually trigger the form submission if the library allows
             // This part is tricky as we are hijacking the button's default behavior.

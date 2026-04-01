@@ -64,6 +64,7 @@ const addressStore = useAddressStore();
 const { addressDelivery, addressInvoice } = toRefs(addressStore);
 
 const checkoutStore = useCheckoutStore();
+const { registerAndPrepareGuestAddress } = useCheckoutGuest();
 const localePath = useLocalePath();
 
 const props = defineProps<{
@@ -108,6 +109,8 @@ const checkoutAlma = async () => {
     firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
     return;
   }
+
+  await registerAndPrepareGuestAddress();
 
   let installmentsCount = 1;
 
