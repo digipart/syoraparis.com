@@ -14,8 +14,9 @@ const { relayPointSelected } = defineProps({
   <div>
     <span
       @click.stop="scheduleIsVisible = true"
-      class="underline cursor-pointer"
+      class="cursor-pointer inline-flex items-center gap-1"
     >
+      <IconTime :size="1.8" class="inline mb-1" />
       {{ $t('button.schedules_and_info') }}
     </span>
     <div>

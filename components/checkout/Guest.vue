@@ -18,6 +18,13 @@ const { isLoggedIn, isGuest } = toRefs(authStore);
 
 const GUEST_CHECKOUT_STORAGE_KEY = 'syora_checkout_guest_data';
 
+const useDifferentBillingAddress = computed({
+  get: () => !hasSameAddressForShipping.value,
+  set: (value: boolean) => {
+    hasSameAddressForShipping.value = !value;
+  },
+});
+
 const syncCheckoutCustomerFromForms = () => {
   checkoutCustomer.value.deliveryAddress.firstname = state.value.firstname;
   checkoutCustomer.value.deliveryAddress.lastname = state.value.name;
@@ -158,7 +165,7 @@ watch(
     <div v-if="!isDigitalOnly">
       <InputCheckBox
         id="same_address_for_shipping"
-        v-model="hasSameAddressForShipping"
+        v-model="useDifferentBillingAddress"
       >
         <span class="text-xs lg:text-sm">{{
           $t('label.use_different_billing_address')
@@ -167,7 +174,7 @@ watch(
 
       <transition name="slide">
         <div
-          v-if="!hasSameAddressForShipping"
+          v-if="useDifferentBillingAddress"
           class="mt-5 pt-5 border-t border-zinc-100"
         >
           <PageCheckoutGuestBillingAddress />

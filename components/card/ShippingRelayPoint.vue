@@ -47,7 +47,11 @@ const selectPointRelay = (rpId: string) => {
           v-if="relayPointSelected?.Location?.DistanceFromAddress"
           class="font-normal"
         >
-          {{ Number(relayPointSelected?.Location?.DistanceFromAddress || 0).toFixed(2) }}m
+          {{
+            Number(
+              relayPointSelected?.Location?.DistanceFromAddress || 0
+            ).toFixed(2)
+          }}m
         </span>
 
         <span v-if="relayPointSelected?.OpeningHours" class="font-normal">
