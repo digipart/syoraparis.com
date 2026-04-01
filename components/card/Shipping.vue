@@ -21,13 +21,13 @@
           />
         </div>
       </div>
-      <div v-if="carrierType === 'RelayPoint' && active && relayPointSelected">
+      <!-- <div v-if="carrierType === 'RelayPoint' && active && relayPointSelected">
         <BaseHr spacing="12px" />
         <CardShippingRelayPoint
           @onSelectPointRelay="selectPointRelay($event)"
           :carrierSelected="carrier"
         />
-      </div>
+      </div> -->
     </div>
   </div>
 </template>

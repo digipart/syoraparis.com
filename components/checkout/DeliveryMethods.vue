@@ -532,10 +532,14 @@ watch(
                       </div>
                     </div>
                     <div class="relay-info-right">
-                      <button type="button" class="relay-link">
-                        <IconTime :size="1.3" class="inline mb-0.5 mr-1" />
-                        {{ $t('reservation_store.hours_and_info') }}
-                      </button>
+                      <span
+                        v-if="relayPointSelected?.OpeningHours"
+                        class="font-normal"
+                      >
+                        <CardShippingRelayPointSchedules
+                          :relayPointSelected="relayPointSelected"
+                        />
+                      </span>
                       <div class="relay-nearby mb-3">
                         {{
                           $t('label.relay_points_nearby', {
@@ -698,7 +702,7 @@ watch(
 }
 
 .relay-info-right {
-  @apply text-right text-[10px] sm:text-xs text-zinc-600 flex flex-col gap-1 sm:gap-2;
+  @apply text-right text-[10px] sm:text-xs text-zinc-600 flex flex-col;
 }
 
 .relay-nearby {
