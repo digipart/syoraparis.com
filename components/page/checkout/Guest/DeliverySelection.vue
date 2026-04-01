@@ -85,7 +85,6 @@ const setDelivredOption = async (
       City: delivery.city,
       Address1: delivery.address,
       Country: delivery.country,
-      IP: '',
     };
 
     const carrierType = mapOptionToCarrierType(optionType);
@@ -173,11 +172,10 @@ const getPaymentOptions = () => {
       City: delivery.city,
       Address1: delivery.address,
       Country: delivery.country,
-      IP: '',
     };
   }
 
-  return { IP: '' };
+  return {};
 };
 
 const mapCarrierTypeToOption = (carrierType: string) => {
@@ -202,7 +200,6 @@ const selectFirstCarrierForType = async (
     City: string;
     Address1: string;
     Country: string;
-    IP: string;
   }
 ) => {
   const firstCarrier = allCarriers.value[carrierType]?.[0];
@@ -280,7 +277,6 @@ const reloadShippingAndAutoSelectFirst = async () => {
       City: delivery.city,
       Address1: delivery.address,
       Country: delivery.country,
-      IP: '',
     };
 
     await fetchShipping(options);
@@ -315,10 +311,6 @@ watch(
     dPostalCode: checkoutCustomer.value.deliveryAddress.postalCode,
     dCity: checkoutCustomer.value.deliveryAddress.city,
     dCountry: checkoutCustomer.value.deliveryAddress.country,
-    iAddress: checkoutCustomer.value.invoiceAddress.address,
-    iPostalCode: checkoutCustomer.value.invoiceAddress.postalCode,
-    iCity: checkoutCustomer.value.invoiceAddress.city,
-    iCountry: checkoutCustomer.value.invoiceAddress.country,
     same: hasSameAddressForShipping.value,
   }),
   () => {

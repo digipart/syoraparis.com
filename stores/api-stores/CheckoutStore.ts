@@ -100,13 +100,10 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
         City: delivery.city,
         Address1: delivery.address,
         Country: delivery.country,
-        IP: '',
       };
     }
 
-    return {
-      IP: '',
-    };
+    return {};
   };
 
   const validateCheckoutBeforePayment = async (): Promise<boolean> => {
@@ -327,7 +324,7 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
       });
   };
 
-  const fetchPaymentMethods = async (options: any) => {
+  const fetchPaymentMethods = async (options: any = {}) => {
     const paymentService = new PaymentService();
     try {
       const data = await paymentService.paymentMethods({

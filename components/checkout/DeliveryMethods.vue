@@ -107,7 +107,6 @@ const setDelivredOption = async (
       City: delivery.city,
       Address1: delivery.address,
       Country: normalizeCountryIso(delivery.country),
-      IP: '',
     };
 
     const carrierType = mapOptionToCarrierType(optionType);
@@ -228,11 +227,10 @@ const buildPaymentOptions = () => {
       City: delivery.city,
       Address1: delivery.address,
       Country: normalizeCountryIso(delivery.country),
-      IP: '',
     };
   }
 
-  return { IP: '' };
+  return {};
 };
 
 const loadPaymentMethods = async () => {
@@ -264,7 +262,6 @@ const selectFirstCarrierForType = async (
     City: string;
     Address1: string;
     Country: string;
-    IP: string;
   },
   requestId?: number
 ) => {
@@ -379,7 +376,6 @@ const reloadShippingAndAutoSelectFirst = async () => {
       City: delivery.city,
       Address1: delivery.address,
       Country: normalizeCountryIso(delivery.country),
-      IP: '',
     };
 
     await fetchShipping(options);

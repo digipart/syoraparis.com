@@ -121,9 +121,7 @@ const loadRelayPoint = async () => {
         Country: checkoutCustomer.value.deliveryAddress.country,
       };
     } else {
-      options = {
-        IP: ip.value,
-      };
+      options = {};
     }
 
     try {

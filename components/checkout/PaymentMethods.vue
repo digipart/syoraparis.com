@@ -55,13 +55,10 @@ const buildPaymentOptions = () => {
       City: delivery.city,
       Address1: delivery.address,
       Country: delivery.country,
-      IP: '',
     };
   }
 
-  return {
-    IP: '',
-  };
+  return {};
 };
 
 // PaymentMethods now relies on CheckoutStore for refreshing methods

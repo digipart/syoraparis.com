@@ -53,13 +53,11 @@ const getPaymentOptions = () => {
       City: checkoutCustomer.value.deliveryAddress.city,
       Address1: checkoutCustomer.value.deliveryAddress.address,
       Country: checkoutCustomer.value.deliveryAddress.country,
-      IP: '',
+      Country: checkoutCustomer.value.deliveryAddress.country,
     };
   }
 
-  return {
-    IP: '',
-  };
+  return {};
 };
 
 const findCarrierLocation = (): keyof CarrierType | null => {
@@ -143,14 +141,6 @@ const loadCarriers = async () => {
       City: checkoutCustomer.value.deliveryAddress.city,
       Address1: checkoutCustomer.value.deliveryAddress.address,
       Country: checkoutCustomer.value.deliveryAddress.country,
-      IP: '',
-    };
-  } else {
-    options = {
-      IP: '',
-    };
-  }
-
   if (options) {
     await fetchShipping(options);
     await loadPayments(options);
