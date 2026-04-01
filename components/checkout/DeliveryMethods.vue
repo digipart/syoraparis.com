@@ -116,7 +116,6 @@ const setDelivredOption = async (
     }
 
     await selectFirstCarrierForType(carrierType, shippingOptions);
-    await loadPaymentMethods();
   } finally {
     loading.value = false;
   }
@@ -150,7 +149,6 @@ const onRelayPointSelected = async (rpId: string) => {
       null;
     relayPointSelected.value = rpSelected;
     checkoutCarrier.value.relayPoint = rpSelected;
-    await loadPaymentMethods();
   } finally {
     loading.value = false;
   }
@@ -257,8 +255,6 @@ const loadPaymentMethods = async () => {
       // keep checkout usable if payment endpoint fails
     });
   }
-
-  scheduleRefreshPaymentMethods(0);
 };
 
 const selectFirstCarrierForType = async (
@@ -363,7 +359,6 @@ const reloadShippingAndAutoSelectFirst = async () => {
     !!carrierSelected.value?.IdCarrier || !!checkoutCarrier.value.carrier?.IdCarrier;
 
   if (requestKey === lastAddressKey.value && hasSelectedCarrier) {
-    await loadPaymentMethods();
     return;
   }
 
@@ -422,12 +417,6 @@ const reloadShippingAndAutoSelectFirst = async () => {
       | 'store';
 
     await selectFirstCarrierForType(targetCarrierType, options, requestId);
-
-    if (!isLatestReloadRequest(requestId)) {
-      return;
-    }
-
-    await loadPaymentMethods();
   } finally {
     if (isLatestReloadRequest(requestId)) {
       loading.value = false;
@@ -453,17 +442,7 @@ const shouldFetchPaymentMethods = computed(() => {
   );
 });
 
-const ensureInitialPaymentMethods = async () => {
-  if (!shouldFetchPaymentMethods.value) {
-    return;
-  }
-
-  await loadPaymentMethods();
-
-  if (checkoutPaymentMethods.value.length > 0) {
-    return;
-  }
-
+const ensureInitialShipping = async () => {
   lastAddressKey.value = '';
   await reloadShippingAndAutoSelectFirst();
 };
@@ -480,7 +459,9 @@ watch(
     iCountry: checkoutCustomer.value.invoiceAddress.country,
     same: hasSameAddressForShipping.value,
   }),
-  () => {
+  (newVal: { dAddress: string; dPostalCode: string; dCity: string; dCountry: string; iAddress: string; iPostalCode: string; iCity: string; iCountry: string; same: boolean }, oldVal: any) => {
+    if (JSON.stringify(newVal) === JSON.stringify(oldVal)) return;
+
     if (reloadTimer.value) {
       clearTimeout(reloadTimer.value);
     }
@@ -488,7 +469,7 @@ watch(
       reloadShippingAndAutoSelectFirst();
     }, 250);
   },
-  { deep: true, immediate: true }
+  { deep: true, immediate: false }
 );
 
 onBeforeUnmount(() => {
@@ -498,27 +479,10 @@ onBeforeUnmount(() => {
 });
 
 onMounted(async () => {
-  await ensureInitialPaymentMethods();
+  await ensureInitialShipping();
 });
 
-watch(
-  () => ({
-    shouldFetch: shouldFetchPaymentMethods.value,
-    paymentCount: checkoutPaymentMethods.value.length,
-    carrierId:
-      carrierSelected.value?.IdCarrier ||
-      checkoutCarrier.value.carrier?.IdCarrier ||
-      0,
-  }),
-  async ({ shouldFetch, paymentCount }) => {
-    if (!shouldFetch || paymentCount > 0) {
-      return;
-    }
-
-    await loadPaymentMethods();
-  },
-  { immediate: true }
-);
+// Removed internal payment methods watcher to favor store's global watcher
 </script>
 
 <template>
@@ -533,7 +497,7 @@ watch(
         >
           <div
             class="delivery-group__header"
-            @click="setDelivredOption(opt.id as any)"
+            @click="setDelivredOption(opt.id)"
           >
             <div class="flex items-center gap-3">
               <div
