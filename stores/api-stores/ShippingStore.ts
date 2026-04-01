@@ -39,7 +39,7 @@ export const useShippingStore = defineStore('shippingStore', () => {
     }
   };
 
-  const fetchShipping = async (options: ShippingRequestType) => {
+  const fetchShipping = async (options: ShippingRequestType = {}) => {
     const shippingService = new ShippingService();
     const appStore = useAppStore();
     const { currencyIsoCode, languageIsoCode } = toRefs(appStore);

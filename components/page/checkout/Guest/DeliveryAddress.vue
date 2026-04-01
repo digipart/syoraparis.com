@@ -110,7 +110,6 @@ const handleSelectAddress = async (details: {
       City: details.city,
       Address1: details.courtAddress,
       Country: normalizeCountryIso(details.countryIso),
-      IP: '',
     };
 
     await fetchShipping(options);

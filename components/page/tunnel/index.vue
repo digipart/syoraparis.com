@@ -154,7 +154,7 @@ const setCheckouCustomer = () => {
 onMounted(() => {
   setCheckouCustomer();
   if (isDigitalOnly.value) {
-    checkoutStore.fetchPaymentMethods({ IP: '' });
+    checkoutStore.fetchPaymentMethods();
   }
 });
 </script>

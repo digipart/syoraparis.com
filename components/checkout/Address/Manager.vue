@@ -214,7 +214,6 @@ const loadFirstCarrierForSelectedAddress = async () => {
     City: delivery.city,
     Address1: delivery.address,
     Country: normalizeCountryIso(delivery.country),
-    IP: '',
   };
 
   await fetchShipping(shippingOptions);
