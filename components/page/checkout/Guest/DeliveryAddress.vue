@@ -12,7 +12,6 @@ const { updateShipping, removeCarrier } = cartStore;
 const checkoutStore = useCheckoutStore();
 const { checkoutCustomer, checkoutCarrier, checkoutDeliveryOption } =
   toRefs(checkoutStore);
-const { refreshPaymentMethods, scheduleRefreshPaymentMethods } = checkoutStore;
 
 const shippingStore = useShippingStore();
 const {
@@ -160,10 +159,6 @@ const handleSelectAddress = async (details: {
     await updateShipping(updateOptions);
     await cartStore.fetchCart();
     checkoutCarrier.value.carrier = cartStore.cart?.Shipping?.Carrier || null;
-    await refreshPaymentMethods(options).catch(() => {
-      // keep checkout usable if payment endpoint fails
-    });
-    scheduleRefreshPaymentMethods(0);
   } catch (_error) {
     await updateShipping({ idCarrier: 0 });
     removeCarrier();

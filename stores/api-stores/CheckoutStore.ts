@@ -175,7 +175,7 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
     return fetchPaymentMethods(customOptions || buildPaymentMethodOptions());
   };
 
-  const scheduleRefreshPaymentMethods = (delay = 300) => {
+  const scheduleRefreshPaymentMethods = (delay = 500) => {
     if (paymentRefreshTimer.value) {
       clearTimeout(paymentRefreshTimer.value);
     }
@@ -187,49 +187,36 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
     }, delay);
   };
 
+  // Centralized watcher for all state that should trigger a payment methods refresh
   watch(
     () => ({
-      address: checkoutCustomer.value.deliveryAddress.address,
-      postalCode: checkoutCustomer.value.deliveryAddress.postalCode,
-      city: checkoutCustomer.value.deliveryAddress.city,
-      country: checkoutCustomer.value.deliveryAddress.country,
+      deliveryAddress: JSON.stringify(checkoutCustomer.value.deliveryAddress),
+      carrierId:
+        cartCarrier.value?.IdCarrier ||
+        checkoutCarrier.value.carrier?.IdCarrier ||
+        0,
+      cartTotals: JSON.stringify({
+        totalToPay: cart.value?.Total?.ToPay?.TaxIncl || 0,
+        shippingTotal: cart.value?.Total?.Shipping?.TaxIncl || 0,
+        discountTotal: cart.value?.Total?.Discount?.TaxIncl || 0,
+        promoCodes: cart.value?.Discounts?.PromoCodes?.map((p: any) => p.Code),
+        cartRules: cart.value?.Discounts?.CartRules?.map((r: any) => r.IdCartRule),
+      }),
+      hasAddress: hasAddressDelivery.value,
+      isDigital: isDigitalOnly.value,
     }),
-    () => {
+    (newVal, oldVal) => {
+      // Don't trigger if nothing changed or if no address is set
+      if (JSON.stringify(newVal) === JSON.stringify(oldVal)) return;
+      if (!newVal.hasAddress) return;
+
+      // Ensure we have a carrier if not digital
+      const hasCarrier = !!newVal.carrierId;
+      if (!newVal.isDigital && !hasCarrier) return;
+
       scheduleRefreshPaymentMethods();
     },
-    { deep: true }
-  );
-
-  watch(
-    () => checkoutCarrier.value.carrier,
-    () => {
-      scheduleRefreshPaymentMethods(0);
-    }
-  );
-
-  watch(
-    () => ({
-      cartCarrierId: cartCarrier.value?.IdCarrier || 0,
-      checkoutCarrierId: checkoutCarrier.value.carrier?.IdCarrier || 0,
-      promoCodes: JSON.stringify(cart.value?.Discounts?.PromoCodes || []),
-      cartRules: JSON.stringify(cart.value?.Discounts?.CartRules || []),
-      totalToPay: cart.value?.Total?.ToPay?.TaxIncl || 0,
-      shippingTotal: cart.value?.Total?.Shipping?.TaxIncl || 0,
-      discountTotal: cart.value?.Total?.Discount?.TaxIncl || 0,
-      hasAddressDelivery: hasAddressDelivery.value,
-      deliveryAddress: JSON.stringify(checkoutCustomer.value.deliveryAddress),
-      digitalOnly: isDigitalOnly.value,
-    }),
-    ({ hasAddressDelivery, digitalOnly, cartCarrierId, checkoutCarrierId }) => {
-      const hasCarrier = !!cartCarrierId || !!checkoutCarrierId;
-
-      if (!hasAddressDelivery || (!digitalOnly && !hasCarrier)) {
-        return;
-      }
-
-      scheduleRefreshPaymentMethods(0);
-    },
-    { deep: true }
+    { deep: true, immediate: true }
   );
 
   const isCheckoutValid = computed(() => {

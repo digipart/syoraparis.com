@@ -128,7 +128,6 @@ watch(
   [state, invoiceState, hasSameAddressForShipping],
   () => {
     syncCheckoutCustomerFromForms();
-    scheduleRefreshPaymentMethods(0);
   },
   { deep: true }
 );
