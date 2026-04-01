@@ -112,12 +112,17 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
   const validateCheckoutBeforePayment = async (): Promise<boolean> => {
     const cartStore = useCartStore();
     const { isDigitalOnly } = toRefs(cartStore);
+    const addressStore = useAddressStore();
+    const { addresses } = toRefs(addressStore);
     const formDeliveryStore = useFormDeliveryStore();
     const formInvoiceStore = useFormInvoiceStore();
 
     let allValid = true;
+    const shouldValidateAddressForms =
+      !isLoggedIn.value ||
+      (isLoggedIn.value && addresses.value.length === 0);
 
-    if (!isLoggedIn.value) {
+    if (shouldValidateAddressForms) {
       if (
         !isDigitalOnly.value &&
         checkoutDeliveryOption.value === 'home' &&

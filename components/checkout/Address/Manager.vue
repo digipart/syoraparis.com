@@ -54,6 +54,7 @@ const isDrawerOpen = ref(false);
 const useDifferentBillingAddress = ref(false);
 const selectedInvoiceAddressId = ref<number | null>(null);
 const isInvoiceAddressListOpen = ref(false);
+const deliverySyncRequestId = ref(0);
 
 const countriesOptions = computed(() =>
   countries.value.map((country) => ({
@@ -76,6 +77,25 @@ const resolveCountryIso = (address: AddressType) => {
   );
 
   return countryByName?.CountryIsoCode || address.Country;
+};
+
+const normalizeCountryIso = (countryValue?: string) => {
+  const country = (countryValue || '').trim();
+  if (!country) {
+    return '';
+  }
+
+  if (country.length === 2) {
+    return country;
+  }
+
+  const countryByName = countries.value.find(
+    (entry) =>
+      entry.CountryName?.toLowerCase() === country.toLowerCase() ||
+      entry.CountryIsoCode?.toLowerCase() === country.toLowerCase()
+  );
+
+  return countryByName?.CountryIsoCode || country;
 };
 
 const selectedAddress = computed(() => {
@@ -165,6 +185,9 @@ const mapCarrierTypeToOption = (
 };
 
 const loadFirstCarrierForSelectedAddress = async () => {
+  const requestId = ++deliverySyncRequestId.value;
+  const isStaleRequest = () => requestId !== deliverySyncRequestId.value;
+
   if (isDigitalOnly.value) {
     return;
   }
@@ -183,7 +206,7 @@ const loadFirstCarrierForSelectedAddress = async () => {
     await cartStore.fetchCart();
   }
 
-  if (!cartId.value) {
+  if (isStaleRequest() || !cartId.value) {
     return;
   }
 
@@ -191,11 +214,15 @@ const loadFirstCarrierForSelectedAddress = async () => {
     Postcode: delivery.postalCode,
     City: delivery.city,
     Address1: delivery.address,
-    Country: delivery.country,
+    Country: normalizeCountryIso(delivery.country),
     IP: (ip.value as string) || '',
   };
 
   await fetchShipping(shippingOptions);
+
+  if (isStaleRequest()) {
+    return;
+  }
 
   const firstCarrierType = shippingCarriers.value?.[0] as
     | 'Home'
@@ -204,6 +231,14 @@ const loadFirstCarrierForSelectedAddress = async () => {
     | undefined;
 
   if (!firstCarrierType) {
+    if (checkoutCarrier.value.carrier?.IdCarrier) {
+      return;
+    }
+
+    if (isStaleRequest()) {
+      return;
+    }
+
     await updateShipping({ idCarrier: 0 });
     removeCarrier();
     checkoutCarrier.value.carrier = null;
@@ -214,6 +249,14 @@ const loadFirstCarrierForSelectedAddress = async () => {
 
   const firstCarrier = allCarriers.value[firstCarrierType]?.[0];
   if (!firstCarrier?.IdCarrier) {
+    if (checkoutCarrier.value.carrier?.IdCarrier) {
+      return;
+    }
+
+    if (isStaleRequest()) {
+      return;
+    }
+
     await updateShipping({ idCarrier: 0 });
     removeCarrier();
     checkoutCarrier.value.carrier = null;
@@ -233,6 +276,11 @@ const loadFirstCarrierForSelectedAddress = async () => {
       ...shippingOptions,
       IdCarrier: firstCarrier.IdCarrier,
     });
+
+    if (isStaleRequest()) {
+      return;
+    }
+
     const firstRelayPoint = relayPoints?.[0];
     if (firstRelayPoint?.Id) {
       updateOptions.IdRelayPoint = firstRelayPoint.Id;
@@ -244,8 +292,22 @@ const loadFirstCarrierForSelectedAddress = async () => {
     checkoutCarrier.value.relayPoint = null;
   }
 
+  if (isStaleRequest()) {
+    return;
+  }
+
   await updateShipping(updateOptions);
+
+  if (isStaleRequest()) {
+    return;
+  }
+
   await cartStore.fetchCart();
+
+  if (isStaleRequest()) {
+    return;
+  }
+
   checkoutCarrier.value.carrier = cart.value?.Shipping?.Carrier || null;
 
   await refreshPaymentMethods(shippingOptions).catch(() => {

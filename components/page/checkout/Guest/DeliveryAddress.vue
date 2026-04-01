@@ -33,6 +33,25 @@ const countriesOptions = computed(() =>
 
 const isDrawerOpen = ref(false);
 
+const normalizeCountryIso = (countryValue?: string) => {
+  const country = (countryValue || '').trim();
+  if (!country) {
+    return '';
+  }
+
+  if (country.length === 2) {
+    return country;
+  }
+
+  const countryByName = countries.value.find(
+    (entry) =>
+      entry.CountryName?.toLowerCase() === country.toLowerCase() ||
+      entry.CountryIsoCode?.toLowerCase() === country.toLowerCase()
+  );
+
+  return countryByName?.CountryIsoCode || country;
+};
+
 const resolveFirstCarrier = () => {
   const firstShippingType = shippingCarriers.value?.[0] as
     | 'Home'
@@ -92,7 +111,7 @@ const handleSelectAddress = async (details: {
       Postcode: details.postalCode,
       City: details.city,
       Address1: details.courtAddress,
-      Country: details.countryIso,
+      Country: normalizeCountryIso(details.countryIso),
       IP: ip.value,
     };
 
@@ -101,6 +120,10 @@ const handleSelectAddress = async (details: {
     const firstCarrierData = resolveFirstCarrier();
 
     if (!firstCarrierData) {
+      if (checkoutCarrier.value.carrier?.IdCarrier) {
+        return;
+      }
+
       await updateShipping({ idCarrier: 0 });
       removeCarrier();
       checkoutCarrier.value.carrier = null;
@@ -137,7 +160,9 @@ const handleSelectAddress = async (details: {
     await updateShipping(updateOptions);
     await cartStore.fetchCart();
     checkoutCarrier.value.carrier = cartStore.cart?.Shipping?.Carrier || null;
-    await refreshPaymentMethods(options);
+    await refreshPaymentMethods(options).catch(() => {
+      // keep checkout usable if payment endpoint fails
+    });
     scheduleRefreshPaymentMethods(0);
   } catch (_error) {
     await updateShipping({ idCarrier: 0 });

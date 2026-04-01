@@ -22,6 +22,9 @@ const {
 } = toRefs(shippingStore);
 const { fetchShipping, fetchRelayPoints } = shippingStore;
 
+const countryStore = useCountryStore();
+const { countries } = toRefs(countryStore);
+
 const cartStore = useCartStore();
 const { removeCarrier, updateShipping } = cartStore;
 const {
@@ -38,8 +41,17 @@ const loading = ref(false);
 const ip = useIp();
 const reloadTimer = ref<ReturnType<typeof setTimeout> | null>(null);
 const lastAddressKey = ref('');
+const reloadRequestId = ref(0);
 const { locale } = useI18n();
 const paymentService = new PaymentService();
+
+const isLatestReloadRequest = (requestId?: number) => {
+  if (!requestId) {
+    return true;
+  }
+
+  return requestId === reloadRequestId.value;
+};
 
 const options = computed(() =>
   [
@@ -94,7 +106,7 @@ const setDelivredOption = async (
       Postcode: delivery.postalCode,
       City: delivery.city,
       Address1: delivery.address,
-      Country: delivery.country,
+      Country: normalizeCountryIso(delivery.country),
       IP: (ip.value as string) || '',
     };
 
@@ -177,6 +189,25 @@ const mapCarrierTypeToOption = (carrierType: string) => {
   return 'home';
 };
 
+const normalizeCountryIso = (countryValue?: string) => {
+  const country = (countryValue || '').trim();
+  if (!country) {
+    return '';
+  }
+
+  if (country.length === 2) {
+    return country;
+  }
+
+  const countryByName = countries.value.find(
+    (entry) =>
+      entry.CountryName?.toLowerCase() === country.toLowerCase() ||
+      entry.CountryIsoCode?.toLowerCase() === country.toLowerCase()
+  );
+
+  return countryByName?.CountryIsoCode || country;
+};
+
 const mapOptionToCarrierType = (
   optionType: 'home' | 'relayPoint' | 'store'
 ): 'Home' | 'RelayPoint' | 'Store' => {
@@ -198,7 +229,7 @@ const buildPaymentOptions = () => {
       Postcode: delivery.postalCode,
       City: delivery.city,
       Address1: delivery.address,
-      Country: delivery.country,
+      Country: normalizeCountryIso(delivery.country),
       IP: ip.value,
     };
   }
@@ -238,11 +269,24 @@ const selectFirstCarrierForType = async (
     Address1: string;
     Country: string;
     IP: string;
-  }
+  },
+  requestId?: number
 ) => {
+  if (!isLatestReloadRequest(requestId)) {
+    return;
+  }
+
   const firstCarrier = allCarriers.value[carrierType]?.[0];
 
   if (!firstCarrier?.IdCarrier) {
+    if (carrierSelected.value?.IdCarrier || checkoutCarrier.value.carrier?.IdCarrier) {
+      return;
+    }
+
+    if (!isLatestReloadRequest(requestId)) {
+      return;
+    }
+
     await updateShipping({ idCarrier: 0 });
     removeCarrier();
     relayPointSelected.value = null;
@@ -260,6 +304,11 @@ const selectFirstCarrierForType = async (
       ...shippingOptions,
       IdCarrier: firstCarrier.IdCarrier,
     });
+
+    if (!isLatestReloadRequest(requestId)) {
+      return;
+    }
+
     const firstRelayPoint = relayPoints?.[0];
     if (firstRelayPoint?.Id) {
       updateOptions.IdRelayPoint = firstRelayPoint.Id;
@@ -271,12 +320,28 @@ const selectFirstCarrierForType = async (
     checkoutCarrier.value.relayPoint = null;
   }
 
+  if (!isLatestReloadRequest(requestId)) {
+    return;
+  }
+
   await updateShipping(updateOptions);
+
+  if (!isLatestReloadRequest(requestId)) {
+    return;
+  }
+
   await cartStore.fetchCart();
+
+  if (!isLatestReloadRequest(requestId)) {
+    return;
+  }
+
   checkoutCarrier.value.carrier = cart.value.Shipping?.Carrier || null;
 };
 
 const reloadShippingAndAutoSelectFirst = async () => {
+  const requestId = ++reloadRequestId.value;
+
   const delivery = checkoutCustomer.value.deliveryAddress;
   if (
     !delivery.address ||
@@ -294,7 +359,10 @@ const reloadShippingAndAutoSelectFirst = async () => {
     delivery.country,
   ].join('|');
 
-  if (requestKey === lastAddressKey.value && carrierSelected.value) {
+  const hasSelectedCarrier =
+    !!carrierSelected.value?.IdCarrier || !!checkoutCarrier.value.carrier?.IdCarrier;
+
+  if (requestKey === lastAddressKey.value && hasSelectedCarrier) {
     await loadPaymentMethods();
     return;
   }
@@ -315,17 +383,31 @@ const reloadShippingAndAutoSelectFirst = async () => {
       Postcode: delivery.postalCode,
       City: delivery.city,
       Address1: delivery.address,
-      Country: delivery.country,
+      Country: normalizeCountryIso(delivery.country),
       IP: (ip.value as string) || '',
     };
 
     await fetchShipping(options);
 
+    if (!isLatestReloadRequest(requestId)) {
+      return;
+    }
+
     const availableCarrierTypes = shippingCarriers.value || [];
     if (!availableCarrierTypes.length) {
+      if (hasSelectedCarrier) {
+        return;
+      }
+
+      if (!isLatestReloadRequest(requestId)) {
+        return;
+      }
+
       await updateShipping({ idCarrier: 0 });
       removeCarrier();
       checkoutCarrier.value.carrier = null;
+      checkoutCarrier.value.relayPoint = null;
+      relayPointSelected.value = null;
       return;
     }
 
@@ -339,10 +421,17 @@ const reloadShippingAndAutoSelectFirst = async () => {
       | 'relayPoint'
       | 'store';
 
-    await selectFirstCarrierForType(targetCarrierType, options);
+    await selectFirstCarrierForType(targetCarrierType, options, requestId);
+
+    if (!isLatestReloadRequest(requestId)) {
+      return;
+    }
+
     await loadPaymentMethods();
   } finally {
-    loading.value = false;
+    if (isLatestReloadRequest(requestId)) {
+      loading.value = false;
+    }
   }
 };
 
