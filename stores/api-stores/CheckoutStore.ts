@@ -85,7 +85,6 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
   const { registerGuest } = auth;
 
   const buildPaymentMethodOptions = () => {
-    const ip = useIp();
     const delivery = checkoutCustomer.value.deliveryAddress;
 
     const hasCompleteDeliveryAddress =
@@ -100,12 +99,12 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
         City: delivery.city,
         Address1: delivery.address,
         Country: delivery.country,
-        IP: (ip.value as string) || '',
+        IP: '',
       };
     }
 
     return {
-      IP: (ip.value as string) || '',
+      IP: '',
     };
   };
 

@@ -28,7 +28,6 @@ const { fetchShipping, fetchRelayPoints } = shippingStore;
 const cartStore = useCartStore();
 const { cartId, cart, isDigitalOnly } = toRefs(cartStore);
 const { updateShipping, removeCarrier } = cartStore;
-const ip = useIp();
 
 const formDeliveryStore = useFormDeliveryStore();
 const { state, v$ } = toRefs(formDeliveryStore);
@@ -215,7 +214,7 @@ const loadFirstCarrierForSelectedAddress = async () => {
     City: delivery.city,
     Address1: delivery.address,
     Country: normalizeCountryIso(delivery.country),
-    IP: (ip.value as string) || '',
+    IP: '',
   };
 
   await fetchShipping(shippingOptions);
@@ -807,5 +806,17 @@ onMounted(() => {
 
 .drawer-form {
   @apply px-1;
+}
+
+.slide-enter-active,
+.slide-leave-active {
+  transition: all 0.3s ease;
+  overflow: hidden;
+  max-height: 400px;
+}
+.slide-enter-from,
+.slide-leave-to {
+  max-height: 0;
+  opacity: 0;
 }
 </style>

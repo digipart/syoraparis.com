@@ -26,7 +26,7 @@ const isDrawerOpen = ref(false);
 const relayPointDrawerVisible = ref(false);
 const drawerType = ref<'Home' | 'RelayPoint' | 'Store'>('Home');
 const loading = ref(false);
-const ip = useIp();
+
 const reloadTimer = ref<ReturnType<typeof setTimeout> | null>(null);
 const lastAddressKey = ref('');
 const { locale } = useI18n();
@@ -85,7 +85,7 @@ const setDelivredOption = async (
       City: delivery.city,
       Address1: delivery.address,
       Country: delivery.country,
-      IP: (ip.value as string) || '',
+      IP: '',
     };
 
     const carrierType = mapOptionToCarrierType(optionType);
@@ -173,11 +173,11 @@ const getPaymentOptions = () => {
       City: delivery.city,
       Address1: delivery.address,
       Country: delivery.country,
-      IP: ip.value,
+      IP: '',
     };
   }
 
-  return { IP: ip.value as string };
+  return { IP: '' };
 };
 
 const mapCarrierTypeToOption = (carrierType: string) => {
@@ -280,7 +280,7 @@ const reloadShippingAndAutoSelectFirst = async () => {
       City: delivery.city,
       Address1: delivery.address,
       Country: delivery.country,
-      IP: (ip.value as string) || '',
+      IP: '',
     };
 
     await fetchShipping(options);
