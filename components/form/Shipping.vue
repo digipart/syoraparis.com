@@ -53,12 +53,12 @@ const getPaymentOptions = () => {
       City: checkoutCustomer.value.deliveryAddress.city,
       Address1: checkoutCustomer.value.deliveryAddress.address,
       Country: checkoutCustomer.value.deliveryAddress.country,
-      IP: ip.value,
+      IP: '',
     };
   }
 
   return {
-    IP: ip.value,
+    IP: '',
   };
 };
 
@@ -117,7 +117,7 @@ const selectShipping = (event: {
       loading.value = false;
     });
 };
-const ip = useIp();
+
 const paymentService = new PaymentService();
 const loadPayments = async (options: any) => {
   try {
@@ -143,10 +143,11 @@ const loadCarriers = async () => {
       City: checkoutCustomer.value.deliveryAddress.city,
       Address1: checkoutCustomer.value.deliveryAddress.address,
       Country: checkoutCustomer.value.deliveryAddress.country,
+      IP: '',
     };
   } else {
     options = {
-      IP: ip.value,
+      IP: '',
     };
   }
 
@@ -237,7 +238,7 @@ onMounted(() => {
     <BaseAlert v-if="carrierError" type="danger" class="mb-4">
       {{ carrierError }}
     </BaseAlert>
-    <div v-for="(carrierGroup, groupName) in carrier" class="flex flex-col">
+    <div v-for="(carrierGroup, groupName) in carrier" :key="groupName" class="flex flex-col">
       <template v-if="displayOptions.includes(groupName)">
         <CardShipping
           v-for="c in carrierGroup"

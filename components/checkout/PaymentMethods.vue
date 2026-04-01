@@ -13,7 +13,7 @@ const { checkoutCustomer, checkoutCarrier, checkoutPaymentMethods } =
   toRefs(checkoutStore);
 const { refreshPaymentMethods, scheduleRefreshPaymentMethods } = checkoutStore;
 
-const ip = useIp();
+
 
 const props = defineProps<{
   refreshing?: boolean;
@@ -55,12 +55,12 @@ const buildPaymentOptions = () => {
       City: delivery.city,
       Address1: delivery.address,
       Country: delivery.country,
-      IP: ip.value,
+      IP: '',
     };
   }
 
   return {
-    IP: ip.value,
+    IP: '',
   };
 };
 

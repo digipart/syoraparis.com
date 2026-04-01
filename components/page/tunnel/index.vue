@@ -50,7 +50,7 @@ const refreshCodePromo = () => {
     codePromoRefreshing.value = false;
   }, 100);
 };
-const ip = useIp();
+
 const setDelivredOption = async (
   optionType: 'home' | 'relayPoint' | 'store'
 ) => {
@@ -154,7 +154,7 @@ const setCheckouCustomer = () => {
 onMounted(() => {
   setCheckouCustomer();
   if (isDigitalOnly.value) {
-    checkoutStore.fetchPaymentMethods({ IP: ip.value });
+    checkoutStore.fetchPaymentMethods({ IP: '' });
   }
 });
 </script>

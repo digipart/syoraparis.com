@@ -21,7 +21,7 @@ const {
 } = toRefs(shippingStore);
 const { fetchShipping, fetchRelayPoints } = shippingStore;
 
-const ip = useIp();
+
 
 const countriesOptions = computed(() =>
   countries.value.map((c) => ({
@@ -111,7 +111,7 @@ const handleSelectAddress = async (details: {
       City: details.city,
       Address1: details.courtAddress,
       Country: normalizeCountryIso(details.countryIso),
-      IP: ip.value,
+      IP: '',
     };
 
     await fetchShipping(options);
