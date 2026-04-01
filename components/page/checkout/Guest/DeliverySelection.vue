@@ -344,7 +344,7 @@ onBeforeUnmount(() => {
           <!-- Row header -->
           <div
             class="delivery-group__header"
-            @click="setDelivredOption(opt.id as any)"
+            @click="setDelivredOption(opt.id)"
           >
             <div class="flex items-center gap-3">
               <div

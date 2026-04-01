@@ -53,7 +53,6 @@ const getPaymentOptions = () => {
       City: checkoutCustomer.value.deliveryAddress.city,
       Address1: checkoutCustomer.value.deliveryAddress.address,
       Country: checkoutCustomer.value.deliveryAddress.country,
-      Country: checkoutCustomer.value.deliveryAddress.country,
     };
   }
 
@@ -141,6 +140,9 @@ const loadCarriers = async () => {
       City: checkoutCustomer.value.deliveryAddress.city,
       Address1: checkoutCustomer.value.deliveryAddress.address,
       Country: checkoutCustomer.value.deliveryAddress.country,
+    };
+  }
+
   if (options) {
     await fetchShipping(options);
     await loadPayments(options);
