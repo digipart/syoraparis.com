@@ -26,39 +26,43 @@ const useDifferentBillingAddress = computed({
 });
 
 const syncCheckoutCustomerFromForms = () => {
-  checkoutCustomer.value.deliveryAddress.firstname = state.value.firstname;
-  checkoutCustomer.value.deliveryAddress.lastname = state.value.name;
-  checkoutCustomer.value.deliveryAddress.email = state.value.email;
-  checkoutCustomer.value.deliveryAddress.address = state.value.address;
-  checkoutCustomer.value.deliveryAddress.city = state.value.city;
-  checkoutCustomer.value.deliveryAddress.phone = state.value.phone;
-  checkoutCustomer.value.deliveryAddress.postalCode = state.value.postcode;
-  checkoutCustomer.value.deliveryAddress.country = state.value.country;
-  checkoutCustomer.value.deliveryAddress.company = state.value.company;
-  checkoutCustomer.value.deliveryAddress.state = state.value.state;
+  if (!checkoutCustomer.value?.deliveryAddress || !state.value) {
+    return;
+  }
+
+  checkoutCustomer.value.deliveryAddress.firstname = state.value.firstname || '';
+  checkoutCustomer.value.deliveryAddress.lastname = state.value.name || '';
+  checkoutCustomer.value.deliveryAddress.email = state.value.email || '';
+  checkoutCustomer.value.deliveryAddress.address = state.value.address || '';
+  checkoutCustomer.value.deliveryAddress.city = state.value.city || '';
+  checkoutCustomer.value.deliveryAddress.phone = state.value.phone || '';
+  checkoutCustomer.value.deliveryAddress.postalCode = state.value.postcode || '';
+  checkoutCustomer.value.deliveryAddress.country = state.value.country || '';
+  checkoutCustomer.value.deliveryAddress.company = state.value.company || '';
+  checkoutCustomer.value.deliveryAddress.state = state.value.state || '';
 
   if (hasSameAddressForShipping.value) {
-    checkoutCustomer.value.invoiceAddress.firstname = state.value.firstname;
-    checkoutCustomer.value.invoiceAddress.lastname = state.value.name;
-    checkoutCustomer.value.invoiceAddress.address = state.value.address;
-    checkoutCustomer.value.invoiceAddress.city = state.value.city;
-    checkoutCustomer.value.invoiceAddress.phone = state.value.phone;
-    checkoutCustomer.value.invoiceAddress.postalCode = state.value.postcode;
-    checkoutCustomer.value.invoiceAddress.country = state.value.country;
-    checkoutCustomer.value.invoiceAddress.company = state.value.company;
-    checkoutCustomer.value.invoiceAddress.state = state.value.state;
-  } else {
+    checkoutCustomer.value.invoiceAddress.firstname = state.value.firstname || '';
+    checkoutCustomer.value.invoiceAddress.lastname = state.value.name || '';
+    checkoutCustomer.value.invoiceAddress.address = state.value.address || '';
+    checkoutCustomer.value.invoiceAddress.city = state.value.city || '';
+    checkoutCustomer.value.invoiceAddress.phone = state.value.phone || '';
+    checkoutCustomer.value.invoiceAddress.postalCode = state.value.postcode || '';
+    checkoutCustomer.value.invoiceAddress.country = state.value.country || '';
+    checkoutCustomer.value.invoiceAddress.company = state.value.company || '';
+    checkoutCustomer.value.invoiceAddress.state = state.value.state || '';
+  } else if (checkoutCustomer.value.invoiceAddress && invoiceState.value) {
     checkoutCustomer.value.invoiceAddress.firstname =
-      invoiceState.value.firstname;
-    checkoutCustomer.value.invoiceAddress.lastname = invoiceState.value.name;
-    checkoutCustomer.value.invoiceAddress.address = invoiceState.value.address;
-    checkoutCustomer.value.invoiceAddress.city = invoiceState.value.city;
-    checkoutCustomer.value.invoiceAddress.phone = invoiceState.value.phone;
+      invoiceState.value.firstname || '';
+    checkoutCustomer.value.invoiceAddress.lastname = invoiceState.value.name || '';
+    checkoutCustomer.value.invoiceAddress.address = invoiceState.value.address || '';
+    checkoutCustomer.value.invoiceAddress.city = invoiceState.value.city || '';
+    checkoutCustomer.value.invoiceAddress.phone = invoiceState.value.phone || '';
     checkoutCustomer.value.invoiceAddress.postalCode =
-      invoiceState.value.postcode;
-    checkoutCustomer.value.invoiceAddress.country = invoiceState.value.country;
-    checkoutCustomer.value.invoiceAddress.company = invoiceState.value.company;
-    checkoutCustomer.value.invoiceAddress.state = invoiceState.value.state;
+      invoiceState.value.postcode || '';
+    checkoutCustomer.value.invoiceAddress.country = invoiceState.value.country || '';
+    checkoutCustomer.value.invoiceAddress.company = invoiceState.value.company || '';
+    checkoutCustomer.value.invoiceAddress.state = invoiceState.value.state || '';
   }
 };
 

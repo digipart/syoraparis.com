@@ -28,40 +28,46 @@ const useDifferentBillingAddress = computed({
 });
 
 const syncCheckoutCustomerFromForms = () => {
-  checkoutCustomer.value.deliveryAddress.firstname = deliveryState.value.firstname;
-  checkoutCustomer.value.deliveryAddress.lastname = deliveryState.value.name;
-  checkoutCustomer.value.deliveryAddress.email =
-    deliveryState.value.email || customer.value?.Email || '';
-  checkoutCustomer.value.deliveryAddress.address = deliveryState.value.address;
-  checkoutCustomer.value.deliveryAddress.city = deliveryState.value.city;
-  checkoutCustomer.value.deliveryAddress.phone = deliveryState.value.phone;
-  checkoutCustomer.value.deliveryAddress.postalCode = deliveryState.value.postcode;
-  checkoutCustomer.value.deliveryAddress.country = deliveryState.value.country;
-  checkoutCustomer.value.deliveryAddress.company = deliveryState.value.company;
-  checkoutCustomer.value.deliveryAddress.state = deliveryState.value.state;
-
-  if (hasSameAddressForShipping.value) {
-    checkoutCustomer.value.invoiceAddress.firstname = deliveryState.value.firstname;
-    checkoutCustomer.value.invoiceAddress.lastname = deliveryState.value.name;
-    checkoutCustomer.value.invoiceAddress.address = deliveryState.value.address;
-    checkoutCustomer.value.invoiceAddress.city = deliveryState.value.city;
-    checkoutCustomer.value.invoiceAddress.phone = deliveryState.value.phone;
-    checkoutCustomer.value.invoiceAddress.postalCode = deliveryState.value.postcode;
-    checkoutCustomer.value.invoiceAddress.country = deliveryState.value.country;
-    checkoutCustomer.value.invoiceAddress.company = deliveryState.value.company;
-    checkoutCustomer.value.invoiceAddress.state = deliveryState.value.state;
+  if (!checkoutCustomer.value?.deliveryAddress || !deliveryState.value) {
     return;
   }
 
-  checkoutCustomer.value.invoiceAddress.firstname = invoiceState.value.firstname;
-  checkoutCustomer.value.invoiceAddress.lastname = invoiceState.value.name;
-  checkoutCustomer.value.invoiceAddress.address = invoiceState.value.address;
-  checkoutCustomer.value.invoiceAddress.city = invoiceState.value.city;
-  checkoutCustomer.value.invoiceAddress.phone = invoiceState.value.phone;
-  checkoutCustomer.value.invoiceAddress.postalCode = invoiceState.value.postcode;
-  checkoutCustomer.value.invoiceAddress.country = invoiceState.value.country;
-  checkoutCustomer.value.invoiceAddress.company = invoiceState.value.company;
-  checkoutCustomer.value.invoiceAddress.state = invoiceState.value.state;
+  checkoutCustomer.value.deliveryAddress.firstname = deliveryState.value.firstname || '';
+  checkoutCustomer.value.deliveryAddress.lastname = deliveryState.value.name || '';
+  checkoutCustomer.value.deliveryAddress.email =
+    deliveryState.value.email || customer.value?.Email || '';
+  checkoutCustomer.value.deliveryAddress.address = deliveryState.value.address || '';
+  checkoutCustomer.value.deliveryAddress.city = deliveryState.value.city || '';
+  checkoutCustomer.value.deliveryAddress.phone = deliveryState.value.phone || '';
+  checkoutCustomer.value.deliveryAddress.postalCode = deliveryState.value.postcode || '';
+  checkoutCustomer.value.deliveryAddress.country = deliveryState.value.country || '';
+  checkoutCustomer.value.deliveryAddress.company = deliveryState.value.company || '';
+  checkoutCustomer.value.deliveryAddress.state = deliveryState.value.state || '';
+
+  if (hasSameAddressForShipping.value && checkoutCustomer.value.invoiceAddress) {
+    checkoutCustomer.value.invoiceAddress.firstname = deliveryState.value.firstname || '';
+    checkoutCustomer.value.invoiceAddress.lastname = deliveryState.value.name || '';
+    checkoutCustomer.value.invoiceAddress.address = deliveryState.value.address || '';
+    checkoutCustomer.value.invoiceAddress.city = deliveryState.value.city || '';
+    checkoutCustomer.value.invoiceAddress.phone = deliveryState.value.phone || '';
+    checkoutCustomer.value.invoiceAddress.postalCode = deliveryState.value.postcode || '';
+    checkoutCustomer.value.invoiceAddress.country = deliveryState.value.country || '';
+    checkoutCustomer.value.invoiceAddress.company = deliveryState.value.company || '';
+    checkoutCustomer.value.invoiceAddress.state = deliveryState.value.state || '';
+    return;
+  }
+
+  if (checkoutCustomer.value.invoiceAddress && invoiceState.value) {
+    checkoutCustomer.value.invoiceAddress.firstname = invoiceState.value.firstname || '';
+    checkoutCustomer.value.invoiceAddress.lastname = invoiceState.value.name || '';
+    checkoutCustomer.value.invoiceAddress.address = invoiceState.value.address || '';
+    checkoutCustomer.value.invoiceAddress.city = invoiceState.value.city || '';
+    checkoutCustomer.value.invoiceAddress.phone = invoiceState.value.phone || '';
+    checkoutCustomer.value.invoiceAddress.postalCode = invoiceState.value.postcode || '';
+    checkoutCustomer.value.invoiceAddress.country = invoiceState.value.country || '';
+    checkoutCustomer.value.invoiceAddress.company = invoiceState.value.company || '';
+    checkoutCustomer.value.invoiceAddress.state = invoiceState.value.state || '';
+  }
 };
 
 const hydrateEmptyFormsFromCustomer = () => {

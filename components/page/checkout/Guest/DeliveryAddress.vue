@@ -10,6 +10,7 @@ const { isDigitalOnly, cartId } = toRefs(cartStore);
 const { updateShipping, removeCarrier } = cartStore;
 
 const checkoutStore = useCheckoutStore();
+const { fetchPaymentMethods } = checkoutStore;
 const { checkoutCustomer, checkoutCarrier, checkoutDeliveryOption } =
   toRefs(checkoutStore);
 
@@ -20,8 +21,6 @@ const {
   relayPointSelected,
 } = toRefs(shippingStore);
 const { fetchShipping, fetchRelayPoints } = shippingStore;
-
-
 
 const countriesOptions = computed(() =>
   countries.value.map((c) => ({
@@ -115,7 +114,6 @@ const handleSelectAddress = async (details: {
     };
 
     await fetchShipping(options);
-
     const firstCarrierData = resolveFirstCarrier();
 
     if (!firstCarrierData) {
@@ -158,6 +156,13 @@ const handleSelectAddress = async (details: {
 
     await updateShipping(updateOptions);
     await cartStore.fetchCart();
+    // console.log(options);
+    // try {
+    //   const paymentMethods = await fetchPaymentMethods(options);
+    //   console.log(paymentMethods);
+    // } catch (_error) {
+    //   console.error(_error);
+    // }
     checkoutCarrier.value.carrier = cartStore.cart?.Shipping?.Carrier || null;
   } catch (_error) {
     await updateShipping({ idCarrier: 0 });

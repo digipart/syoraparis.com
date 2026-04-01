@@ -39,6 +39,7 @@ type CheckoutCarrier = {
 
 export const useCheckoutStore = defineStore('checkoutStore', () => {
   const checkoutDeliveryOption = ref<'home' | 'relayPoint' | 'store'>('home');
+  const { locale } = useI18n();
   const hasSameAddressForShipping = ref(false);
   const carrierError = ref<string | null>(null);
   const checkoutCustomer = ref<CheckoutCustomer>({
@@ -118,8 +119,7 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
 
     let allValid = true;
     const shouldValidateAddressForms =
-      !isLoggedIn.value ||
-      (isLoggedIn.value && addresses.value.length === 0);
+      !isLoggedIn.value || (isLoggedIn.value && addresses.value.length === 0);
 
     if (shouldValidateAddressForms) {
       if (
@@ -189,7 +189,9 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
   // Centralized watcher for all state that should trigger a payment methods refresh
   watch(
     () => ({
-      deliveryAddress: JSON.stringify(checkoutCustomer.value.deliveryAddress),
+      deliveryAddress: JSON.stringify(
+        checkoutCustomer.value?.deliveryAddress || {}
+      ),
       carrierId:
         cartCarrier.value?.IdCarrier ||
         checkoutCarrier.value.carrier?.IdCarrier ||
@@ -199,7 +201,9 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
         shippingTotal: cart.value?.Total?.Shipping?.TaxIncl || 0,
         discountTotal: cart.value?.Total?.Discount?.TaxIncl || 0,
         promoCodes: cart.value?.Discounts?.PromoCodes?.map((p: any) => p.Code),
-        cartRules: cart.value?.Discounts?.CartRules?.map((r: any) => r.IdCartRule),
+        cartRules: cart.value?.Discounts?.CartRules?.map(
+          (r: any) => r.IdCartRule
+        ),
       }),
       hasAddress: hasAddressDelivery.value,
       isDigital: isDigitalOnly.value,
@@ -324,7 +328,6 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
   };
 
   const fetchPaymentMethods = async (options: any) => {
-    const { locale } = useI18n();
     const paymentService = new PaymentService();
     try {
       const data = await paymentService.paymentMethods({
