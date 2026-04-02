@@ -73,6 +73,8 @@ const en = {
     view_collection: 'View collection',
     log_in_to_access_your_loyalty_benefits: 'Log in',
     sign_in: 'Sign in',
+    change: 'Change',
+    ok: 'Ok',
   },
   link: {
     contact_us: 'Contact-us',
@@ -119,6 +121,7 @@ const en = {
     our_stores_near_you: 'Find a store near you',
     discover_our_brands: 'Discover our brands',
     completeYourLook: 'COMPLETE YOUR LOOK',
+    payment: 'Select a payment method',
   },
   label: {
     ref: 'REF',

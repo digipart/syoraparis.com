@@ -1,40 +1,11 @@
 <script setup lang="ts">
-import type { AddressType } from '~/types/AddressType';
-
-const { disabled } = defineProps<{
-  disabled?: boolean;
-}>();
-
 const checkoutStore = useCheckoutStore();
-const {
-  checkoutCustomer,
-  checkoutPaymentMethods,
-  checkoutDeliveryOption,
-  hasSameAddressForShipping,
-} = toRefs(checkoutStore);
+const { checkoutCustomer, checkoutPaymentMethods } = toRefs(checkoutStore);
+const appStore = useAppStore();
+const { languageIsoCode, currencyIsoCode } = toRefs(appStore);
 
 const cartStore = useCartStore();
-const { carrier: cartCarrier } = toRefs(cartStore);
-
-const addressStore = useAddressStore();
-const { addressDelivery, addressInvoice, addresses } = toRefs(addressStore);
-const { updateAddressType } = addressStore;
-
-const addressFormAdd = ref<HTMLElement | null>(null);
-
-hasSameAddressForShipping.value =
-  checkoutCustomer.value.deliveryAddress.city ===
-    checkoutCustomer.value.invoiceAddress.city &&
-  checkoutCustomer.value.deliveryAddress.country ===
-    checkoutCustomer.value.invoiceAddress.country &&
-  checkoutCustomer.value.deliveryAddress.postalCode ===
-    checkoutCustomer.value.invoiceAddress.postalCode &&
-  checkoutCustomer.value.deliveryAddress.address ===
-    checkoutCustomer.value.invoiceAddress.address;
-
-const showForm = ref(false);
-const listAddressVisible = ref(false);
-const { t } = useI18n();
+const { cart } = toRefs(cartStore);
 
 const getPaymentImage = (paymenName?: string) => {
   switch (paymenName?.toLowerCase()) {
@@ -55,64 +26,38 @@ const getPaymentImage = (paymenName?: string) => {
   return undefined;
 };
 
-const shippingSelected = ref(-1);
-
-const selectShipping = (id: number) => {
-  shippingSelected.value = id;
-};
-
-const idAddressDelivery = computed(() => {
-  const id = addressDelivery.value?.IdAddress;
-
-  return id;
-});
-
-const setAddresseInvoice = (address: AddressType) => {
-  // const newAddress = { ...address };
-  // newAddress.IsInvoice = true;
-  // newAddress.IsDelivery =
-  //   addressDelivery.value?.IdAddress === addressInvoice.value?.IdAddress;
-  listAddressVisible.value = false;
-  if (address.IdAddress) {
-    updateAddressType({
-      IdAddress: address.IdAddress,
-      IsInvoice: true,
-      IsDelivery: addressDelivery.value?.IdAddress === address?.IdAddress,
-    });
-  }
-};
-
-const displayForm = () => {
-  showForm.value = true;
-  setTimeout(() => {
-    scrollToElementContainer(addressFormAdd.value);
-  }, 300);
-};
-
-const setAddresse = (event: Event) => {
-  const input = event.target as HTMLInputElement;
-  const value = input.checked;
-  if (value) {
-    const newAddress = { ...addressDelivery.value };
-    newAddress.IsInvoice = true;
-    if (newAddress?.IdAddress) {
-      updateAddressType({
-        IdAddress: newAddress?.IdAddress,
-        IsInvoice: true,
-        IsDelivery: true,
-      });
-    }
-  }
-};
-
 const config = useRuntimeConfig();
+
+const count = ref(0);
+
+const fetchPaymentMethods = async () => {
+  await checkoutStore.fetchPaymentMethods({
+    Postcode: checkoutCustomer.value.deliveryAddress.postalCode,
+    City: checkoutCustomer.value.deliveryAddress.city,
+    Address1: checkoutCustomer.value.deliveryAddress.address,
+    Country: checkoutCustomer.value.deliveryAddress.country,
+  });
+};
+
+watch(
+  () => cart.value,
+  () => {
+    fetchPaymentMethods();
+    count.value++;
+    console.log('cart.value', cart.value, count.value);
+  }
+);
+
+fetchPaymentMethods();
 </script>
 
 <template>
-  <div class="formPayment">
+  <div :key="count">
+    <h2 class="checkout-title">{{ $t('titles.payment') }} :</h2>
     <BaseCollapsible
       v-if="checkoutPaymentMethods.length > 0"
       :index-active="[1]"
+      class="formPayment"
     >
       <template v-for="(pm, index) in checkoutPaymentMethods">
         <BaseCollapsibleItem
@@ -228,13 +173,13 @@ const config = useRuntimeConfig();
   </div>
 </template>
 
-<style lang="scss" scoped>
+<style lang="scss">
 .formPayment {
-  @apply flex flex-col gap-2.5;
-
-  .collapsible {
-    @apply bg-white;
-    .collap-item {
+  @apply bg-white;
+  .collap-item {
+    @apply border border-gray-200;
+    .header {
+      @apply border-gray-200;
     }
   }
 }

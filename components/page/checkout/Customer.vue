@@ -6,12 +6,16 @@ const { addressDelivery, addressInvoice, addresses } = toRefs(addressStore);
 const { fetchAddresses, updateAddress } = addressStore;
 
 const checkoutStore = useCheckoutStore();
-const { checkoutCustomer, checkoutCarrier } = toRefs(checkoutStore);
+const { checkoutCustomer, checkoutCarrier, hasAddressDelivery } = toRefs(checkoutStore);
 
 const formDeliveryStore = useFormDeliveryStore();
 const { state, v$ } = toRefs(formDeliveryStore);
 
 const shippingStore = useShippingStore();
+const { fetchShipping } = shippingStore;
+
+const cartStore = useCartStore();
+const { fetchCart } = cartStore;
 
 const showForm = ref(false);
 const addressFormAdd = ref<HTMLElement | null>(null);
@@ -23,6 +27,8 @@ const auth = useAuth();
 const { customer } = toRefs(auth);
 
 const listAddressVisible = ref(false);
+const loading = ref(false);
+const { locale } = useI18n();
 
 const emit = defineEmits(['onAddressCreated', 'onFormChange']);
 const { t } = useI18n();
@@ -31,7 +37,47 @@ const addressesUpdated = async (addressId?: number) => {
   if (!addressId && addressDelivery.value) {
     addressId = addressDelivery.value.IdAddress;
   }
+  if (addressDelivery.value) {
+    syncCheckoutCustomerFromAddress(addressDelivery.value);
+    await loadLogisticsData();
+  }
 };
+
+const syncCheckoutCustomerFromAddress = (address: AddressType) => {
+  checkoutCustomer.value.deliveryAddress.firstname = address.Firstname || '';
+  checkoutCustomer.value.deliveryAddress.lastname = address.Lastname || '';
+  checkoutCustomer.value.deliveryAddress.email = customer.value?.Email || '';
+  checkoutCustomer.value.deliveryAddress.address = address.Address1 || '';
+  checkoutCustomer.value.deliveryAddress.city = address.City || '';
+  checkoutCustomer.value.deliveryAddress.phone = address.MobilePhone || '';
+  checkoutCustomer.value.deliveryAddress.postalCode = address.Postcode || '';
+  checkoutCustomer.value.deliveryAddress.country = address.CountryIsoCode || '';
+  
+  hasAddressDelivery.value = true;
+};
+
+const loadLogisticsData = async () => {
+  const delivery = checkoutCustomer.value.deliveryAddress;
+  if (!delivery.address || !delivery.postalCode || !delivery.city || !delivery.country) {
+    return;
+  }
+
+  loading.value = true;
+  try {
+    const options = {
+      Postcode: delivery.postalCode,
+      City: delivery.city,
+      Address1: delivery.address,
+      Country: delivery.country,
+    };
+
+    await fetchShipping(options);
+    await checkoutStore.fetchPaymentMethods(options);
+  } finally {
+    loading.value = false;
+  }
+};
+
 
 const setAddresseDelivery = (address: AddressType) => {
   const newAddress = { ...address };
@@ -103,13 +149,17 @@ watch(state.value, () => {
   }
 });
 
-onMounted(() => {
+onMounted(async () => {
   setTimeout(() => {
     if (addresses.value.length === 0) {
       showForm.value = true;
     }
   }, 500);
-  // setCheckoutCustomer();
+
+  if (addressDelivery.value) {
+    syncCheckoutCustomerFromAddress(addressDelivery.value);
+    await loadLogisticsData();
+  }
 });
 </script>
 

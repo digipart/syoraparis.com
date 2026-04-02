@@ -22,7 +22,7 @@
 <script setup lang="ts">
 const { index, closeOthers, hideArrow } = withDefaults(
   defineProps<{
-    index: number;
+    index: number | string;
     closeOthers: boolean;
     hideArrow?: boolean;
   }>(),
@@ -32,9 +32,11 @@ const { index, closeOthers, hideArrow } = withDefaults(
   }
 );
 
-const openItems = inject<Ref<Set<number>>>('openItems')!;
-const toggleItem =
-  inject<(index: number, closeOthers: boolean) => void>('toggleItem')!;
+const emit = defineEmits<{
+  (e: 'onOpen', index: number | string): void;
+}>();
+
+const openItems = inject<Ref<Set<number | string>>>('openItems')!;
 
 const content = ref<HTMLDivElement | null>(null);
 const isOpen = computed(() => openItems.value.has(index));
@@ -83,6 +85,9 @@ onMounted(() => {
   }
 });
 watch(isOpen, () => {
+  if (isOpen.value) {
+    emit('onOpen', index);
+  }
   nextTick(updateHeight);
 });
 </script>

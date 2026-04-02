@@ -16,6 +16,7 @@ export type CarrierGenre = {
   Title?: string;
   Description?: string;
   Price?: Price;
+  CarrierType?: 'Home' | 'Store' | 'RelayPoint';
 };
 
 type Price = {

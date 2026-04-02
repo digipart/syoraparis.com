@@ -18,15 +18,15 @@ const windowStore = useWindowStore();
 const { initWindowsStore } = windowStore;
 
 const { locale } = useI18n();
-const ip = useIp()
-const event = useRequestEvent()
+const ip = useIp();
+const event = useRequestEvent();
 if (event) {
-  ip.value = event.context.ip
+  ip.value = event.context.ip;
 }
 
 useHead({
   htmlAttrs: {
-    lang: locale.value
+    lang: locale.value,
   },
 });
 
@@ -41,11 +41,22 @@ const config = useRuntimeConfig();
 const hasCountryOut = computed(() => {
   return config.public.hasCountryOut === 'enabled';
 });
-
-onMounted(async () => {
+try {
   await initWindowsStore();
+} catch (error) {
+  console.log(error);
+}
+
+try {
   await fetchCart();
+} catch (error) {
+  console.log(error);
+}
+
+try {
   initIdFavorite();
   await fetchFavorite();
-});
+} catch (error) {
+  console.log(error);
+}
 </script>

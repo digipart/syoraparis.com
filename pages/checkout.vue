@@ -49,7 +49,6 @@ onMounted(async () => {
 watch(isLoggedIn, async (val) => {
   if (val) {
     await fetchAddresses();
-    await cartStore.fetchCart();
   }
 });
 </script>
@@ -60,7 +59,7 @@ watch(isLoggedIn, async (val) => {
     <div class="col-span-12 lg:col-span-6 checkout-left">
       <div class="box">
         <CheckoutCustomer v-if="isLoggedIn && !isGuest" />
-        <CheckoutGuest v-else />
+        <!-- <CheckoutGuest v-else /> -->
       </div>
     </div>
 
@@ -73,4 +72,8 @@ watch(isLoggedIn, async (val) => {
   </div>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss">
+.checkout-title {
+  @apply text-base lg:text-lg font-semibold mb-3 normal-case;
+}
+</style>

@@ -34,7 +34,7 @@ const { icon, textOnTop, size, type, plain } = defineProps({
     default: false,
   },
   type: {
-    type: String as () => 'primary' | 'white' | 'danger',
+    type: String as () => 'primary' | 'white' | 'danger' | 'default',
   },
   title: {
     type: String,
@@ -75,10 +75,16 @@ $baseButton: '.baseButton';
 #{$baseButton} {
   @apply px-3 h-11  cursor-pointer
   flex gap-x-2 items-center justify-center 
-  uppercase text-center font-light tracking-wider duration-150 pb-1 pt-1;
+  uppercase text-center font-normal tracking-wider duration-150 pb-1 pt-1;
 
   &:disabled {
     @apply bg-gray-200 text-gray-300 cursor-not-allowed;
+  }
+  &.default {
+    @apply border border-gray-200 bg-gray-100 text-gray-700;
+    &:hover {
+      @apply bg-gray-200 text-gray-800;
+    }
   }
   &.primary {
     @apply border border-black bg-black text-white;
