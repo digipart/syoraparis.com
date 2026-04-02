@@ -27,7 +27,7 @@ const emit = defineEmits(['onChangeClick', 'onRelayPointSelected']);
 
 <template>
   <div class="carrier-card">
-    <div class="flex items-center gap-x-2">
+    <div class="flex items-center flex-wrap gap-2">
       <img class="carrier-logo" :src="getCarrierImage(carrier)" alt="" />
       <div class="carrier-body">
         <div class="text-sm font-semibold text-black">
@@ -38,7 +38,7 @@ const emit = defineEmits(['onChangeClick', 'onRelayPointSelected']);
       <div class="carrier-price">
         {{ carrier?.Price?.TaxIncl }} {{ currencySign }}
       </div>
-      <div v-if="buttonText">
+      <div v-if="buttonText" class="flex-1 md:flex-none flex justify-end">
         <BaseButton
           type="default"
           size="small"

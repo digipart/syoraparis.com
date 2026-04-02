@@ -47,7 +47,10 @@ const isEdit = ref(false);
           <span v-if="address.Phone">{{ address.Phone }}</span>
         </div>
       </div>
-      <div v-if="canEdit || canSelect">
+      <div
+        class="w-full md:w-auto flex justify-end"
+        v-if="canEdit || canSelect"
+      >
         <BaseButton
           type="default"
           size="small"
@@ -83,6 +86,6 @@ const isEdit = ref(false);
 <style scoped lang="scss">
 .address-card {
   @apply border border-gray-200 bg-white p-3 text-sm text-gray-600;
-  @apply flex justify-between items-center gap-x-2;
+  @apply flex justify-between items-center gap-2 flex-wrap;
 }
 </style>
