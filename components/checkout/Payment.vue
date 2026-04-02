@@ -1,6 +1,10 @@
 <script setup lang="ts">
 const checkoutStore = useCheckoutStore();
-const { checkoutCustomer, checkoutPaymentMethods } = toRefs(checkoutStore);
+const {
+  checkoutCustomer,
+  checkoutPaymentMethods,
+  refreshPaymentMethodsTrigger,
+} = toRefs(checkoutStore);
 const appStore = useAppStore();
 const { languageIsoCode, currencyIsoCode } = toRefs(appStore);
 
@@ -28,8 +32,6 @@ const getPaymentImage = (paymenName?: string) => {
 
 const config = useRuntimeConfig();
 
-const count = ref(0);
-
 const fetchPaymentMethods = async () => {
   await checkoutStore.fetchPaymentMethods({
     Postcode: checkoutCustomer.value.deliveryAddress.postalCode,
@@ -43,8 +45,7 @@ watch(
   () => cart.value,
   () => {
     fetchPaymentMethods();
-    count.value++;
-    console.log('cart.value', cart.value, count.value);
+    console.log('cart.value', cart.value);
   }
 );
 
@@ -52,7 +53,7 @@ fetchPaymentMethods();
 </script>
 
 <template>
-  <div :key="count">
+  <div :key="refreshPaymentMethodsTrigger">
     <h2 class="checkout-title">{{ $t('titles.payment') }} :</h2>
     <BaseCollapsible
       v-if="checkoutPaymentMethods.length > 0"
@@ -170,6 +171,16 @@ fetchPaymentMethods();
         </BaseCollapsibleItem>
       </template>
     </BaseCollapsible>
+    <div v-else>
+      <BaseAlert type="warning" :closeButton="false" fill>
+        <template #icon>
+          <IconDeliveryTruckSpeed :size="2" />
+        </template>
+        <span class="text-sm">
+          {{ $t('label.provide_address_to_see_payment') }}
+        </span>
+      </BaseAlert>
+    </div>
   </div>
 </template>
 

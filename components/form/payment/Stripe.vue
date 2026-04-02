@@ -15,7 +15,7 @@ const auth = useAuth();
 const { customer } = toRefs(auth);
 
 const addressStore = useAddressStore();
-const { addressDelivery, addressInvoice } = toRefs(addressStore);
+const { addressDelivery, addressInvoice, addresses } = toRefs(addressStore);
 
 const { customerSaveAddress } = auth;
 const { registerAndPrepareGuestAddress } = useCheckoutGuest();
@@ -46,6 +46,7 @@ const generalConditionsSale = ref(false);
 const paymentError = ref('');
 
 const stripePayment = ref<StripeHelper>();
+const shouldValidateFastForms = computed(() => addresses.value.length === 0);
 
 const postData = async () => {
   try {
@@ -97,10 +98,13 @@ const scrollToValidationError = (params: {
 
 const handleSubmit = async () => {
   paymentError.value = '';
-  const isFormDeliveryFastValid = await formDeliveryFastStore.validateFields();
-  const isFormInvoiceFastValid = hasSameAddressForShipping.value
-    ? true
-    : await formInvoiceFastStore.validateFields();
+  const isFormDeliveryFastValid = shouldValidateFastForms.value
+    ? await formDeliveryFastStore.validateFields()
+    : true;
+  const isFormInvoiceFastValid =
+    !shouldValidateFastForms.value || hasSameAddressForShipping.value
+      ? true
+      : await formInvoiceFastStore.validateFields();
 
   const allValid = await checkoutStore.validateCheckoutBeforePayment();
   if (!allValid || !isFormDeliveryFastValid || !isFormInvoiceFastValid) {

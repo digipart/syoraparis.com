@@ -38,6 +38,7 @@ type CheckoutCarrier = {
 export const useCheckoutStore = defineStore('checkoutStore', () => {
   const checkoutDeliveryOption = ref<'home' | 'relayPoint' | 'store'>('home');
   const { locale } = useI18n();
+  const refreshPaymentMethodsTrigger = ref(0);
   const hasSameAddressForShipping = ref(false);
   const carrierError = ref<string | null>(null);
   const checkoutCustomer = ref<CheckoutCustomer>({
@@ -243,5 +244,6 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
     createClientGuest,
     validateCheckoutBeforePayment,
     fetchPaymentMethods,
+    refreshPaymentMethodsTrigger,
   };
 });

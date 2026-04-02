@@ -87,7 +87,7 @@ const cartStore = useCartStore();
 const { cart } = toRefs(cartStore);
 
 const addressStore = useAddressStore();
-const { addressDelivery, addressInvoice } = toRefs(addressStore);
+const { addressDelivery, addressInvoice, addresses } = toRefs(addressStore);
 
 const formDeliveryFastStore = useFormDeliveryFastStore();
 const formInvoiceFastStore = useFormInvoiceFastStore();
@@ -119,6 +119,7 @@ const paymentStatus = ref<{ type: string; message: string } | null>(null);
 const generalConditionsSale = ref(false);
 const generalConditionsError = ref<string | null>(null);
 const uid = Math.random().toString(36).substring(7);
+const shouldValidateFastForms = computed(() => addresses.value.length === 0);
 
 const formatAmount = (amount?: number) => {
   if (!amount) return '0.00';
@@ -173,10 +174,13 @@ const handlePayPalPayment = async () => {
 
   generalConditionsError.value = null;
 
-  const isFormDeliveryFastValid = await formDeliveryFastStore.validateFields();
-  const isFormInvoiceFastValid = hasSameAddressForShipping.value
-    ? true
-    : await formInvoiceFastStore.validateFields();
+  const isFormDeliveryFastValid = shouldValidateFastForms.value
+    ? await formDeliveryFastStore.validateFields()
+    : true;
+  const isFormInvoiceFastValid =
+    !shouldValidateFastForms.value || hasSameAddressForShipping.value
+      ? true
+      : await formInvoiceFastStore.validateFields();
 
   const allValid = await checkoutStore.validateCheckoutBeforePayment();
 
@@ -207,13 +211,14 @@ const handlePayPalPayment = async () => {
 
   isProcessing.value = true;
 
-  await registerAndPrepareGuestAddress();
-  paymentStatus.value = {
-    type: 'info',
-    message: t('tunnel.payment.paypal.redirecting'),
-  };
-
   try {
+    paymentStatus.value = {
+      type: 'info',
+      message: t('tunnel.payment.paypal.redirecting'),
+    };
+
+    await registerAndPrepareGuestAddress();
+
     const deliveryAddress = addressDelivery.value;
     const invoiceAddress = addressInvoice.value || deliveryAddress;
 

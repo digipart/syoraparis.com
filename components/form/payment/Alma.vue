@@ -61,7 +61,7 @@ const auth = useAuth();
 const { customer } = toRefs(auth);
 
 const addressStore = useAddressStore();
-const { addressDelivery, addressInvoice } = toRefs(addressStore);
+const { addressDelivery, addressInvoice, addresses } = toRefs(addressStore);
 
 const checkoutStore = useCheckoutStore();
 const { hasSameAddressForShipping } = storeToRefs(checkoutStore);
@@ -78,6 +78,7 @@ const generalConditionsSale = ref(false);
 const almaRadio = ref('');
 const loading = ref(false);
 const error = ref('');
+const shouldValidateFastForms = computed(() => addresses.value.length === 0);
 
 // Create AlmaHelper instance
 const almaPayment = computed(() => {
@@ -128,10 +129,13 @@ const scrollToValidationError = (params: {
 
 // Process Alma checkout
 const checkoutAlma = async () => {
-  const isFormDeliveryFastValid = await formDeliveryFastStore.validateFields();
-  const isFormInvoiceFastValid = hasSameAddressForShipping.value
-    ? true
-    : await formInvoiceFastStore.validateFields();
+  const isFormDeliveryFastValid = shouldValidateFastForms.value
+    ? await formDeliveryFastStore.validateFields()
+    : true;
+  const isFormInvoiceFastValid =
+    !shouldValidateFastForms.value || hasSameAddressForShipping.value
+      ? true
+      : await formInvoiceFastStore.validateFields();
 
   const allValid = await checkoutStore.validateCheckoutBeforePayment();
   if (!allValid || !isFormDeliveryFastValid || !isFormInvoiceFastValid) {

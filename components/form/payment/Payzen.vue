@@ -25,7 +25,7 @@ const auth = useAuth();
 const { customer } = toRefs(auth);
 
 const addressStore = useAddressStore();
-const { addressDelivery } = toRefs(addressStore);
+const { addressDelivery, addresses } = toRefs(addressStore);
 const formDeliveryFastStore = useFormDeliveryFastStore();
 const formInvoiceFastStore = useFormInvoiceFastStore();
 
@@ -44,6 +44,7 @@ const krInstance = ref<any>(undefined);
 const payzenPayment = ref<PayzenHelper>();
 const checkoutStore = useCheckoutStore();
 const { hasSameAddressForShipping } = storeToRefs(checkoutStore);
+const shouldValidateFastForms = computed(() => addresses.value.length === 0);
 
 const scrollToValidationError = (params: {
   deliveryValid: boolean;
@@ -78,10 +79,13 @@ watch(generalConditionsSale, (value) => {
 // Fonction pour envoyer les données de paiement
 const postData = async () => {
   try {
-    const isFormDeliveryFastValid = await formDeliveryFastStore.validateFields();
-    const isFormInvoiceFastValid = hasSameAddressForShipping.value
-      ? true
-      : await formInvoiceFastStore.validateFields();
+    const isFormDeliveryFastValid = shouldValidateFastForms.value
+      ? await formDeliveryFastStore.validateFields()
+      : true;
+    const isFormInvoiceFastValid =
+      !shouldValidateFastForms.value || hasSameAddressForShipping.value
+        ? true
+        : await formInvoiceFastStore.validateFields();
     const allValid = await checkoutStore.validateCheckoutBeforePayment();
 
     if (!allValid || !isFormDeliveryFastValid || !isFormInvoiceFastValid) {

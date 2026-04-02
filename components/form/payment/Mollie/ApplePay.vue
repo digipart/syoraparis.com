@@ -106,7 +106,7 @@ const cartStore = useCartStore();
 const { cart } = toRefs(cartStore);
 
 const addressStore = useAddressStore();
-const { addressDelivery, addressInvoice } = toRefs(addressStore);
+const { addressDelivery, addressInvoice, addresses } = toRefs(addressStore);
 
 const formDeliveryFastStore = useFormDeliveryFastStore();
 const formInvoiceFastStore = useFormInvoiceFastStore();
@@ -132,6 +132,7 @@ const paymentStatus = ref<{ type: string; message: string } | null>(null);
 const generalConditionsSale = ref(false);
 const generalConditionsError = ref<string | null>(null);
 const uid = Math.random().toString(36).substring(7);
+const shouldValidateFastForms = computed(() => addresses.value.length === 0);
 
 watch(generalConditionsSale, (value) => {
   if (value) {
@@ -189,10 +190,13 @@ const handleApplePay = async () => {
 
   generalConditionsError.value = null;
 
-  const isFormDeliveryFastValid = await formDeliveryFastStore.validateFields();
-  const isFormInvoiceFastValid = hasSameAddressForShipping.value
-    ? true
-    : await formInvoiceFastStore.validateFields();
+  const isFormDeliveryFastValid = shouldValidateFastForms.value
+    ? await formDeliveryFastStore.validateFields()
+    : true;
+  const isFormInvoiceFastValid =
+    !shouldValidateFastForms.value || hasSameAddressForShipping.value
+      ? true
+      : await formInvoiceFastStore.validateFields();
 
   const allValid = await checkoutStore.validateCheckoutBeforePayment();
 

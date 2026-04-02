@@ -14,11 +14,5 @@ const { checkoutCustomer } = storeToRefs(checkoutStore);
       class="mt-5"
       v-if="checkoutCustomer?.deliveryAddress?.postalCode"
     />
-
-    <hr class="my-3" />
-
-    <pre>
-    {{ checkoutCustomer }}
-    </pre>
   </div>
 </template>

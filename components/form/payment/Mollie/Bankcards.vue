@@ -116,7 +116,7 @@ const { registerAndPrepareGuestAddress } = useCheckoutGuest();
 const checkoutStore = useCheckoutStore();
 const { hasSameAddressForShipping } = storeToRefs(checkoutStore);
 const addressStore = useAddressStore();
-const { addressDelivery, addressInvoice } = toRefs(addressStore);
+const { addressDelivery, addressInvoice, addresses } = toRefs(addressStore);
 const isProcessing = ref(false);
 const paymentStatus = ref<{ type: string; message: string } | null>(null);
 const generalConditionsSale = ref(false);
@@ -135,6 +135,7 @@ let verificationCode: any = null;
 const isMollieInitialized = ref(false);
 const uid = Math.random().toString(36).substring(7);
 const { mollie, loadMollie } = useMollie();
+const shouldValidateFastForms = computed(() => addresses.value.length === 0);
 
 watch(generalConditionsSale, (value) => {
   if (value) {
@@ -298,10 +299,13 @@ const handleSubmit = async () => {
   generalConditionsError.value = null;
 
   try {
-    const isFormDeliveryFastValid = await formDeliveryFastStore.validateFields();
-    const isFormInvoiceFastValid = hasSameAddressForShipping.value
-      ? true
-      : await formInvoiceFastStore.validateFields();
+    const isFormDeliveryFastValid = shouldValidateFastForms.value
+      ? await formDeliveryFastStore.validateFields()
+      : true;
+    const isFormInvoiceFastValid =
+      !shouldValidateFastForms.value || hasSameAddressForShipping.value
+        ? true
+        : await formInvoiceFastStore.validateFields();
 
     const allValid = await checkoutStore.validateCheckoutBeforePayment();
     console.log('Validation result (validateCheckoutBeforePayment):', allValid);

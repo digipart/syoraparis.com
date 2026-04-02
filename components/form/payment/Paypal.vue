@@ -34,6 +34,9 @@ const { shopName } = toRefs(appStore);
 const cartStore = useCartStore();
 const { cart } = toRefs(cartStore);
 
+const addressStore = useAddressStore();
+const { addresses } = toRefs(addressStore);
+
 const auth = useAuth();
 const { customer } = toRefs(auth);
 
@@ -70,6 +73,7 @@ const generalConditionsSale = ref(false);
 const paypalButtonContainer = ref(null);
 const isProcessing = ref(false);
 const paymentError = ref('');
+const shouldValidateFastForms = computed(() => addresses.value.length === 0);
 
 // Computed properties
 const acceptConditionsText = computed(() =>
@@ -203,11 +207,13 @@ const startPayment = async () => {
         },
         onClick: async (data, actions) => {
           paymentError.value = '';
-          const isFormDeliveryFastValid =
-            await formDeliveryFastStore.validateFields();
-          const isFormInvoiceFastValid = hasSameAddressForShipping.value
-            ? true
-            : await formInvoiceFastStore.validateFields();
+          const isFormDeliveryFastValid = shouldValidateFastForms.value
+            ? await formDeliveryFastStore.validateFields()
+            : true;
+          const isFormInvoiceFastValid =
+            !shouldValidateFastForms.value || hasSameAddressForShipping.value
+              ? true
+              : await formInvoiceFastStore.validateFields();
           const allValid = await checkoutStore.validateCheckoutBeforePayment();
           if (!allValid || !isFormDeliveryFastValid || !isFormInvoiceFastValid) {
             await nextTick();

@@ -74,6 +74,10 @@ const handleSelectAddress = (details: {
   state.value.state = details.stateName || details.stateCode || '';
 };
 
+const addressCookie = useCookie('FORM_ADDRESS_FAST_DELIVERY', {
+  maxAge: 60 * 60 * 24 * 1,
+});
+
 const setAddressToCheckout = () => {
   checkoutCustomer.value.deliveryAddress.address =
     state.value.courtAddress || state.value.address;
@@ -99,6 +103,8 @@ const setAddressToCheckout = () => {
     checkoutCustomer.value.invoiceAddress.firstname = state.value.firstname;
     checkoutCustomer.value.invoiceAddress.lastname = state.value.name;
   }
+
+  addressCookie.value = null;
   drawerVisible.value = false;
 };
 
@@ -109,10 +115,6 @@ const errorAddress = computed(() => {
     v$.value.country.$error ||
     v$.value.postcode.$error
   );
-});
-
-const addressCookie = useCookie('FORM_ADDRESS_FAST_DELIVERY', {
-  maxAge: 60 * 60 * 24 * 1,
 });
 
 watch(
