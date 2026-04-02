@@ -64,8 +64,11 @@ const addressStore = useAddressStore();
 const { addressDelivery, addressInvoice } = toRefs(addressStore);
 
 const checkoutStore = useCheckoutStore();
+const { hasSameAddressForShipping } = storeToRefs(checkoutStore);
 const { registerAndPrepareGuestAddress } = useCheckoutGuest();
 const localePath = useLocalePath();
+const formDeliveryFastStore = useFormDeliveryFastStore();
+const formInvoiceFastStore = useFormInvoiceFastStore();
 
 const props = defineProps<{
   paymentMethods: PaymentMethodType[];
@@ -99,14 +102,48 @@ const toggleLoader = (val: boolean) => {
   loading.value = val;
 };
 
+const scrollToValidationError = (params: {
+  deliveryValid: boolean;
+  invoiceValid: boolean;
+}) => {
+  const selectors = [
+    !params.deliveryValid
+      ? '#delivery-fast-form .text-red-500, #delivery-fast-form .address-selector.has-errors, #delivery-fast-form .inputText.error, #delivery-fast-form .v-select.error'
+      : null,
+    !params.invoiceValid
+      ? '#invoice-fast-form .text-red-500, #invoice-fast-form .address-selector.has-errors, #invoice-fast-form .inputText.error, #invoice-fast-form .v-select.error'
+      : null,
+    '.formShipping .text-red-500, .formShipping .base-alert',
+    '.inputText.error, .v-select.error',
+  ].filter(Boolean) as string[];
+
+  for (const selector of selectors) {
+    const element = document.querySelector(selector);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+  }
+};
+
 // Process Alma checkout
 const checkoutAlma = async () => {
+  const isFormDeliveryFastValid = await formDeliveryFastStore.validateFields();
+  const isFormInvoiceFastValid = hasSameAddressForShipping.value
+    ? true
+    : await formInvoiceFastStore.validateFields();
+
   const allValid = await checkoutStore.validateCheckoutBeforePayment();
-  if (!allValid) {
-    const firstError = document.querySelector(
-      '.formShipping .text-red-500, .inputText.error, .v-select.error'
-    );
-    firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  if (!allValid || !isFormDeliveryFastValid || !isFormInvoiceFastValid) {
+    await nextTick();
+    scrollToValidationError({
+      deliveryValid: isFormDeliveryFastValid,
+      invoiceValid: isFormInvoiceFastValid,
+    });
+    error.value =
+      checkoutStore.checkoutErrors?.[0]?.message ||
+      t('tunnel.payment.error.check_form') ||
+      'Please check your information.';
     return;
   }
 
