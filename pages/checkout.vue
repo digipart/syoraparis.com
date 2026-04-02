@@ -49,7 +49,6 @@ onMounted(async () => {
 watch(isLoggedIn, async (val) => {
   if (val) {
     await fetchAddresses();
-    await cartStore.fetchCart();
   }
 });
 </script>
@@ -73,4 +72,8 @@ watch(isLoggedIn, async (val) => {
   </div>
 </template>
 
-<style lang="scss" scoped></style>
+<style lang="scss">
+.checkout-title {
+  @apply text-base lg:text-lg font-semibold mb-3 normal-case;
+}
+</style>

@@ -29,7 +29,10 @@ export default class Service {
   async $get<T>(api: string, body?: { options?: any; isAuth?: boolean }) {
     let query = '';
     if (body?.options) {
-      query = qs.stringify(body.options, { addQueryPrefix: true });
+      const cleanOptions = Object.fromEntries(
+        Object.entries(body.options).filter(([_, v]) => v !== '' && v != null)
+      );
+      query = qs.stringify(cleanOptions, { addQueryPrefix: true });
     }
     return await $fetch<T>(`/api2/${api}${query}`, {
       headers: this.headers(body?.isAuth),

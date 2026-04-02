@@ -29,7 +29,6 @@ const countriesOptions = computed(() =>
   }))
 );
 
-const isDrawerOpen = ref(false);
 
 const normalizeCountryIso = (countryValue?: string) => {
   const country = (countryValue || '').trim();
@@ -170,154 +169,102 @@ const handleSelectAddress = async (details: {
   }
 };
 
-const openDrawer = () => {
-  isDrawerOpen.value = true;
+const isEditing = ref(false);
+
+const submitForm = async () => {
+  const isFormCorrect = await v$.value.$validate();
+  if (isFormCorrect) {
+    isEditing.value = false;
+  }
 };
 </script>
 
 <template>
   <div class="checkout-box">
-    <h2 class="section-title mb-4 font-semibold text-sm uppercase mb-4">
-      {{
-        isDigitalOnly
-          ? $t('titles.my_informations')
-          : $t('label.address_delivery')
-      }}
-      :
+    <h2 class="section-title mb-4 font-semibold text-sm uppercase">
+      {{ isDigitalOnly ? $t('titles.my_informations') : $t('label.address_delivery') }}:
     </h2>
 
-    <div class="grid grid-cols-2 gap-x-4">
-      <InputText
-        id="firstname"
-        v-model="state.firstname"
-        type="text"
-        :errors="v$.firstname?.$errors"
-        :required="true"
-        :label="$t('label.firstname')"
-        border
-      />
-      <InputText
-        id="name"
-        v-model="state.name"
-        type="text"
-        :errors="v$.name?.$errors"
-        :required="true"
-        :label="$t('label.name')"
-        border
-      />
-    </div>
-
-    <InputText
-      id="phone"
-      v-model="state.phone"
-      type="tel"
-      :errors="v$.phone?.$errors"
-      :required="true"
-      :label="$t('label.phone_mobile')"
-      border
-    />
-
-    <!-- Address Div -->
-    <div
-      class="address-selector"
-      :class="{ 'has-errors': v$.address?.$error, 'has-value': state.address }"
-      @click="openDrawer"
-    >
-      <div v-if="state.address" class="selected-address">
-        <div class="address-label">{{ $t('label.address') }}*</div>
-        <div class="address-value">
-          {{ state.address }}, {{ state.postcode }} {{ state.city }}
+    <!-- View Mode: Show summary if address is filled and NOT editing -->
+    <div v-if="state.address && !isEditing" class="text-xs flex flex-col gap-2 p-3 bg-white border border-zinc-200">
+      <div class="flex justify-between items-start">
+        <div class="flex-1">
+          <div class="font-bold lowercase mb-1">
+            {{ state.firstname }} {{ state.name }}
+          </div>
+          <div class="text-zinc-600 leading-relaxed">
+            {{ state.address }} <br />
+            {{ state.postcode }} {{ state.city }} <br />
+            {{ normalizeCountryIso(state.country) }}
+          </div>
+          <div
+            class="font-extrabold cursor-pointer text-black mt-3 inline-block uppercase text-[11px]"
+            @click="isEditing = true"
+          >
+            {{ $t('button.modify') }}
+          </div>
         </div>
       </div>
-      <div v-else class="address-placeholder">{{ $t('label.address') }}*</div>
-    </div>
-    <div v-if="v$.address?.$error" class="error-msg">
-      {{ v$.address?.$errors[0]?.$message }}
     </div>
 
-    <!-- Drawer for Address Selection -->
-    <BaseDrawer v-model="isDrawerOpen" position="left" size="500px">
-      <template #header>
-        <div class="drawer-title uppercase font-bold text-lg">
-          {{ $t('label.address_delivery') }} ({{ $t('label.main_address') }})
-        </div>
-      </template>
-
-      <div class="drawer-form space-y-4 pt-4">
-        <InputGoogoleAutoComplete
-          v-model="state.address"
-          id="address-drawer"
-          :errors="v$.address?.$errors || []"
-          :label="$t('label.main_address')"
-          :required="true"
-          @onSelect="handleSelectAddress"
-          border
-        />
-
-        <div class="grid grid-cols-2 gap-4">
+    <!-- Edit Mode: Show form if NOT filled or IS editing -->
+    <div v-else class="edit-mode-container border border-zinc-400 p-4 bg-white">
+      <div class="grid grid-cols-12 gap-x-4 gap-y-4">
+        <div class="col-span-6">
           <InputText
-            id="city-drawer"
-            v-model="state.city"
-            :errors="v$.city?.$errors"
-            :required="true"
-            :label="$t('label.city')"
-            border
-          />
-          <InputText
-            id="postcode-drawer"
-            v-model="state.postcode"
-            :errors="v$.postcode?.$errors"
-            :required="true"
-            :label="$t('label.postcode')"
+            id="guest-firstname"
+            v-model="state.firstname"
+            :label="$t('label.firstname') + ' *'"
+            :errors="v$.firstname.$errors"
             border
           />
         </div>
-
-        <div class="grid grid-cols-2 gap-4">
+        <div class="col-span-6">
           <InputText
-            id="state-drawer"
-            v-model="state.state"
-            :label="$t('label.state')"
+            id="guest-name"
+            v-model="state.name"
+            :label="$t('label.name') + ' *'"
+            :errors="v$.name.$errors"
             border
-          />
-          <InputSelect
-            id="country-drawer"
-            v-model="state.country"
-            :errors="v$.country?.$errors"
-            :label="$t('label.country')"
-            :selectOptions="countriesOptions"
-            :required="true"
-            :key="state.country"
-            border
-            searchable
           />
         </div>
-
-        <InputText
-          id="company-drawer"
-          v-model="state.company"
-          :label="$t('label.company')"
-          border
-        />
-        <div class="flex gap-4 w-full">
-          <BaseButton
-            class="flex-1"
-            type="primary"
-            plain
-            @click="isDrawerOpen = false"
-          >
-            {{ $t('button.cancel') }}
-          </BaseButton>
-          <BaseButton
-            class="flex-1"
-            type="primary"
-            @click="isDrawerOpen = false"
-          >
-            {{ $t('button.save') }}
-          </BaseButton>
+        <div class="col-span-12">
+          <InputText
+            id="guest-phone"
+            v-model="state.phone"
+            :label="$t('label.phone_mobile') + ' *'"
+            :errors="v$.phone.$errors"
+            border
+          />
+        </div>
+        <div class="col-span-12">
+          <InputGoogoleAutoComplete
+            v-model="state.address"
+            id="guest-autocomplete"
+            :errors="v$.address.$errors"
+            :label="$t('label.address') + ' *'"
+            @onSelect="handleSelectAddress"
+            border
+          />
         </div>
       </div>
-    </BaseDrawer>
+
+      <!-- Action Buttons -->
+      <div v-if="state.address" class="grid grid-cols-2 gap-x-3 mt-6">
+        <button 
+          class="border border-black py-3 text-sm font-bold uppercase hover:bg-zinc-50 transition-colors"
+          @click="isEditing = false"
+        >
+          {{ $t('button.cancel') }}
+        </button>
+        <button 
+          class="bg-black text-white py-3 text-sm font-bold uppercase hover:bg-zinc-800 transition-colors"
+          @click="submitForm"
+        >
+          OK
+        </button>
+      </div>
+    </div>
   </div>
 </template>
 

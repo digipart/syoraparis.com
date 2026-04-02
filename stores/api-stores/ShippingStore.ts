@@ -40,6 +40,11 @@ export const useShippingStore = defineStore('shippingStore', () => {
   };
 
   const fetchShipping = async (options: ShippingRequestType = {}) => {
+    // Guard: don't call the API without essential address params
+    if (!options.Postcode && !options.Address1 && !options.Country && !options.IdAddress) {
+      return {} as ShippingType;
+    }
+
     const shippingService = new ShippingService();
     const appStore = useAppStore();
     const { currencyIsoCode, languageIsoCode } = toRefs(appStore);

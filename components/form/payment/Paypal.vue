@@ -16,6 +16,7 @@
     </div>
 
     <div id="paypal-button-container" ref="paypalButtonContainer"></div>
+    <p v-if="paymentError" class="mt-2 text-xs text-red-500">{{ paymentError }}</p>
 
     <input type="hidden" name="custom" value="[1111],[2222]" />
   </div>
@@ -33,6 +34,9 @@ const { shopName } = toRefs(appStore);
 const cartStore = useCartStore();
 const { cart } = toRefs(cartStore);
 
+const addressStore = useAddressStore();
+const { addresses } = toRefs(addressStore);
+
 const auth = useAuth();
 const { customer } = toRefs(auth);
 
@@ -40,6 +44,9 @@ const { customerSaveAddress } = auth;
 const { registerAndPrepareGuestAddress } = useCheckoutGuest();
 
 const checkoutStore = useCheckoutStore();
+const { hasSameAddressForShipping } = storeToRefs(checkoutStore);
+const formDeliveryFastStore = useFormDeliveryFastStore();
+const formInvoiceFastStore = useFormInvoiceFastStore();
 
 // Composables
 const { t, locale } = useI18n();
@@ -65,6 +72,8 @@ const emit = defineEmits([
 const generalConditionsSale = ref(false);
 const paypalButtonContainer = ref(null);
 const isProcessing = ref(false);
+const paymentError = ref('');
+const shouldValidateFastForms = computed(() => addresses.value.length === 0);
 
 // Computed properties
 const acceptConditionsText = computed(() =>
@@ -93,6 +102,27 @@ const getPaypalLocale = (lang) => {
     return `${lang}_US`;
   }
   return 'en_US'; // Default fallback
+};
+
+const scrollToValidationError = (params) => {
+  const selectors = [
+    !params.deliveryValid
+      ? '#delivery-fast-form .text-red-500, #delivery-fast-form .address-selector.has-errors, #delivery-fast-form .inputText.error, #delivery-fast-form .v-select.error'
+      : null,
+    !params.invoiceValid
+      ? '#invoice-fast-form .text-red-500, #invoice-fast-form .address-selector.has-errors, #invoice-fast-form .inputText.error, #invoice-fast-form .v-select.error'
+      : null,
+    '.formShipping .text-red-500, .formShipping .base-alert',
+    '.inputText.error, .v-select.error',
+  ].filter(Boolean);
+
+  for (const selector of selectors) {
+    const element = document.querySelector(selector);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+  }
 };
 
 const createPaypalOrder = async (data, actions) => {
@@ -176,16 +206,29 @@ const startPayment = async () => {
           label: 'paypal',
         },
         onClick: async (data, actions) => {
+          paymentError.value = '';
+          const isFormDeliveryFastValid = shouldValidateFastForms.value
+            ? await formDeliveryFastStore.validateFields()
+            : true;
+          const isFormInvoiceFastValid =
+            !shouldValidateFastForms.value || hasSameAddressForShipping.value
+              ? true
+              : await formInvoiceFastStore.validateFields();
           const allValid = await checkoutStore.validateCheckoutBeforePayment();
-          await customerSaveAddress();
-          await registerAndPrepareGuestAddress();
-          if (!allValid) {
-            const firstError = document.querySelector(
-              '.formShipping .text-red-500, .inputText.error, .v-select.error'
-            );
-            firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          if (!allValid || !isFormDeliveryFastValid || !isFormInvoiceFastValid) {
+            await nextTick();
+            scrollToValidationError({
+              deliveryValid: isFormDeliveryFastValid,
+              invoiceValid: isFormInvoiceFastValid,
+            });
+            paymentError.value =
+              checkoutStore.checkoutErrors?.[0]?.message ||
+              t('tunnel.payment.error.check_form') ||
+              'Please check your information.';
             return actions.reject();
           }
+          await customerSaveAddress();
+          await registerAndPrepareGuestAddress();
           return actions.resolve();
         },
         createOrder: createPaypalOrder,
