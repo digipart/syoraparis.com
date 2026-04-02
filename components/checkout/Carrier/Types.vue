@@ -89,6 +89,8 @@ const setCarrierToCart = (c: CarrierGenre) => {
   if (c.IdCarrier && c.IdCarrier !== cart.value?.Shipping?.Carrier?.IdCarrier) {
     return updateShipping({
       idCarrier: c.IdCarrier,
+    }).then(() => {
+      fetchCart();
     });
   }
   return Promise.resolve();

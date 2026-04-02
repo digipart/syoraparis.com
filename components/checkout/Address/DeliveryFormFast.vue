@@ -1,7 +1,8 @@
 <script setup lang="ts">
 import type { AddressType } from '~/types/AddressType';
-import { useVuelidate } from '@vuelidate/core';
-import { required, email, helpers } from '@vuelidate/validators';
+
+const formDeliveryFastStore = useFormDeliveryFastStore();
+const { state, v$ } = storeToRefs(formDeliveryFastStore);
 
 const { t } = useI18n();
 
@@ -10,54 +11,6 @@ const { title, address, hasBackButton } = defineProps<{
   address?: AddressType;
   hasBackButton?: boolean;
 }>();
-
-const state = ref({
-  name: '',
-  firstname: '',
-  address: '',
-  courtAddress: '',
-  postcode: '',
-  city: '',
-  country: '',
-  email: '',
-  prefix: '',
-  phone: '',
-  company: '',
-  state: '',
-});
-
-const rules = {
-  name: {
-    required: helpers.withMessage(t('error.name_required'), required),
-  },
-  firstname: {
-    required: helpers.withMessage(t('error.firstname_required'), required),
-  },
-  address: {
-    required: helpers.withMessage(t('error.address_required'), required),
-  },
-  postcode: {
-    required: helpers.withMessage(t('error.postcode_required'), required),
-  },
-  city: {
-    required: helpers.withMessage(t('error.city_required'), required),
-  },
-  country: {
-    required: helpers.withMessage(t('error.country_required'), required),
-  },
-  email: {
-    required: helpers.withMessage(t('error.email_required'), required),
-    email: helpers.withMessage(t('error.email_valide'), email),
-  },
-  // prefix: {
-  //   required: helpers.withMessage(t('error.prefix_required'), required),
-  // },
-  phone: {
-    required: helpers.withMessage(t('error.phone_required'), required),
-  },
-};
-
-const v$ = useVuelidate(rules, state);
 
 const checkoutStore = useCheckoutStore();
 const { checkoutCustomer, hasSameAddressForShipping } =
@@ -122,7 +75,8 @@ const handleSelectAddress = (details: {
 };
 
 const setAddressToCheckout = () => {
-  checkoutCustomer.value.deliveryAddress.address = state.value.courtAddress;
+  checkoutCustomer.value.deliveryAddress.address =
+    state.value.courtAddress || state.value.address;
   checkoutCustomer.value.deliveryAddress.postalCode = state.value.postcode;
   checkoutCustomer.value.deliveryAddress.city = state.value.city;
   checkoutCustomer.value.deliveryAddress.country = state.value.country;
@@ -134,7 +88,8 @@ const setAddressToCheckout = () => {
   checkoutCustomer.value.deliveryAddress.lastname = state.value.name;
 
   if (hasSameAddressForShipping.value) {
-    checkoutCustomer.value.invoiceAddress.address = state.value.courtAddress;
+    checkoutCustomer.value.invoiceAddress.address =
+      state.value.courtAddress || state.value.address;
     checkoutCustomer.value.invoiceAddress.postalCode = state.value.postcode;
     checkoutCustomer.value.invoiceAddress.city = state.value.city;
     checkoutCustomer.value.invoiceAddress.country = state.value.country;
@@ -176,7 +131,7 @@ const initForm = () => {
           ? JSON.parse(addressCookie.value)
           : addressCookie.value;
 
-      state.value = { ...state.value, ...parsedCookie };
+      Object.assign(state.value, parsedCookie);
       setAddressToCheckout();
     } catch {
       addressCookie.value = null;
@@ -190,7 +145,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="formAddress">
+  <div id="delivery-fast-form" class="formAddress js-delivery-fast-form">
     <div class="formAddress-header">
       <span v-if="hasBackButton" @click="emit('onBack')" class="icon-back">
         <IconArrowLeft :size="1.4" />

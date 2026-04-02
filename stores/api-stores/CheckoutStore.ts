@@ -1,7 +1,5 @@
 import PaymentService from '~/services/PaymentService';
 import { defineStore } from 'pinia';
-import { useFormDeliveryStore } from '../form-stores/formDeliveryStore';
-import { useFormInvoiceStore } from '../form-stores/formInvoiceStore';
 import type { PaymentMethodType } from '~/types/PaymentType';
 import type { RelayPointType } from '~/types/RelayPointsType';
 import type { CarrierGenre } from '~/types/ShippingType';
@@ -92,7 +90,7 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
 
   const validateCheckout = () => {
     const cartStore = useCartStore();
-    const { isDigitalOnly } = toRefs(cartStore);
+    const { isDigitalOnly, cart } = toRefs(cartStore);
     const errors: { field: string; message: string }[] = [];
     const customer = checkoutCustomer.value;
     const carrier = checkoutCarrier.value;
@@ -120,7 +118,12 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
       }
     };
 
-    if (!isDigitalOnly.value && (!carrier || !carrier.carrier)) {
+    const hasSelectedCarrier =
+      !!carrier?.carrier?.IdCarrier ||
+      !!cart.value?.Shipping?.Carrier?.IdCarrier;
+
+    if (!isDigitalOnly.value && !hasSelectedCarrier) {
+      console.log('carrier error', hasSelectedCarrier, isDigitalOnly.value);
       errors.push({ field: 'carrier', message: t('error.carrier_required') });
     }
 
@@ -149,11 +152,8 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
       'country',
     ];
 
-    // Only validate invoice address if it's different from delivery
-    if (
-      JSON.stringify(customer.deliveryAddress) !==
-      JSON.stringify(customer.invoiceAddress)
-    ) {
+    // Only validate invoice address if user selected different invoice address
+    if (!hasSameAddressForShipping.value) {
       for (const field of requiredInvoiceFields) {
         if (!customer.invoiceAddress[field]) {
           errors.push({
@@ -214,9 +214,19 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
   };
 
   const validateCheckoutBeforePayment = async (): Promise<boolean> => {
-    let allValid = true;
+    const cartStore = useCartStore();
+    const { isDigitalOnly } = toRefs(cartStore);
 
-    return allValid;
+    const checkoutValidation = validateCheckout();
+    checkoutErrors.value = checkoutValidation.errors;
+
+    if (!isDigitalOnly.value && !checkoutCarrier.value?.carrier?.IdCarrier) {
+      carrierError.value = t('error.carrier_required');
+    } else {
+      carrierError.value = null;
+    }
+
+    return checkoutValidation.valid;
   };
 
   return {
