@@ -25,9 +25,13 @@ const auth = useAuth();
 const { customer } = toRefs(auth);
 
 const addressStore = useAddressStore();
-const { addressDelivery } = toRefs(addressStore);
+const { addressDelivery, addresses } = toRefs(addressStore);
+const formDeliveryFastStore = useFormDeliveryFastStore();
+const formInvoiceFastStore = useFormInvoiceFastStore();
 
 const checkoutStore = useCheckoutStore();
+const { hasSameAddressForShipping } = storeToRefs(checkoutStore);
+const { registerAndPrepareGuestAddress } = useCheckoutGuest();
 
 const props = defineProps<{
   disabled?: boolean;
@@ -41,6 +45,31 @@ const paymentFormInitialized = ref(false);
 const generalConditionsSale = ref(false);
 const krInstance = ref<any>(undefined);
 const payzenPayment = ref<PayzenHelper>();
+const shouldValidateFastForms = computed(() => addresses.value.length === 0);
+
+const scrollToValidationError = (params: {
+  deliveryValid: boolean;
+  invoiceValid: boolean;
+}) => {
+  const selectors = [
+    !params.deliveryValid
+      ? '#delivery-fast-form .text-red-500, #delivery-fast-form .address-selector.has-errors, #delivery-fast-form .inputText.error, #delivery-fast-form .v-select.error'
+      : null,
+    !params.invoiceValid
+      ? '#invoice-fast-form .text-red-500, #invoice-fast-form .address-selector.has-errors, #invoice-fast-form .inputText.error, #invoice-fast-form .v-select.error'
+      : null,
+    '.formShipping .text-red-500, .formShipping .base-alert',
+    '.inputText.error, .v-select.error',
+  ].filter(Boolean) as string[];
+
+  for (const selector of selectors) {
+    const element = document.querySelector(selector);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+  }
+};
 
 // Fonction pour envoyer les données de paiement
 const postData = async () => {
@@ -201,14 +230,28 @@ const initializePayzen = () => {
             event.preventDefault();
             event.stopPropagation();
 
+            const isFormDeliveryFastValid = shouldValidateFastForms.value
+              ? await formDeliveryFastStore.validateFields()
+              : true;
+            const isFormInvoiceFastValid =
+              !shouldValidateFastForms.value || hasSameAddressForShipping.value
+                ? true
+                : await formInvoiceFastStore.validateFields();
             const allValid = await checkoutStore.validateCheckoutBeforePayment();
-            if (!allValid) {
-              const firstError = document.querySelector(
-                '.formShipping .text-red-500, .inputText.error, .v-select.error'
-              );
-              firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            if (!allValid || !isFormDeliveryFastValid || !isFormInvoiceFastValid) {
+              await nextTick();
+              scrollToValidationError({
+                deliveryValid: isFormDeliveryFastValid,
+                invoiceValid: isFormInvoiceFastValid,
+              });
+              error.value =
+                checkoutStore.checkoutErrors?.[0]?.message ||
+                t('tunnel.payment.error.check_form') ||
+                'Please check your information.';
               return;
             }
+
+            await registerAndPrepareGuestAddress();
 
             // If validation passes, manually trigger the form submission if the library allows
             // This part is tricky as we are hijacking the button's default behavior.

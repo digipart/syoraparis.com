@@ -95,6 +95,10 @@
 import MollieHelper from '~/helpers/payments/MollieHelper';
 import InputCheckBox from '~/components/input/CheckBox.vue';
 import type { PaymentMethodType } from '~/types/PaymentType';
+
+const formDeliveryFastStore = useFormDeliveryFastStore();
+const formInvoiceFastStore = useFormInvoiceFastStore();
+
 const { t } = useI18n();
 const config = useRuntimeConfig();
 const emit = defineEmits<{
@@ -110,8 +114,9 @@ const { customer } = toRefs(auth);
 const { customerSaveAddress } = auth;
 const { registerAndPrepareGuestAddress } = useCheckoutGuest();
 const checkoutStore = useCheckoutStore();
+const { hasSameAddressForShipping } = storeToRefs(checkoutStore);
 const addressStore = useAddressStore();
-const { addressDelivery, addressInvoice } = toRefs(addressStore);
+const { addressDelivery, addressInvoice, addresses } = toRefs(addressStore);
 const isProcessing = ref(false);
 const paymentStatus = ref<{ type: string; message: string } | null>(null);
 const generalConditionsSale = ref(false);
@@ -130,6 +135,7 @@ let verificationCode: any = null;
 const isMollieInitialized = ref(false);
 const uid = Math.random().toString(36).substring(7);
 const { mollie, loadMollie } = useMollie();
+const shouldValidateFastForms = computed(() => addresses.value.length === 0);
 
 watch(generalConditionsSale, (value) => {
   if (value) {
@@ -255,6 +261,31 @@ onMounted(async () => {
 onUnmounted(() => {
   cleanUpMollieComponents();
 });
+
+const scrollToValidationError = (params: {
+  deliveryValid: boolean;
+  invoiceValid: boolean;
+}) => {
+  const selectors = [
+    !params.deliveryValid
+      ? '#delivery-fast-form .text-red-500, #delivery-fast-form .address-selector.has-errors, #delivery-fast-form .inputText.error, #delivery-fast-form .v-select.error'
+      : null,
+    !params.invoiceValid
+      ? '#invoice-fast-form .text-red-500, #invoice-fast-form .address-selector.has-errors, #invoice-fast-form .inputText.error, #invoice-fast-form .v-select.error'
+      : null,
+    '.formShipping .text-red-500, .formShipping .base-alert',
+    '.inputText.error, .v-select.error',
+  ].filter(Boolean) as string[];
+
+  for (const selector of selectors) {
+    const element = document.querySelector(selector);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+  }
+};
+
 const handleSubmit = async () => {
   console.log('handleSubmit called - starting payment flow');
 
@@ -268,26 +299,39 @@ const handleSubmit = async () => {
   generalConditionsError.value = null;
 
   try {
+    const isFormDeliveryFastValid = shouldValidateFastForms.value
+      ? await formDeliveryFastStore.validateFields()
+      : true;
+    const isFormInvoiceFastValid =
+      !shouldValidateFastForms.value || hasSameAddressForShipping.value
+        ? true
+        : await formInvoiceFastStore.validateFields();
+
     const allValid = await checkoutStore.validateCheckoutBeforePayment();
     console.log('Validation result (validateCheckoutBeforePayment):', allValid);
     console.log('Checkout errors:', checkoutStore.checkoutErrors);
-    if (!allValid) {
+    if (!allValid || !isFormDeliveryFastValid || !isFormInvoiceFastValid) {
       console.warn('Validation failed. Searching for error elements...');
       await nextTick(); // Wait for DOM updates
-      const firstError = document.querySelector(
-        '.formShipping .text-red-500, .inputText.error, .v-select.error'
-      );
-      console.log('Validation error DOM element found:', firstError);
+      scrollToValidationError({
+        deliveryValid: isFormDeliveryFastValid,
+        invoiceValid: isFormInvoiceFastValid,
+      });
 
-      if (firstError) {
-        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
-      } else {
+      const hasErrorInDom = !!document.querySelector(
+        '#delivery-fast-form .text-red-500, #invoice-fast-form .text-red-500, .formShipping .text-red-500, .formShipping .base-alert, .inputText.error, .v-select.error'
+      );
+
+      if (!hasErrorInDom) {
         // Fallback if no visual error is found but validation failed
         console.error('Validation failed but no error element found in DOM.');
-        alert(
-          t('tunnel.payment.error.check_form') ||
-            'Please check your information.'
-        );
+        paymentStatus.value = {
+          type: 'error',
+          message:
+            checkoutStore.checkoutErrors?.[0]?.message ||
+            t('tunnel.payment.error.check_form') ||
+            'Please check your information.',
+        };
       }
       return;
     }

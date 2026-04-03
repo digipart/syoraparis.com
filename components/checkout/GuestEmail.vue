@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import AuthService from '~/services/AuthService';
 
-const formDeliveryStore = useFormDeliveryStore();
+const formDeliveryStore = useFormDeliveryFastStore();
 const { state, v$ } = toRefs(formDeliveryStore);
+
+const checkoutStore = useCheckoutStore();
+const { checkoutCustomer } = storeToRefs(checkoutStore);
 
 const newsletter = ref(false);
 const emailAlreadyExists = ref(false);
@@ -38,6 +41,8 @@ watch(
     if (emailCheckTimer.value) {
       clearTimeout(emailCheckTimer.value);
     }
+
+    checkoutCustomer.value.deliveryAddress.email = emailValue;
 
     emailAlreadyExists.value = false;
 

@@ -30,7 +30,13 @@ const { t } = useI18n();
     >
       <span class="orderSummary-label">
         {{ t('label.shipping') }} <br />
-        <small>({{ carrier?.Name }})</small> :
+        <small
+          >({{ carrier?.Name }}
+          <span v-if="carrier?.IdRelayPoint"
+            >- {{ carrier?.RelayPoint?.Name }}</span
+          >)</small
+        >
+        :
       </span>
       <span class="orderSummary-value">
         {{ carrier?.Price?.TaxIncl.toFixed(2) }} {{ currencySign }}

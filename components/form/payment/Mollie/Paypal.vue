@@ -87,13 +87,10 @@ const cartStore = useCartStore();
 const { cart } = toRefs(cartStore);
 
 const addressStore = useAddressStore();
-const { addressDelivery, addressInvoice } = toRefs(addressStore);
+const { addressDelivery, addressInvoice, addresses } = toRefs(addressStore);
 
-const formDeliveryStore = useFormDeliveryStore();
-const { v$: v$FormDelivery } = toRefs(formDeliveryStore);
-
-const formInvoiceStore = useFormInvoiceStore();
-const { v$: v$AddressInvoice } = toRefs(formInvoiceStore);
+const formDeliveryFastStore = useFormDeliveryFastStore();
+const formInvoiceFastStore = useFormInvoiceFastStore();
 
 const localePath = useLocalePath();
 const appStore = useAppStore();
@@ -122,10 +119,35 @@ const paymentStatus = ref<{ type: string; message: string } | null>(null);
 const generalConditionsSale = ref(false);
 const generalConditionsError = ref<string | null>(null);
 const uid = Math.random().toString(36).substring(7);
+const shouldValidateFastForms = computed(() => addresses.value.length === 0);
 
 const formatAmount = (amount?: number) => {
   if (!amount) return '0.00';
   return (amount / 100).toFixed(2);
+};
+
+const scrollToValidationError = (params: {
+  deliveryValid: boolean;
+  invoiceValid: boolean;
+}) => {
+  const selectors = [
+    !params.deliveryValid
+      ? '#delivery-fast-form .text-red-500, #delivery-fast-form .address-selector.has-errors, #delivery-fast-form .inputText.error, #delivery-fast-form .v-select.error'
+      : null,
+    !params.invoiceValid
+      ? '#invoice-fast-form .text-red-500, #invoice-fast-form .address-selector.has-errors, #invoice-fast-form .inputText.error, #invoice-fast-form .v-select.error'
+      : null,
+    '.formShipping .text-red-500, .formShipping .base-alert',
+    '.inputText.error, .v-select.error',
+  ].filter(Boolean) as string[];
+
+  for (const selector of selectors) {
+    const element = document.querySelector(selector);
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      return;
+    }
+  }
 };
 const { mollie, loadMollie } = useMollie();
 
@@ -152,13 +174,36 @@ const handlePayPalPayment = async () => {
 
   generalConditionsError.value = null;
 
+  const isFormDeliveryFastValid = shouldValidateFastForms.value
+    ? await formDeliveryFastStore.validateFields()
+    : true;
+  const isFormInvoiceFastValid =
+    !shouldValidateFastForms.value || hasSameAddressForShipping.value
+      ? true
+      : await formInvoiceFastStore.validateFields();
+
   const allValid = await checkoutStore.validateCheckoutBeforePayment();
 
-  if (!allValid) {
-    const firstError = document.querySelector(
-      '.formShipping .text-red-500, .inputText.error, .v-select.error'
+  if (!allValid || !isFormDeliveryFastValid || !isFormInvoiceFastValid) {
+    await nextTick();
+    scrollToValidationError({
+      deliveryValid: isFormDeliveryFastValid,
+      invoiceValid: isFormInvoiceFastValid,
+    });
+
+    const hasErrorInDom = !!document.querySelector(
+      '#delivery-fast-form .text-red-500, #invoice-fast-form .text-red-500, .formShipping .text-red-500, .formShipping .base-alert, .inputText.error, .v-select.error'
     );
-    firstError?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+    if (!hasErrorInDom) {
+      paymentStatus.value = {
+        type: 'error',
+        message:
+          checkoutStore.checkoutErrors?.[0]?.message ||
+          t('tunnel.payment.error.check_form') ||
+          'Please check your information.',
+      };
+    }
     return;
   }
 
@@ -166,13 +211,14 @@ const handlePayPalPayment = async () => {
 
   isProcessing.value = true;
 
-  await registerAndPrepareGuestAddress();
-  paymentStatus.value = {
-    type: 'info',
-    message: t('tunnel.payment.paypal.redirecting'),
-  };
-
   try {
+    paymentStatus.value = {
+      type: 'info',
+      message: t('tunnel.payment.paypal.redirecting'),
+    };
+
+    await registerAndPrepareGuestAddress();
+
     const deliveryAddress = addressDelivery.value;
     const invoiceAddress = addressInvoice.value || deliveryAddress;
 

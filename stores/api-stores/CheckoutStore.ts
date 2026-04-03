@@ -1,7 +1,5 @@
 import PaymentService from '~/services/PaymentService';
 import { defineStore } from 'pinia';
-import { useFormDeliveryStore } from '../form-stores/formDeliveryStore';
-import { useFormInvoiceStore } from '../form-stores/formInvoiceStore';
 import type { PaymentMethodType } from '~/types/PaymentType';
 import type { RelayPointType } from '~/types/RelayPointsType';
 import type { CarrierGenre } from '~/types/ShippingType';
@@ -39,6 +37,8 @@ type CheckoutCarrier = {
 
 export const useCheckoutStore = defineStore('checkoutStore', () => {
   const checkoutDeliveryOption = ref<'home' | 'relayPoint' | 'store'>('home');
+  const { locale } = useI18n();
+  const refreshPaymentMethodsTrigger = ref(0);
   const hasSameAddressForShipping = ref(false);
   const carrierError = ref<string | null>(null);
   const checkoutCustomer = ref<CheckoutCustomer>({
@@ -75,157 +75,13 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
   const hasAddressDelivery = ref(false);
   const paymentRefreshTimer = ref<ReturnType<typeof setTimeout> | null>(null);
 
-  const cartStore = useCartStore();
-  const { cart, carrier: cartCarrier, isDigitalOnly } = toRefs(cartStore);
-
   const { t } = useI18n();
 
   const auth = useAuth();
   const { isLoggedIn } = toRefs(auth);
   const { registerGuest } = auth;
 
-  const buildPaymentMethodOptions = () => {
-    const ip = useIp();
-    const delivery = checkoutCustomer.value.deliveryAddress;
-
-    const hasCompleteDeliveryAddress =
-      !!delivery.postalCode &&
-      !!delivery.city &&
-      !!delivery.address &&
-      !!delivery.country;
-
-    if (hasCompleteDeliveryAddress) {
-      return {
-        Postcode: delivery.postalCode,
-        City: delivery.city,
-        Address1: delivery.address,
-        Country: delivery.country,
-        IP: (ip.value as string) || '',
-      };
-    }
-
-    return {
-      IP: (ip.value as string) || '',
-    };
-  };
-
-  const validateCheckoutBeforePayment = async (): Promise<boolean> => {
-    const cartStore = useCartStore();
-    const { isDigitalOnly } = toRefs(cartStore);
-    const formDeliveryStore = useFormDeliveryStore();
-    const formInvoiceStore = useFormInvoiceStore();
-
-    let allValid = true;
-
-    if (!isLoggedIn.value) {
-      if (
-        !isDigitalOnly.value &&
-        checkoutDeliveryOption.value === 'home' &&
-        !checkoutCarrier.value.carrier
-      ) {
-        carrierError.value = t('error.carrier_required');
-        allValid = false;
-      } else {
-        carrierError.value = null;
-      }
-
-      let isFormDeliveryCorrect = true;
-      if (
-        checkoutDeliveryOption.value === 'relayPoint' ||
-        checkoutDeliveryOption.value === 'store'
-      ) {
-        isFormDeliveryCorrect = await formDeliveryStore.v$.email.$validate();
-      } else {
-        isFormDeliveryCorrect = await formDeliveryStore.v$.$validate();
-      }
-      if (!isFormDeliveryCorrect) allValid = false;
-
-      let isAddressInvoiceCorrect = true;
-      if (!hasSameAddressForShipping.value) {
-        isAddressInvoiceCorrect = await formInvoiceStore.v$.$validate();
-      }
-      if (!isAddressInvoiceCorrect) allValid = false;
-
-      if (!isCheckoutValid.value) {
-        allValid = false;
-      }
-    }
-
-    return allValid;
-  };
-
-  watch(
-    () => checkoutCustomer.value.deliveryAddress,
-    () => {
-      hasAddressDelivery.value =
-        checkoutCustomer.value.deliveryAddress.postalCode !== '' &&
-        checkoutCustomer.value.deliveryAddress.country !== '' &&
-        checkoutCustomer.value.deliveryAddress.city !== '' &&
-        checkoutCustomer.value.deliveryAddress.address !== '';
-    },
-    { deep: true }
-  );
-
-  const refreshPaymentMethods = async (customOptions?: any) => {
-    return fetchPaymentMethods(customOptions || buildPaymentMethodOptions());
-  };
-
-  const scheduleRefreshPaymentMethods = (delay = 300) => {
-    if (paymentRefreshTimer.value) {
-      clearTimeout(paymentRefreshTimer.value);
-    }
-
-    paymentRefreshTimer.value = setTimeout(() => {
-      refreshPaymentMethods().catch(() => {
-        // keep checkout responsive even if payment methods endpoint fails
-      });
-    }, delay);
-  };
-
-  watch(
-    () => ({
-      address: checkoutCustomer.value.deliveryAddress.address,
-      postalCode: checkoutCustomer.value.deliveryAddress.postalCode,
-      city: checkoutCustomer.value.deliveryAddress.city,
-      country: checkoutCustomer.value.deliveryAddress.country,
-    }),
-    () => {
-      scheduleRefreshPaymentMethods();
-    },
-    { deep: true }
-  );
-
-  watch(
-    () => checkoutCarrier.value.carrier,
-    () => {
-      scheduleRefreshPaymentMethods(0);
-    }
-  );
-
-  watch(
-    () => ({
-      cartCarrierId: cartCarrier.value?.IdCarrier || 0,
-      checkoutCarrierId: checkoutCarrier.value.carrier?.IdCarrier || 0,
-      promoCodes: JSON.stringify(cart.value?.Discounts?.PromoCodes || []),
-      cartRules: JSON.stringify(cart.value?.Discounts?.CartRules || []),
-      totalToPay: cart.value?.Total?.ToPay?.TaxIncl || 0,
-      shippingTotal: cart.value?.Total?.Shipping?.TaxIncl || 0,
-      discountTotal: cart.value?.Total?.Discount?.TaxIncl || 0,
-      hasAddressDelivery: hasAddressDelivery.value,
-      deliveryAddress: JSON.stringify(checkoutCustomer.value.deliveryAddress),
-      digitalOnly: isDigitalOnly.value,
-    }),
-    ({ hasAddressDelivery, digitalOnly, cartCarrierId, checkoutCarrierId }) => {
-      const hasCarrier = !!cartCarrierId || !!checkoutCarrierId;
-
-      if (!hasAddressDelivery || (!digitalOnly && !hasCarrier)) {
-        return;
-      }
-
-      scheduleRefreshPaymentMethods(0);
-    },
-    { deep: true }
-  );
+  // Centralized watcher for all state that should trigger a payment methods refresh
 
   const isCheckoutValid = computed(() => {
     const validation = validateCheckout();
@@ -235,7 +91,7 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
 
   const validateCheckout = () => {
     const cartStore = useCartStore();
-    const { isDigitalOnly } = toRefs(cartStore);
+    const { isDigitalOnly, cart } = toRefs(cartStore);
     const errors: { field: string; message: string }[] = [];
     const customer = checkoutCustomer.value;
     const carrier = checkoutCarrier.value;
@@ -263,7 +119,12 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
       }
     };
 
-    if (!isDigitalOnly.value && (!carrier || !carrier.carrier)) {
+    const hasSelectedCarrier =
+      !!carrier?.carrier?.IdCarrier ||
+      !!cart.value?.Shipping?.Carrier?.IdCarrier;
+
+    if (!isDigitalOnly.value && !hasSelectedCarrier) {
+      console.log('carrier error', hasSelectedCarrier, isDigitalOnly.value);
       errors.push({ field: 'carrier', message: t('error.carrier_required') });
     }
 
@@ -292,11 +153,8 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
       'country',
     ];
 
-    // Only validate invoice address if it's different from delivery
-    if (
-      JSON.stringify(customer.deliveryAddress) !==
-      JSON.stringify(customer.invoiceAddress)
-    ) {
+    // Only validate invoice address if user selected different invoice address
+    if (!hasSameAddressForShipping.value) {
       for (const field of requiredInvoiceFields) {
         if (!customer.invoiceAddress[field]) {
           errors.push({
@@ -332,8 +190,26 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
       });
   };
 
-  const fetchPaymentMethods = async (options: any) => {
-    const { locale } = useI18n();
+  const fetchPaymentMethods = async (
+    options: {
+      LanguageIsoCode?: string;
+      CurrencyIsoCode?: string;
+      Postcode?: string;
+      City?: string;
+      Address1?: string;
+      Country?: string;
+      IP?: string;
+    } = {}
+  ) => {
+    // Guard: don't call the API without essential address params
+    if (
+      !options.Postcode &&
+      !options.Address1 &&
+      !options.Country &&
+      !options.IP
+    ) {
+      return {};
+    }
     const paymentService = new PaymentService();
     try {
       const data = await paymentService.paymentMethods({
@@ -346,6 +222,22 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
       console.error('Failed to fetch payment methods', error);
       throw error;
     }
+  };
+
+  const validateCheckoutBeforePayment = async (): Promise<boolean> => {
+    const cartStore = useCartStore();
+    const { isDigitalOnly } = toRefs(cartStore);
+
+    const checkoutValidation = validateCheckout();
+    checkoutErrors.value = checkoutValidation.errors;
+
+    if (!isDigitalOnly.value && !checkoutCarrier.value?.carrier?.IdCarrier) {
+      carrierError.value = t('error.carrier_required');
+    } else {
+      carrierError.value = null;
+    }
+
+    return checkoutValidation.valid;
   };
 
   return {
@@ -362,7 +254,6 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
     createClientGuest,
     validateCheckoutBeforePayment,
     fetchPaymentMethods,
-    refreshPaymentMethods,
-    scheduleRefreshPaymentMethods,
+    refreshPaymentMethodsTrigger,
   };
 });

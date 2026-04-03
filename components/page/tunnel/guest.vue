@@ -154,10 +154,9 @@ const refreshCodePromo = () => {
 onMounted(() => {
   hydrateGuestCheckout();
   updateShipping({ idCarrier: 0 }).then(() => removeCarrier());
-  const ip = useIp();
-  shippingStore.fetchShipping({ IP: ip.value });
+  shippingStore.fetchShipping();
   if (isDigitalOnly.value) {
-    checkoutStore.fetchPaymentMethods({ IP: ip.value });
+    checkoutStore.fetchPaymentMethods();
   }
 
   scheduleRefreshPaymentMethods();

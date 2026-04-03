@@ -150,7 +150,7 @@ const onBlur = () => {
 $inputText: '.inputText';
 
 #{$inputText} {
-  @apply w-full relative mb-3 lg:mb-5 font-light uppercase;
+  @apply w-full relative mb-3 lg:mb-4 font-light uppercase;
 
   input,
   textarea {

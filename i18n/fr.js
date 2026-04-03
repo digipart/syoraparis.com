@@ -73,6 +73,9 @@ const fr = {
     view_collection: 'Voir la collection',
     log_in_to_access_your_loyalty_benefits: 'Connectez-vous',
     sign_in: 'Se connecter',
+    change: 'Changer',
+    confirm: 'Confirmer',
+    ok: 'Ok',
   },
   link: {
     contact_us: 'Contactez-nous',
@@ -120,6 +123,7 @@ const fr = {
     our_stores_near_you: 'Trouver un magasin près de vous',
     discover_our_brands: 'Découvrez nos marques',
     completeYourLook: 'COMPLÉTEZ VOTRE LOOK',
+    payment: 'Sélectionner un mode de paiement',
   },
   label: {
     ref: 'RÉF',
@@ -164,7 +168,7 @@ const fr = {
     phone_mobile: 'Téléphone mobile',
     use_different_billing_address: 'Utiliser une autre adresse pour la facturation',
     select_delivery_mode: 'Sélectionner un mode de livraison',
-    provide_address_to_see_shipping: 'Veuillez renseigner votre adresse pour voir les modes de livraison disponibles.',
+    provide_address_to_see_shipping: 'Veuillez renseigner votre adresse de livraison pour voir les modes de livraison disponibles.',
     estimated_delivery: 'Livraison estimée',
     choose_carrier: 'Choisir un transporteur',
     logo: 'Logo',

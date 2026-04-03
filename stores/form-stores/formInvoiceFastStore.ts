@@ -1,0 +1,58 @@
+import { defineStore } from 'pinia';
+import { reactive } from 'vue';
+import { useVuelidate } from '@vuelidate/core';
+import { required, email, helpers } from '@vuelidate/validators';
+
+export const useFormInvoiceFastStore = defineStore(
+  'formInvoiceFastStore',
+  () => {
+    const { t } = useI18n();
+
+    const state = reactive({
+      name: '',
+      firstname: '',
+      address: '',
+      courtAddress: '',
+      postcode: '',
+      city: '',
+      country: '',
+      phone: '',
+      company: '',
+      state: '',
+    });
+
+    const rules = {
+      name: {
+        required: helpers.withMessage(t('error.name_required'), required),
+      },
+      firstname: {
+        required: helpers.withMessage(t('error.firstname_required'), required),
+      },
+      address: {
+        required: helpers.withMessage(t('error.address_required'), required),
+      },
+      postcode: {
+        required: helpers.withMessage(t('error.postcode_required'), required),
+      },
+      city: {
+        required: helpers.withMessage(t('error.city_required'), required),
+      },
+      country: {
+        required: helpers.withMessage(t('error.country_required'), required),
+      },
+      phone: {
+        required: helpers.withMessage(t('error.phone_required'), required),
+      },
+    };
+
+    const v$ = useVuelidate(rules, state);
+
+    const validateFields = async () => {
+      v$.value.$touch();
+      const isValid = await v$.value.$validate();
+      return isValid;
+    };
+
+    return { state, v$, validateFields };
+  }
+);

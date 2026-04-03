@@ -26,7 +26,7 @@ const isDrawerOpen = ref(false);
 const relayPointDrawerVisible = ref(false);
 const drawerType = ref<'Home' | 'RelayPoint' | 'Store'>('Home');
 const loading = ref(false);
-const ip = useIp();
+
 const reloadTimer = ref<ReturnType<typeof setTimeout> | null>(null);
 const lastAddressKey = ref('');
 const { locale } = useI18n();
@@ -85,7 +85,6 @@ const setDelivredOption = async (
       City: delivery.city,
       Address1: delivery.address,
       Country: delivery.country,
-      IP: (ip.value as string) || '',
     };
 
     const carrierType = mapOptionToCarrierType(optionType);
@@ -173,11 +172,10 @@ const getPaymentOptions = () => {
       City: delivery.city,
       Address1: delivery.address,
       Country: delivery.country,
-      IP: ip.value,
     };
   }
 
-  return { IP: ip.value as string };
+  return {};
 };
 
 const mapCarrierTypeToOption = (carrierType: string) => {
@@ -202,7 +200,6 @@ const selectFirstCarrierForType = async (
     City: string;
     Address1: string;
     Country: string;
-    IP: string;
   }
 ) => {
   const firstCarrier = allCarriers.value[carrierType]?.[0];
@@ -280,7 +277,6 @@ const reloadShippingAndAutoSelectFirst = async () => {
       City: delivery.city,
       Address1: delivery.address,
       Country: delivery.country,
-      IP: (ip.value as string) || '',
     };
 
     await fetchShipping(options);
@@ -315,10 +311,6 @@ watch(
     dPostalCode: checkoutCustomer.value.deliveryAddress.postalCode,
     dCity: checkoutCustomer.value.deliveryAddress.city,
     dCountry: checkoutCustomer.value.deliveryAddress.country,
-    iAddress: checkoutCustomer.value.invoiceAddress.address,
-    iPostalCode: checkoutCustomer.value.invoiceAddress.postalCode,
-    iCity: checkoutCustomer.value.invoiceAddress.city,
-    iCountry: checkoutCustomer.value.invoiceAddress.country,
     same: hasSameAddressForShipping.value,
   }),
   () => {
@@ -352,7 +344,7 @@ onBeforeUnmount(() => {
           <!-- Row header -->
           <div
             class="delivery-group__header"
-            @click="setDelivredOption(opt.id as any)"
+            @click="setDelivredOption(opt.id)"
           >
             <div class="flex items-center gap-3">
               <div

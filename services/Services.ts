@@ -28,19 +28,11 @@ export default class Service {
 
   async $get<T>(api: string, body?: { options?: any; isAuth?: boolean }) {
     let query = '';
-
     if (body?.options) {
-      const mappedArray = Object.entries(body?.options).map(([key, value]) => ({
-        key,
-        value,
-      }));
-      mappedArray.map((item, index) => {
-        if (index === 0) {
-          query += `?${item.key}=${item.value}`;
-        } else {
-          query += `&${item.key}=${item.value}`;
-        }
-      });
+      const cleanOptions = Object.fromEntries(
+        Object.entries(body.options).filter(([_, v]) => v !== '' && v != null)
+      );
+      query = qs.stringify(cleanOptions, { addQueryPrefix: true });
     }
     return await $fetch<T>(`/api2/${api}${query}`, {
       headers: this.headers(body?.isAuth),

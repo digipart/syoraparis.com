@@ -5,13 +5,20 @@
 </template>
 
 <script setup lang="ts">
-const { indexActive = [] } = defineProps<{
-  indexActive?: number[];
-}>();
+type CollapsibleIndex = number | string;
 
-const openItems = ref<Set<number>>(new Set());
+const props = withDefaults(
+  defineProps<{
+    indexActive?: CollapsibleIndex[];
+  }>(),
+  {
+    indexActive: () => [],
+  }
+);
 
-const toggleItem = (index: number, closeOthers: boolean) => {
+const openItems = ref<Set<CollapsibleIndex>>(new Set());
+
+const toggleItem = (index: CollapsibleIndex, closeOthers: boolean) => {
   if (closeOthers) {
     openItems.value = new Set([index]);
   } else {
@@ -25,11 +32,16 @@ const toggleItem = (index: number, closeOthers: boolean) => {
   }
 };
 
-// indexActive?.map((item) => {
-//   openItems.value.add(item);
-// });
-
-openItems.value = new Set(indexActive);
+watch(
+  () => props.indexActive,
+  (newIndexes) => {
+    openItems.value = new Set(newIndexes);
+  },
+  {
+    immediate: true,
+    deep: true,
+  }
+);
 
 provide('openItems', openItems);
 provide('toggleItem', toggleItem);
