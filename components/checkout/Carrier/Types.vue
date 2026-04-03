@@ -22,14 +22,13 @@ const checkoutStore = useCheckoutStore();
 const { checkoutCustomer } = storeToRefs(checkoutStore);
 
 const activeTab = ref<string[]>([]);
+const loading = ref<boolean>(false);
 
 let firstOpen = true;
 const onOpen = (key: string) => {
   const cr = carrier.value[key];
   activeTab.value = [key];
   if (!firstOpen) {
-    console.log(relayPointSelected.value?.Id);
-
     selectCarrier({
       c: cr[0],
       rpId: key === 'RelayPoint' ? relayPointSelected.value?.Id : undefined,
@@ -39,27 +38,37 @@ const onOpen = (key: string) => {
 };
 
 const fetchCarriers = async () => {
+  loading.value = true;
+  const ip = useIp();
+  let options: any = {
+    IP: ip.value,
+  };
   if (checkoutCustomer.value?.deliveryAddress.postalCode) {
-    shippingStore
-      .fetchShipping({
-        LanguageIsoCode: languageIsoCode.value,
-        CurrencyIsoCode: currencyIsoCode.value,
-        Postcode: checkoutCustomer.value?.deliveryAddress.postalCode,
-        City: checkoutCustomer.value?.deliveryAddress.city,
-        Address1: checkoutCustomer.value?.deliveryAddress.address,
-        Country: checkoutCustomer.value?.deliveryAddress.country,
-      })
-      .then((data: ShippingType) => {
-        const keys = Object.keys(data.Carrier || {});
-        if (keys.length > 0) {
-          currentCarrier.value = data?.Carrier?.[keys[0]]?.[0];
-          activeTab.value = [keys[0]];
-          //setCarrierToCart(currentCarrier.value);
-          getCarrier();
-          fetchRelayPoints();
-        }
-      });
+    options = {
+      Postcode: checkoutCustomer.value?.deliveryAddress.postalCode,
+      City: checkoutCustomer.value?.deliveryAddress.city,
+      Address1: checkoutCustomer.value?.deliveryAddress.address,
+      Country: checkoutCustomer.value?.deliveryAddress.country,
+    };
   }
+  shippingStore
+    .fetchShipping(options)
+    .then((data: ShippingType) => {
+      const keys = Object.keys(data.Carrier || {});
+      if (keys.length > 0) {
+        currentCarrier.value = data?.Carrier?.[keys[0]]?.[0];
+        activeTab.value = [keys[0]];
+        //setCarrierToCart(currentCarrier.value);
+        getCarrier();
+        fetchRelayPoints();
+      }
+    })
+    .catch((err) => {
+      console.log(err);
+    })
+    .finally(() => {
+      loading.value = false;
+    });
 };
 
 const getCarrier = () => {
@@ -124,12 +133,21 @@ const selectCarrier = ({ c, rpId }: { c: CarrierGenre; rpId?: string }) => {
 
 const fetchRelayPoints = async () => {
   if (currentCarrier.value?.IdCarrier) {
+    const ip = useIp();
+    let options: any = {
+      IP: ip.value,
+    };
+    if (checkoutCustomer.value?.deliveryAddress.postalCode) {
+      options = {
+        Postcode: checkoutCustomer.value?.deliveryAddress.postalCode,
+        City: checkoutCustomer.value?.deliveryAddress.city,
+        Address1: checkoutCustomer.value?.deliveryAddress.address,
+        Country: checkoutCustomer.value?.deliveryAddress.country,
+      };
+    }
     const res = await shippingStore.fetchRelayPoints({
       IdCarrier: currentCarrier.value.IdCarrier,
-      Postcode: checkoutCustomer.value?.deliveryAddress.postalCode,
-      City: checkoutCustomer.value?.deliveryAddress.city,
-      Address1: checkoutCustomer.value?.deliveryAddress.address,
-      Country: checkoutCustomer.value?.deliveryAddress.country,
+      ...options,
     });
 
     if (res) {
@@ -167,43 +185,44 @@ watch(
 <template>
   <div>
     <h2 class="checkout-title">{{ $t('label.shippingOption.title') }} :</h2>
-    <BaseCollapsible
-      v-if="Object.keys(carrier).length > 0"
-      :index-active="activeTab"
-      class="carrierTypeCollaps"
-    >
-      <BaseCollapsibleItem
-        v-for="(genre, key) in carrier"
-        :key="key"
-        :index="key"
-        :closeOthers="true"
-        :hideArrow="false"
-        @onOpen="onOpen(key)"
-      >
-        <template #header>
-          {{ $t(`label.shippingOption.${key}`) }}
-        </template>
-        <template #content>
-          <div class="px-3 py-3 flex flex-col gap-3">
-            <CheckoutCarrierCard
-              v-if="currentCarrier"
-              :carrier="currentCarrier"
-              @onChangeClick="drawerOpen = true"
-              :buttonText="
-                carrier[activeTab[0]]?.length > 1 ? $t('button.change') : ''
-              "
-              :key="currentCarrier?.IdCarrier"
-              :relayPointSelected="
-                currentCarrier?.CarrierType === 'RelayPoint'
-                  ? relayPointSelected
-                  : null
-              "
-              @onRelayPointSelected="onSelectRelayPointHandler"
-            />
-          </div>
-        </template>
-      </BaseCollapsibleItem>
-    </BaseCollapsible>
+    <div v-if="loading" class="h-20 flex items-center justify-center">
+      <IconProgress :size="2" class="loadingPage-spinner" />
+    </div>
+    <div v-else-if="Object.keys(carrier).length > 0">
+      <BaseCollapsible :index-active="activeTab" class="carrierTypeCollaps">
+        <BaseCollapsibleItem
+          v-for="(genre, key) in carrier"
+          :key="key"
+          :index="key"
+          :closeOthers="true"
+          :hideArrow="false"
+          @onOpen="onOpen(key)"
+        >
+          <template #header>
+            {{ $t(`label.shippingOption.${key}`) }}
+          </template>
+          <template #content>
+            <div class="px-3 py-3 flex flex-col gap-3">
+              <CheckoutCarrierCard
+                v-if="currentCarrier"
+                :carrier="currentCarrier"
+                @onChangeClick="drawerOpen = true"
+                :buttonText="
+                  carrier[activeTab[0]]?.length > 1 ? $t('button.change') : ''
+                "
+                :key="currentCarrier?.IdCarrier"
+                :relayPointSelected="
+                  currentCarrier?.CarrierType === 'RelayPoint'
+                    ? relayPointSelected
+                    : null
+                "
+                @onRelayPointSelected="onSelectRelayPointHandler"
+              />
+            </div>
+          </template>
+        </BaseCollapsibleItem>
+      </BaseCollapsible>
+    </div>
     <div v-else>
       <BaseAlert type="warning" :closeButton="false" fill>
         <template #icon>

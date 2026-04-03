@@ -33,15 +33,25 @@ export const useShippingStore = defineStore('shippingStore', () => {
       } catch (err) {
         console.error('Error setting toshow:', err);
       }
+    } else {
+      carriers.value = [];
     }
     if (data.Carrier) {
       carrier.value = data.Carrier;
+    } else {
+      carrier.value = {} as CarrierType;
     }
   };
 
   const fetchShipping = async (options: ShippingRequestType = {}) => {
     // Guard: don't call the API without essential address params
-    if (!options.Postcode && !options.Address1 && !options.Country && !options.IdAddress) {
+    if (
+      !options.Postcode &&
+      !options.Address1 &&
+      !options.Country &&
+      !options.IdAddress &&
+      !options.IP
+    ) {
       return {} as ShippingType;
     }
 
@@ -80,6 +90,9 @@ export const useShippingStore = defineStore('shippingStore', () => {
         if (data.RelayPoints) {
           relayPoints.value = data.RelayPoints;
           relayPointsSerched.value = data.RelayPoints;
+        } else {
+          relayPoints.value = [];
+          relayPointsSerched.value = [];
         }
         return data.RelayPoints;
       })
