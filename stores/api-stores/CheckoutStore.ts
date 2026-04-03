@@ -198,8 +198,18 @@ export const useCheckoutStore = defineStore('checkoutStore', () => {
       City?: string;
       Address1?: string;
       Country?: string;
+      IP?: string;
     } = {}
   ) => {
+    // Guard: don't call the API without essential address params
+    if (
+      !options.Postcode &&
+      !options.Address1 &&
+      !options.Country &&
+      !options.IP
+    ) {
+      return {};
+    }
     const paymentService = new PaymentService();
     try {
       const data = await paymentService.paymentMethods({

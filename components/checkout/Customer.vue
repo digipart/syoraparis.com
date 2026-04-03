@@ -9,10 +9,6 @@ const { checkoutCustomer } = storeToRefs(checkoutStore);
     <CheckoutAddressDelivery />
     <CheckoutAddressInvoice class="mt-3" />
     <CheckoutCarrierTypes class="mt-5" />
-
-    <CheckoutPayment
-      class="mt-5"
-      v-if="checkoutCustomer?.deliveryAddress?.postalCode"
-    />
+    <CheckoutPayment class="mt-5" />
   </div>
 </template>

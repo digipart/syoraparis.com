@@ -11,6 +11,8 @@ const { languageIsoCode, currencyIsoCode } = toRefs(appStore);
 const cartStore = useCartStore();
 const { cart } = toRefs(cartStore);
 
+const loading = ref<boolean>(false);
+
 const getPaymentImage = (paymenName?: string) => {
   switch (paymenName?.toLowerCase()) {
     case 'creditcard':
@@ -33,12 +35,26 @@ const getPaymentImage = (paymenName?: string) => {
 const config = useRuntimeConfig();
 
 const fetchPaymentMethods = async () => {
-  await checkoutStore.fetchPaymentMethods({
-    Postcode: checkoutCustomer.value.deliveryAddress.postalCode,
-    City: checkoutCustomer.value.deliveryAddress.city,
-    Address1: checkoutCustomer.value.deliveryAddress.address,
-    Country: checkoutCustomer.value.deliveryAddress.country,
-  });
+  loading.value = true;
+  const ip = useIp();
+  let options: any = {
+    IP: ip.value,
+  };
+  if (checkoutCustomer.value?.deliveryAddress.postalCode) {
+    options = {
+      Postcode: checkoutCustomer.value?.deliveryAddress.postalCode,
+      City: checkoutCustomer.value?.deliveryAddress.city,
+      Address1: checkoutCustomer.value?.deliveryAddress.address,
+      Country: checkoutCustomer.value?.deliveryAddress.country,
+    };
+  }
+  try {
+    await checkoutStore.fetchPaymentMethods(options);
+  } catch (error) {
+    console.log(error);
+  } finally {
+    loading.value = false;
+  }
 };
 
 watch(
@@ -55,8 +71,11 @@ fetchPaymentMethods();
 <template>
   <div :key="refreshPaymentMethodsTrigger">
     <h2 class="checkout-title">{{ $t('titles.payment') }} :</h2>
+    <div v-if="loading" class="h-20 flex items-center justify-center">
+      <IconProgress :size="2" class="loadingPage-spinner" />
+    </div>
     <BaseCollapsible
-      v-if="checkoutPaymentMethods.length > 0"
+      v-else-if="checkoutPaymentMethods.length > 0"
       :index-active="[1]"
       class="formPayment"
     >
