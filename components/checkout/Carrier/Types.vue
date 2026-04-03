@@ -45,6 +45,10 @@ const fetchCarriers = async () => {
   let options: any = {
     IP: ip.value,
   };
+  console.log(
+    'checkoutCustomer.value?.deliveryAddress',
+    checkoutCustomer.value?.deliveryAddress
+  );
   if (checkoutCustomer.value?.deliveryAddress.postalCode) {
     options = {
       Postcode: checkoutCustomer.value?.deliveryAddress.postalCode,
@@ -74,6 +78,7 @@ const fetchCarriers = async () => {
 };
 
 const getCarrier = () => {
+  console.log('carrier.value her');
   for (const key in carrier.value) {
     for (const c of carrier.value[key]) {
       if (
@@ -87,15 +92,29 @@ const getCarrier = () => {
     }
   }
 
+  console.log(
+    'cart.value?.Shipping?.Carrier?.IdCarrier',
+    cart.value?.Shipping?.Carrier?.IdCarrier
+  );
+  console.log(
+    'currentCarrier.value?.IdCarrier',
+    currentCarrier.value?.IdCarrier,
+    !cart.value?.Shipping?.Carrier?.IdCarrier ||
+      currentCarrier.value?.IdCarrier !==
+        cart.value?.Shipping?.Carrier?.IdCarrier
+  );
+
   if (
     !cart.value?.Shipping?.Carrier?.IdCarrier ||
     currentCarrier.value?.IdCarrier !== cart.value?.Shipping?.Carrier?.IdCarrier
   ) {
+    console.log('setCarrierToCart', currentCarrier.value);
     setCarrierToCart(currentCarrier.value);
   }
 };
 
 const setCarrierToCart = (c: CarrierGenre) => {
+  console.log('setCarrierToCart', c);
   //   shippingStore.setCarrier(carrier);
   if (c.IdCarrier && c.IdCarrier !== cart.value?.Shipping?.Carrier?.IdCarrier) {
     return updateShipping({
@@ -172,7 +191,9 @@ const onSelectRelayPointHandler = (rpId: string) => {
   }
 };
 
-fetchCarriers();
+onMounted(() => {
+  fetchCarriers();
+});
 
 watch(
   () => checkoutCustomer.value?.deliveryAddress?.postalCode,
