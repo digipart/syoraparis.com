@@ -23,6 +23,7 @@ const { checkoutCustomer } = storeToRefs(checkoutStore);
 
 const activeTab = ref<string[]>([]);
 const loading = ref<boolean>(false);
+const countLoading = ref<number>(0);
 
 let firstOpen = true;
 const onOpen = (key: string) => {
@@ -39,6 +40,7 @@ const onOpen = (key: string) => {
 
 const fetchCarriers = async () => {
   loading.value = true;
+  countLoading.value++;
   const ip = useIp();
   let options: any = {
     IP: ip.value,
@@ -183,7 +185,7 @@ watch(
 </script>
 
 <template>
-  <div>
+  <div :key="countLoading">
     <h2 class="checkout-title">{{ $t('label.shippingOption.title') }} :</h2>
     <div v-if="loading" class="h-20 flex items-center justify-center">
       <IconProgress :size="2" class="loadingPage-spinner" />
@@ -192,7 +194,7 @@ watch(
       <BaseCollapsible :index-active="activeTab" class="carrierTypeCollaps">
         <BaseCollapsibleItem
           v-for="(genre, key) in carrier"
-          :key="key"
+          :key="`${key}-${countLoading}`"
           :index="key"
           :closeOthers="true"
           :hideArrow="false"
