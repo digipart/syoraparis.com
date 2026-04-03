@@ -104,7 +104,7 @@ const setAddressToCheckout = () => {
     checkoutCustomer.value.invoiceAddress.lastname = state.value.name;
   }
 
-  addressCookie.value = null;
+  // addressCookie.value = null;
   drawerVisible.value = false;
 };
 
@@ -141,9 +141,7 @@ const initForm = () => {
   }
 };
 
-onMounted(() => {
-  initForm();
-});
+initForm();
 </script>
 
 <template>
