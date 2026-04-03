@@ -141,9 +141,7 @@ const initForm = () => {
   }
 };
 
-onMounted(() => {
-  initForm();
-});
+initForm();
 </script>
 
 <template>
