@@ -8,6 +8,7 @@ const { carrier, buttonText, relayPointSelected } = defineProps<{
   carrier: CarrierGenre;
   buttonText?: string;
   relayPointSelected: RelayPointType | null;
+  showRelayPoint?: boolean;
 }>();
 
 const getCarrierImage = (carrier: CarrierGenre) => {
@@ -38,7 +39,8 @@ const emit = defineEmits(['onChangeClick', 'onRelayPointSelected']);
       <div class="carrier-price">
         {{ carrier?.Price?.TaxIncl }} {{ currencySign }}
       </div>
-      <div v-if="buttonText" class="flex-1 md:flex-none flex justify-end">
+      <!-- v-if="buttonText" -->
+      <div class="flex-1 md:flex-none flex justify-end">
         <BaseButton
           type="default"
           size="small"
@@ -53,7 +55,7 @@ const emit = defineEmits(['onChangeClick', 'onRelayPointSelected']);
       </div>
     </div>
 
-    <div class="mt-[12px]" v-if="relayPointSelected">
+    <div class="mt-[12px]" v-if="showRelayPoint && relayPointSelected">
       <CheckoutRelayPointCard
         :relayPointSelected="relayPointSelected"
         :buttonText="$t('button.change')"

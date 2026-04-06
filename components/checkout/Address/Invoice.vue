@@ -15,7 +15,7 @@ const { addressDelivery, addressInvoice, addresses } =
 const state = ref<'form' | 'list' | 'card'>('card');
 
 hasSameAddressForShipping.value =
-  addressDelivery.value?.IdAddress === addressInvoice.value?.IdAddress;
+  addressDelivery.value?.IdAddress !== addressInvoice.value?.IdAddress;
 
 state.value = addresses.value.length > 0 ? 'card' : 'form';
 
@@ -95,7 +95,7 @@ onMounted(() => {
         </span>
       </InputCheckBox>
     </div>
-    <div v-if="!hasSameAddressForShipping" class="mb-2">
+    <div v-if="hasSameAddressForShipping" class="mb-2">
       <div class="flex justify-between items-center">
         <h2 class="checkout-title">{{ $t('titles.invoice_address') }} :</h2>
       </div>

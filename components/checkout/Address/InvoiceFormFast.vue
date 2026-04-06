@@ -82,6 +82,11 @@ const setAddressToCheckout = () => {
   checkoutCustomer.value.invoiceAddress.phone = state.value.phone;
   checkoutCustomer.value.invoiceAddress.firstname = state.value.firstname;
   checkoutCustomer.value.invoiceAddress.lastname = state.value.name;
+
+  if (isLoggedIn.value) {
+    state.value.firstname = customer.value?.Firstname || '';
+    state.value.name = customer.value?.Lastname || '';
+  }
 };
 
 const errorAddress = computed(() => {
