@@ -6,7 +6,8 @@ const { labelKey, linkClass } = withDefaults(
   }>(),
   {
     labelKey: 'button.log_in_to_access_your_loyalty_benefits',
-    linkClass: 'text-xxs lg:text-xs mb-0.5 underline cursor-pointer leading-tight',
+    linkClass:
+      'text-xxs lg:text-xs mb-0.5 underline cursor-pointer leading-tight',
   }
 );
 
@@ -32,6 +33,7 @@ const isVisible = ref(false);
 .loginModal {
   .formLogin-form {
     border: none !important;
+    @apply py-5;
   }
 }
 </style>

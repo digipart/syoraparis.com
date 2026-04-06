@@ -166,7 +166,7 @@ const en = {
     phone_mobile: 'Mobile phone',
     use_different_billing_address: 'Use a different billing address',
     select_delivery_mode: 'Select a shipping method',
-    provide_address_to_see_shipping: 'Please provide your shipping address to see available delivery methods.',
+    provide_address_to_see_shipping: 'Use a different address for billing',
     estimated_delivery: 'Estimated delivery',
     choose_carrier: 'Choose a carrier',
     logo: 'Logo',

@@ -145,6 +145,7 @@ watch(
                 class="modal-closebtn"
                 :title="$t('button.close')"
                 @click="closeModal"
+                size="small"
               >
                 <IconX />
               </BaseButton>
@@ -178,7 +179,10 @@ $modal: '.modal';
   }
 
   &-closebtn {
-    @apply absolute right-1 top-1.5 z-20;
+    @apply absolute right-0 top-0 z-20;
+    &.small {
+      @apply p-2;
+    }
   }
 
   &-body {
