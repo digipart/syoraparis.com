@@ -240,6 +240,7 @@ watch(
                     : null
                 "
                 @onRelayPointSelected="onSelectRelayPointHandler"
+                showRelayPoint
               />
             </div>
           </template>

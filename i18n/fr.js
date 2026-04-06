@@ -187,7 +187,7 @@ const fr = {
     my_orders_list: 'Liste de mes commandes',
     my_returns: 'Mes retours',
     same_as_delivery_address:
-      "Adresse de facturation identique à l'adresse de livraison",
+      "Utiliser une autre adresse pour la facturation",
     newsletter_our_news:
       'Recevez nos nouveautés en avant-première et profitez de nos offres exclusives !',
     newsletter: 'Newsletter',

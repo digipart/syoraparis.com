@@ -24,6 +24,7 @@ const { addAddress, updateAddress, fetchAddresses } = addressStore;
 const { addressInvoice } = toRefs(addressStore);
 
 if (isLoggedIn.value) {
+  console.log('customer.value', customer.value);
   state.value.email = customer.value?.Email || '';
 }
 if (address) {
@@ -102,6 +103,11 @@ const setAddressToCheckout = () => {
     checkoutCustomer.value.invoiceAddress.phone = state.value.phone;
     checkoutCustomer.value.invoiceAddress.firstname = state.value.firstname;
     checkoutCustomer.value.invoiceAddress.lastname = state.value.name;
+  }
+
+  if (isLoggedIn.value) {
+    state.value.firstname = customer.value?.Firstname || '';
+    state.value.name = customer.value?.Lastname || '';
   }
 
   // addressCookie.value = null;
