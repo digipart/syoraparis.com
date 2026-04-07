@@ -23,9 +23,6 @@ const loading = ref(true);
 const route = useRoute();
 const router = useRouter();
 const localepath = useLocalePath();
-if (cart.value.Total?.Product?.Quantity === 0) {
-  router.replace(localepath('/'));
-}
 
 const addressStore = useAddressStore();
 const { fetchAddresses } = addressStore;
@@ -54,19 +51,22 @@ watch(isLoggedIn, async (val) => {
 </script>
 
 <template>
-  <div class="grid grid-cols-11 items-start">
-    <!-- ══ LEFT COLUMN ══ -->
-    <div class="col-span-12 lg:col-span-6 checkout-left">
-      <div class="box">
-        <CheckoutCustomer v-if="isLoggedIn && !isGuest" />
-        <CheckoutGuest v-else />
+  <div v-if="loaded">
+    <LayoutContinueShopping v-if="!totalProductQuantity" class="mb-16" />
+    <div v-else class="grid grid-cols-11 items-start">
+      <!-- ══ LEFT COLUMN ══ -->
+      <div class="col-span-12 lg:col-span-6 checkout-left">
+        <div class="box">
+          <CheckoutCustomer v-if="isLoggedIn && !isGuest" />
+          <CheckoutGuest v-else />
+        </div>
       </div>
-    </div>
 
-    <!-- ══ RIGHT COLUMN: ORDER SUMMARY ══ -->
-    <div class="col-span-12 lg:col-span-5 checkout-right">
-      <div class="box">
-        <CheckoutRightSummary />
+      <!-- ══ RIGHT COLUMN: ORDER SUMMARY ══ -->
+      <div class="col-span-12 lg:col-span-5 checkout-right">
+        <div class="box">
+          <CheckoutRightSummary />
+        </div>
       </div>
     </div>
   </div>
