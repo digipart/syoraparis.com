@@ -89,7 +89,7 @@ fetchPaymentMethods();
             (pm.PaymentProvider?.toLowerCase() === 'payzen' &&
               pm.PaymentCode?.toLowerCase() === 'creditcard') ||
             (pm.PaymentProvider?.toLowerCase() === 'stripe' &&
-              ['creditcard', 'klarna'].includes(
+              ['creditcard', 'klarna', 'applepay', 'googlepay'].includes(
                 pm.PaymentCode?.toLowerCase() || ''
               )) ||
             (pm.PaymentProvider?.toLowerCase() === 'paypal' &&
@@ -175,6 +175,15 @@ fetchPaymentMethods();
                 "
                 :paymentMethod="pm"
                 form-type="klarna"
+              />
+              <FormPaymentStripeExpress
+                v-if="
+                  pm.PaymentProvider?.toLowerCase() === 'stripe' &&
+                  ['applepay', 'googlepay'].includes(
+                    pm.PaymentCode?.toLowerCase() || ''
+                  )
+                "
+                :paymentMethod="pm"
               />
               <!-- Paypal -->
               <FormPaymentPaypal

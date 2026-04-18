@@ -7,10 +7,9 @@ const { checkoutCustomer, hasSameAddressForShipping } =
 
 <template>
   <div>
-    <pre class="text-xxs">
- {{ checkoutCustomer }} {{ hasSameAddressForShipping }}</pre
-    >
+    <pre class="text-xxs"> {{ checkoutCustomer }}</pre>
 
+    <FormPaymentStripeExpress />
     <CheckoutGuestEmail />
     <CheckoutAddressDelivery class="mt-3" />
     <CheckoutAddressInvoice class="mt-3" />
