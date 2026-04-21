@@ -55,6 +55,7 @@ export const useShippingStore = defineStore('shippingStore', () => {
       return {} as ShippingType;
     }
 
+    console.log('options', options);
     const shippingService = new ShippingService();
     const appStore = useAppStore();
     const { currencyIsoCode, languageIsoCode } = toRefs(appStore);

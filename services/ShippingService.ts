@@ -20,6 +20,7 @@ export default class ShippingService extends Service {
   }
 
   async fetch(options: ShippingRequestType) {
+    console.log('options', options);
     try {
       const data = await this.$get<ShippingType>('carrier', {
         options,
