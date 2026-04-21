@@ -42,6 +42,8 @@ export default class Service {
   async $post<T>(api: string, body?: { options?: any; isAuth?: boolean }) {
     const formData = new FormData();
 
+    console.log('body', body);
+
     if (body?.options) {
       const mappedArray = Object.entries(body?.options).map(([key, value]) => ({
         key,

@@ -10,21 +10,46 @@ export default class StripePayment extends PaymentHelper {
     super({ cart, customer });
   }
 
-  async intent({ paymentMethodTypes }: { paymentMethodTypes: string }) {
-    let total = 0;
+  async intent({
+    paymentMethodTypes,
+    automaticPaymentMethods,
+    address,
+    amount,
+    clientSecret,
+  }: {
+    paymentMethodTypes?: string;
+    automaticPaymentMethods?: any;
+    address?: {
+      Address1?: string;
+      Postcode?: string;
+      City?: string;
+      Country?: string;
+    };
+    amount?: number;
+    clientSecret?: string;
+  }) {
+    let total = amount || 0;
 
     try {
       const service = new Service();
 
-      if (this.cart?.Total?.ToPay?.TaxIncl) {
+      if (!amount && this.cart?.Total?.ToPay?.TaxIncl) {
         total = this.cart?.Total?.ToPay?.TaxIncl * 100;
       }
 
       const response = await service.$post<any>('payment/stripe/intent', {
         options: {
           Amount: total,
-          CurrencyIsoCode: this.cart?.Currency?.IsoCode,
-          PaymentMethodTypes: paymentMethodTypes,
+          CurrencyIsoCode: this.cart?.Currency?.IsoCode || 'EUR',
+          ...(automaticPaymentMethods 
+            ? { AutomaticPaymentMethods: automaticPaymentMethods } 
+            : { PaymentMethodTypes: paymentMethodTypes || 'card' }),
+          Address: address?.Address1 || '',
+          Address1: address?.Address1 || '',
+          Postcode: address?.Postcode || '',
+          City: address?.City || '',
+          Country: address?.Country || '',
+          ...(clientSecret ? { ClientSecret: clientSecret } : {}),
         },
         isAuth: true,
       });

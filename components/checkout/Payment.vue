@@ -44,7 +44,9 @@ const fetchPaymentMethods = async () => {
     options = {
       Postcode: checkoutCustomer.value?.deliveryAddress.postalCode,
       City: checkoutCustomer.value?.deliveryAddress.city,
-      Address1: checkoutCustomer.value?.deliveryAddress.address,
+      Address1:
+        checkoutCustomer.value?.deliveryAddress.address ||
+        checkoutCustomer.value?.deliveryAddress.city,
       Country: checkoutCustomer.value?.deliveryAddress.country,
     };
   }

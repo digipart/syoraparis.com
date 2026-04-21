@@ -6,6 +6,7 @@ const { checkoutCustomer } = storeToRefs(checkoutStore);
 
 <template>
   <div>
+    <FormPaymentStripeExpress />
     <CheckoutAddressDelivery />
     <CheckoutAddressInvoice class="mt-3" />
     <CheckoutCarrierTypes class="mt-5" />
