@@ -101,11 +101,22 @@ const canInitializeExpress = computed(() => {
  * Detect wallet placeholder names that should NOT be persisted
  * as the customer's real identity (e.g. Google Pay test cards).
  */
-const isWalletPlaceholderName = (firstname?: string, lastname?: string): boolean => {
+const isWalletPlaceholderName = (
+  firstname?: string,
+  lastname?: string
+): boolean => {
   if (!firstname) return true;
   const fn = (firstname || '').trim().toLowerCase();
   const ln = (lastname || '').trim().toLowerCase();
-  const placeholders = ['card', 'express', 'client', 'test', 'browser', 'google', 'apple'];
+  const placeholders = [
+    'card',
+    'express',
+    'client',
+    'test',
+    'browser',
+    'google',
+    'apple',
+  ];
   if (placeholders.includes(fn)) return true;
   if (fn === 'card' && ln.startsWith('holder')) return true;
   if (fn === 'test' && (ln === 'user' || ln === 'test')) return true;
@@ -117,16 +128,28 @@ const isWalletPlaceholderName = (firstname?: string, lastname?: string): boolean
  * Get the best known real identity for the current user,
  * preferring auth data over wallet-provided names.
  */
-const getBestKnownIdentity = (): { firstname: string; lastname: string } | null => {
+const getBestKnownIdentity = (): {
+  firstname: string;
+  lastname: string;
+} | null => {
   // 1. Logged-in customer (most authoritative)
   const authCustomer = customer.value;
-  if (authCustomer?.Firstname && !isWalletPlaceholderName(authCustomer.Firstname, authCustomer.Lastname)) {
-    return { firstname: authCustomer.Firstname, lastname: authCustomer.Lastname || '' };
+  if (
+    authCustomer?.Firstname &&
+    !isWalletPlaceholderName(authCustomer.Firstname, authCustomer.Lastname)
+  ) {
+    return {
+      firstname: authCustomer.Firstname,
+      lastname: authCustomer.Lastname || '',
+    };
   }
 
   // 2. Checkout store delivery address
   const addr = checkoutCustomer.value?.deliveryAddress;
-  if (addr?.firstname && !isWalletPlaceholderName(addr.firstname, addr.lastname)) {
+  if (
+    addr?.firstname &&
+    !isWalletPlaceholderName(addr.firstname, addr.lastname)
+  ) {
     return { firstname: addr.firstname, lastname: addr.lastname || '' };
   }
 
@@ -137,7 +160,8 @@ const getBestKnownIdentity = (): { firstname: string; lastname: string } | null 
 const toCheckoutAddress = (address: any = {}, name = '', phone = '') => {
   const nameParts = (name || '').trim().split(' ').filter(Boolean);
   const walletFirstname = nameParts[0] || '';
-  const walletLastname = nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
+  const walletLastname =
+    nameParts.length > 1 ? nameParts.slice(1).join(' ') : '';
 
   // Use the best real identity, falling back to wallet name only if it's not a placeholder
   const knownIdentity = getBestKnownIdentity();
@@ -174,7 +198,8 @@ const toCheckoutAddress = (address: any = {}, name = '', phone = '') => {
       (address?.country_code?.length === 2 ? address.country_code : null) ||
       checkoutCustomer.value?.deliveryAddress?.country ||
       '',
-    phone: phone || checkoutCustomer.value?.deliveryAddress?.phone || '0600000000',
+    phone:
+      phone || checkoutCustomer.value?.deliveryAddress?.phone || '0600000000',
     email: checkoutCustomer.value?.deliveryAddress?.email || '',
   };
 };
@@ -218,11 +243,14 @@ const mapCarrierGroupsToStripeRates = (carrierData: any = {}) => {
 
 const getFallbackShippingRates = () => {
   const currentCarrier = cart.value?.Shipping?.Carrier;
-  const amount = Math.round(Number(cart.value?.Total?.Shipping?.TaxIncl || 0) * 100);
+  const amount = Math.round(
+    Number(cart.value?.Total?.Shipping?.TaxIncl || 0) * 100
+  );
   const fallbackId = currentCarrier?.IdCarrier
     ? `${currentCarrier.IdCarrier}_${amount}`
     : `fallback_${amount}`;
-  const label = currentCarrier?.Title || currentCarrier?.Name || t('Standard delivery');
+  const label =
+    currentCarrier?.Title || currentCarrier?.Name || t('Standard delivery');
 
   if (currentCarrier?.IdCarrier) {
     shippingRatesById.value[fallbackId] = currentCarrier;
@@ -290,7 +318,8 @@ const syncPopupStateToStore = async ({
     };
 
     // 2. Save address to backend so cart taxes/shipping are correct
-    const addressHash = (checkoutAddress.firstname || '') +
+    const addressHash =
+      (checkoutAddress.firstname || '') +
       (checkoutAddress.address || '') +
       (checkoutAddress.postalCode || '') +
       (checkoutAddress.city || '');
@@ -326,7 +355,12 @@ const syncPopupStateToStore = async ({
       const relayPoint = shippingStore.relayPointSelected;
       const relayPointId = relayPoint?.Id || relayPoint?.IdRelayPoint;
 
-      console.log('[StripeExpress] Setting carrier:', realCarrierId, 'rate:', rateId);
+      console.log(
+        '[StripeExpress] Setting carrier:',
+        realCarrierId,
+        'rate:',
+        rateId
+      );
 
       await updateShipping({
         idCarrier: Number(realCarrierId),
@@ -351,9 +385,14 @@ const syncPopupStateToStore = async ({
     await nextTick();
     lastFetchedCartHash.value = addressHash + '_' + (rateId || 'none');
 
-    console.log('[StripeExpress] Sync complete. Cart total:', cart.value?.Total?.ToPay?.TaxIncl,
-      'Shipping:', cart.value?.Total?.Shipping?.TaxIncl,
-      'Carrier:', checkoutCarrier.value?.carrier?.Name || 'none');
+    console.log(
+      '[StripeExpress] Sync complete. Cart total:',
+      cart.value?.Total?.ToPay?.TaxIncl,
+      'Shipping:',
+      cart.value?.Total?.Shipping?.TaxIncl,
+      'Carrier:',
+      checkoutCarrier.value?.carrier?.Name || 'none'
+    );
   } catch (err) {
     console.error('[StripeExpress] background sync error:', err);
   } finally {
@@ -381,7 +420,11 @@ const maybeSetRelayPoint = async (rateId: string, checkoutAddress: any) => {
 
     if (relayPoints && relayPoints.length > 0) {
       shippingStore.relayPointSelected = relayPoints[0];
-      console.log('[StripeExpress] Auto-selected relay point:', relayPoints[0].Id, relayPoints[0].Name);
+      console.log(
+        '[StripeExpress] Auto-selected relay point:',
+        relayPoints[0].Id,
+        relayPoints[0].Name
+      );
     }
   } catch (e) {
     console.warn('[StripeExpress] Could not fetch relay points:', e);
@@ -451,7 +494,10 @@ const ensureInitialDeliveryAndCarrier = async () => {
       };
     }
 
-    console.log('[StripeExpress] Initial context ready. Total:', cart.value?.Total?.ToPay?.TaxIncl);
+    console.log(
+      '[StripeExpress] Initial context ready. Total:',
+      cart.value?.Total?.ToPay?.TaxIncl
+    );
   } catch (err) {
     console.error('[StripeExpress] set initial carrier error:', err);
   }
@@ -475,15 +521,30 @@ const updatePaymentIntent = async () => {
       return;
     }
 
-    console.log('[StripeExpress] Updating PaymentIntent amount to:', cartTotalVal,
-      '(shipping:', shippingVal, ')');
+    console.log(
+      '[StripeExpress] Updating PaymentIntent amount to:',
+      cartTotalVal,
+      '(shipping:',
+      shippingVal,
+      ')'
+    );
 
-    // Update the PaymentIntent on the backend with the new amount
+    // Update the PaymentIntent on the backend with the new amount and current context
     const address = checkoutCustomer.value?.deliveryAddress;
+    const relayPoint = shippingStore.relayPointSelected;
+    const relayPointId = relayPoint?.Id || relayPoint?.IdRelayPoint;
+
     const data = await (stripePayment.value as any)?.intent({
       automaticPaymentMethods: { enabled: true },
+      paymentMethodTypes: 'card',
       amount: cartTotalVal,
       clientSecret: clientSecret.value,
+      email: address?.email || '',
+      firstname: address?.firstname || '',
+      lastname: address?.lastname || '',
+      idCart: cart.value?.IdCart,
+      idCarrier: Number(extractCarrierId(pendingShippingRateId.value) || 0),
+      idRelayPoint: String(relayPointId || ''),
       address: address
         ? {
             Address1: address.address,
@@ -576,8 +637,13 @@ const handleShippingAddressChange = async (event: any) => {
     // Update the popup total
     await updatePaymentIntent();
 
-    console.log('[StripeExpress] Resolved address change with', shippingRates.length, 'rates',
-      '| Cart total:', cart.value?.Total?.ToPay?.TaxIncl);
+    console.log(
+      '[StripeExpress] Resolved address change with',
+      shippingRates.length,
+      'rates',
+      '| Cart total:',
+      cart.value?.Total?.ToPay?.TaxIncl
+    );
 
     // Resolve with ONLY shippingRates — the total comes from Elements.update()
     event.resolve({ shippingRates });
@@ -599,8 +665,12 @@ const handleShippingRateChange = async (event: any) => {
     const rateId = String(shippingRate.id);
     pendingShippingRateId.value = rateId;
 
-    console.log('[StripeExpress] Rate change event. Selected rate:', rateId,
-      '| Previous rate:', lastSyncedRateId.value);
+    console.log(
+      '[StripeExpress] Rate change event. Selected rate:',
+      rateId,
+      '| Previous rate:',
+      lastSyncedRateId.value
+    );
 
     const checkoutAddress = toCheckoutAddress(
       pendingShippingAddress.value || {},
@@ -621,9 +691,14 @@ const handleShippingRateChange = async (event: any) => {
     // Update the popup total after carrier change
     await updatePaymentIntent();
 
-    console.log('[StripeExpress] Resolved rate change for:', rateId,
-      '| New cart total:', cart.value?.Total?.ToPay?.TaxIncl,
-      '| Shipping:', cart.value?.Total?.Shipping?.TaxIncl);
+    console.log(
+      '[StripeExpress] Resolved rate change for:',
+      rateId,
+      '| New cart total:',
+      cart.value?.Total?.ToPay?.TaxIncl,
+      '| Shipping:',
+      cart.value?.Total?.Shipping?.TaxIncl
+    );
 
     event.resolve();
   } catch (err) {
@@ -666,8 +741,13 @@ const handleConfirm = async (event: any) => {
   error.value = '';
   loading.value = true;
 
+  console.log('event', event);
+
   try {
-    console.log('[StripeExpress Confirm] Event payload:', JSON.parse(JSON.stringify(event)));
+    console.log(
+      '[StripeExpress Confirm] Event payload:',
+      JSON.parse(JSON.stringify(event))
+    );
 
     // Extract payer info from event (unredacted at confirm time)
     const walletEmail =
@@ -679,16 +759,20 @@ const handleConfirm = async (event: any) => {
 
     // If logged in, always use the authenticated user's email
     const email = isLoggedIn.value
-      ? (customer.value?.Email || walletEmail)
-      : (walletEmail || checkoutCustomer.value?.deliveryAddress?.email || '');
+      ? customer.value?.Email || walletEmail
+      : walletEmail || checkoutCustomer.value?.deliveryAddress?.email || '';
 
     const payerName =
-      event?.name || event?.payerName || event?.billingDetails?.name ||
-      event?.paymentMethod?.billing_details?.name || '';
+      event?.name ||
+      event?.payerName ||
+      event?.billingDetails?.name ||
+      event?.paymentMethod?.billing_details?.name ||
+      '';
     const phone =
       event?.payerPhone ||
       event?.billingDetails?.phone ||
-      event?.paymentMethod?.billing_details?.phone || '';
+      event?.paymentMethod?.billing_details?.phone ||
+      '';
 
     // Sync shipping address from the popup
     const shippingAddress =
@@ -698,16 +782,31 @@ const handleConfirm = async (event: any) => {
       event?.paymentMethod?.billing_details?.address ||
       pendingShippingAddress.value ||
       {};
-    const checkoutAddress = toCheckoutAddress(shippingAddress, payerName, phone);
+    const checkoutAddress = toCheckoutAddress(
+      shippingAddress,
+      payerName,
+      phone
+    );
 
     // Filter out wallet placeholder names — always prefer real identity
     const knownIdentity = getBestKnownIdentity();
     let finalFirstname: string, finalLastname: string;
 
-    if (isWalletPlaceholderName(checkoutAddress.firstname, checkoutAddress.lastname) && knownIdentity) {
+    if (
+      isWalletPlaceholderName(
+        checkoutAddress.firstname,
+        checkoutAddress.lastname
+      ) &&
+      knownIdentity
+    ) {
       finalFirstname = knownIdentity.firstname;
       finalLastname = knownIdentity.lastname;
-    } else if (!isWalletPlaceholderName(checkoutAddress.firstname, checkoutAddress.lastname)) {
+    } else if (
+      !isWalletPlaceholderName(
+        checkoutAddress.firstname,
+        checkoutAddress.lastname
+      )
+    ) {
       finalFirstname = checkoutAddress.firstname;
       finalLastname = checkoutAddress.lastname;
     } else {
@@ -741,7 +840,8 @@ const handleConfirm = async (event: any) => {
     };
 
     // Sync the selected carrier one final time
-    const selectedRateId = pendingShippingRateId.value || event?.shippingRate?.id;
+    const selectedRateId =
+      pendingShippingRateId.value || event?.shippingRate?.id;
     if (
       !isDigitalOnly.value &&
       selectedRateId &&
@@ -813,7 +913,9 @@ const handleConfirm = async (event: any) => {
 
       // Final redirect to the success page
       router.push(
-        localePath(`/order/accepted?orderid=${idorder}&cartid=${cart.value.IdCart}`)
+        localePath(
+          `/order/accepted?orderid=${idorder}&cartid=${cart.value.IdCart}`
+        )
       );
     }
   } catch (err: any) {
@@ -837,8 +939,18 @@ const initialize = async () => {
     const address = checkoutCustomer.value?.deliveryAddress;
     let data: any;
     try {
+      const relayPoint = shippingStore.relayPointSelected;
+      const relayPointId = relayPoint?.Id || relayPoint?.IdRelayPoint;
+
       data = await (stripePayment.value as any)?.intent({
         automaticPaymentMethods: { enabled: true },
+        paymentMethodTypes: 'card',
+        email: address?.email || '',
+        firstname: address?.firstname || '',
+        lastname: address?.lastname || '',
+        idCart: cart.value?.IdCart,
+        idCarrier: Number(extractCarrierId(pendingShippingRateId.value) || 0),
+        idRelayPoint: String(relayPointId || ''),
         address: address
           ? {
               Address1: address.address,
@@ -918,14 +1030,25 @@ const initialize = async () => {
 
     // Ready event — check which wallets are available
     expressCheckoutElement.value.on('ready', async (ev: any) => {
-      isEmpty.value = !ev.availablePaymentMethods ||
-        Object.values(ev.availablePaymentMethods).every((v: any) => v === false);
+      isEmpty.value =
+        !ev.availablePaymentMethods ||
+        Object.values(ev.availablePaymentMethods).every(
+          (v: any) => v === false
+        );
 
-      if (!ev.availablePaymentMethods?.googlePay && !ev.availablePaymentMethods?.applePay) {
-        console.warn('[StripeExpress] No wallet payment methods available — may be forced via "always"');
+      if (
+        !ev.availablePaymentMethods?.googlePay &&
+        !ev.availablePaymentMethods?.applePay
+      ) {
+        console.warn(
+          '[StripeExpress] No wallet payment methods available — may be forced via "always"'
+        );
       }
 
-      console.log('[StripeExpress] Available methods:', ev.availablePaymentMethods);
+      console.log(
+        '[StripeExpress] Available methods:',
+        ev.availablePaymentMethods
+      );
 
       // Prepare initial delivery & carrier context
       if (!initialContextPrepared.value) {
@@ -1039,7 +1162,9 @@ onBeforeUnmount(() => {
           {{ $t('Paiement express') }}
         </div>
         <div id="express-checkout-element"></div>
-        <div class="text-center mt-2 text-[#737373] text-[15px] font-medium uppercase">
+        <div
+          class="text-center mt-2 text-[#737373] text-[15px] font-medium uppercase"
+        >
           {{ $t('OU') }}
         </div>
         <div

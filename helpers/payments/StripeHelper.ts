@@ -16,6 +16,12 @@ export default class StripePayment extends PaymentHelper {
     address,
     amount,
     clientSecret,
+    email,
+    firstname,
+    lastname,
+    idCart,
+    idCarrier,
+    idRelayPoint,
   }: {
     paymentMethodTypes?: string;
     automaticPaymentMethods?: any;
@@ -27,6 +33,12 @@ export default class StripePayment extends PaymentHelper {
     };
     amount?: number;
     clientSecret?: string;
+    email?: string;
+    firstname?: string;
+    lastname?: string;
+    idCart?: number;
+    idCarrier?: number;
+    idRelayPoint?: string;
   }) {
     let total = amount || 0;
 
@@ -41,14 +53,19 @@ export default class StripePayment extends PaymentHelper {
         options: {
           Amount: total,
           CurrencyIsoCode: this.cart?.Currency?.IsoCode || 'EUR',
-          ...(automaticPaymentMethods 
-            ? { AutomaticPaymentMethods: automaticPaymentMethods } 
-            : { PaymentMethodTypes: paymentMethodTypes || 'card' }),
+          PaymentMethodTypes: paymentMethodTypes || 'card',
+          ...(automaticPaymentMethods ? { AutomaticPaymentMethods: automaticPaymentMethods } : {}),
           Address: address?.Address1 || '',
           Address1: address?.Address1 || '',
           Postcode: address?.Postcode || '',
           City: address?.City || '',
           Country: address?.Country || '',
+          Email: email || '',
+          Firstname: firstname || '',
+          Lastname: lastname || '',
+          IdCart: idCart || this.cart?.IdCart,
+          IdCarrier: idCarrier || 0,
+          IdRelayPoint: idRelayPoint || '',
           ...(clientSecret ? { ClientSecret: clientSecret } : {}),
         },
         isAuth: true,
