@@ -10,21 +10,63 @@ export default class StripePayment extends PaymentHelper {
     super({ cart, customer });
   }
 
-  async intent({ paymentMethodTypes }: { paymentMethodTypes: string }) {
-    let total = 0;
+  async intent({
+    paymentMethodTypes,
+    automaticPaymentMethods,
+    address,
+    amount,
+    clientSecret,
+    email,
+    firstname,
+    lastname,
+    idCart,
+    idCarrier,
+    idRelayPoint,
+  }: {
+    paymentMethodTypes?: string;
+    automaticPaymentMethods?: any;
+    address?: {
+      Address1?: string;
+      Postcode?: string;
+      City?: string;
+      Country?: string;
+    };
+    amount?: number;
+    clientSecret?: string;
+    email?: string;
+    firstname?: string;
+    lastname?: string;
+    idCart?: number;
+    idCarrier?: number;
+    idRelayPoint?: string;
+  }) {
+    let total = amount || 0;
 
     try {
       const service = new Service();
 
-      if (this.cart?.Total?.ToPay?.TaxIncl) {
+      if (!amount && this.cart?.Total?.ToPay?.TaxIncl) {
         total = this.cart?.Total?.ToPay?.TaxIncl * 100;
       }
 
       const response = await service.$post<any>('payment/stripe/intent', {
         options: {
           Amount: total,
-          CurrencyIsoCode: this.cart?.Currency?.IsoCode,
-          PaymentMethodTypes: paymentMethodTypes,
+          CurrencyIsoCode: this.cart?.Currency?.IsoCode || 'EUR',
+          PaymentMethodTypes: paymentMethodTypes || 'card',
+          ...(automaticPaymentMethods ? { AutomaticPaymentMethods: automaticPaymentMethods } : {}),
+          Address: address?.Address1 || '',
+          Address1: address?.Address1 || '',
+          Postcode: address?.Postcode || '',
+          City: address?.City || '',
+          Country: address?.Country || '',
+          Email: email || '',
+          Firstname: firstname || '',
+          Lastname: lastname || '',
+          IdCart: idCart || this.cart?.IdCart,
+          IdCarrier: idCarrier || 0,
+          IdRelayPoint: idRelayPoint || '',
+          ...(clientSecret ? { ClientSecret: clientSecret } : {}),
         },
         isAuth: true,
       });
