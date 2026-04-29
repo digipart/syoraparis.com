@@ -716,11 +716,12 @@ const en = {
         title: 'Reward Details',
         description: 'View the details of the selected reward.',
       },
-      maintenance: {
-        title: "Maintenance",
-        description: "The site is currently under maintenance.",
-        message: "We are currently updating our site. We will be back shortly. Thank you for your patience.",
-      },
+    },
+    maintenance: {
+      title: 'Maintenance in progress',
+      description: 'The site is currently under maintenance.',
+      message:
+        'The site is temporarily unavailable. Our site will be back soon. Thank you for your patience, see you soon.',
     },
   },
   error: {
