@@ -731,11 +731,13 @@ const fr = {
         title: 'Détails de la Récompense',
         description: 'Consultez les détails de la récompense sélectionnée.',
       },
-      maintenance: {
-        title: 'Maintenance',
-        description: 'Le site est actuellement en maintenance.',
-        message: 'Nous sommes actuellement en train de mettre à jour notre site. Nous serons bientôt de retour. Merci de votre patience.',
-      },
+    },
+
+    maintenance: {
+      title: 'Maintenance en cours',
+      description: 'Le site est actuellement en maintenance.',
+      message:
+        'Le site est temporairement indisponible. Notre site sera de retour prochainement. Merci pour votre patience, à très vite.',
     },
   },
   error: {
